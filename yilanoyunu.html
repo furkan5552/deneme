@@ -1,56 +1,63 @@
 ﻿<!DOCTYPE html>
-<html>
+<html lang="tr">
 <head>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <style>
-        body { background: #111; margin: 0; display: flex; flex-direction: column; align-items: center; color: white; font-family: sans-serif; overflow: hidden; }
-        canvas { background: #000; border: 1px solid #444; margin-top: 10px; max-width: 90vw; }
-        .controls { display: grid; grid-template-columns: repeat(3, 1fr); gap: 5px; margin-top: 10px; }
-        button { background: #222; color: #fff; border: 1px solid #ff0050; padding: 20px; font-size: 20px; border-radius: 10px; }
-        #up { grid-column: 2; } #left { grid-column: 1; } #right { grid-column: 3; } #down { grid-column: 2; }
+        /* Oyunun Görünümü */
+        body { 
+            background: #111; 
+            margin: 0; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            color: white; 
+            font-family: sans-serif; 
+            overflow: hidden; 
+            touch-action: none; /* Sayfa kaymasını engeller */
+        }
+        #skor { 
+            font-size: 22px; 
+            font-weight: bold; 
+            color: #ff0050; 
+            margin: 10px 0; 
+        }
+        canvas { 
+            background: #000; 
+            border: 2px solid #333; 
+            border-radius: 8px;
+            box-shadow: 0 0 20px rgba(255, 0, 80, 0.2);
+        }
+        /* Mobil Kontrol Butonları */
+        .controls { 
+            display: grid; 
+            grid-template-columns: repeat(3, 1fr); 
+            gap: 10px; 
+            margin-top: 15px; 
+        }
+        .btn { 
+            background: #222; 
+            color: #fff; 
+            border: 2px solid #ff0050; 
+            padding: 20px; 
+            font-size: 24px; 
+            border-radius: 12px; 
+            cursor: pointer;
+            width: 70px;
+            height: 70px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            user-select: none;
+        }
+        .btn:active { background: #ff0050; }
+        #up { grid-column: 2; }
+        #left { grid-column: 1; }
+        #right { grid-column: 3; }
+        #down { grid-column: 2; }
     </style>
 </head>
 <body>
-    <div id="skor" style="color:#ff0050; font-size:20px; font-weight:bold; margin-top:5px;">SKOR: 0</div>
-    <canvas id="s" width="280" height="280"></canvas>
-    
-    <div class="controls">
-        <button onclick="m('U')" id="up">↑</button>
-        <button onclick="m('L')" id="left">←</button>
-        <button onclick="m('R')" id="right">→</button>
-        <button onclick="m('D')" id="down">↓</button>
-    </div>
 
-    <script>
-        const c = document.getElementById("s"), x = c.getContext("2d");
-        let g = 20, s = [{x:140,y:140}], a = {x:40,y:40}, d = "R", sk = 0;
-
-        function m(dir) {
-            if(dir=="L"&&d!="R") d="L"; if(dir=="U"&&d!="D") d="U";
-            if(dir=="R"&&d!="L") d="R"; if(dir=="D"&&d!="U") d="D";
-        }
-
-        function draw() {
-            x.fillStyle="black"; x.fillRect(0,0,280,280);
-            x.fillStyle="red"; x.fillRect(a.x,a.y,18,18);
-            x.fillStyle="#00ff96"; s.forEach(p=>x.fillRect(p.x,p.y,18,18));
-
-            let nX = s[0].x, nY = s[0].y;
-            if(d=="L") nX-=g; if(d=="U") nY-=g; if(d=="R") nX+=g; if(d=="D") nY+=g;
-
-            if(nX==a.x && nY==a.y) {
-                sk+=10; document.getElementById("skor").innerText="SKOR: "+sk;
-                a={x:Math.floor(Math.random()*14)*20, y:Math.floor(Math.random()*14)*20};
-            } else s.pop();
-
-            let head = {x:nX, y:nY};
-            if(nX<0||nX>=280||nY<0||nY>=280||s.some(p=>p.x==head.x&&p.y==head.y)) {
-                alert("ÖLDÜN! Skor: " + sk);
-                location.reload(); // Sadece bu pencere yenilenir!
-            }
-            s.unshift(head);
-        }
-        setInterval(draw, 150);
-    </script>
-</body>
-</html>
+    <div id="skor">SKOR: 0</div>
+    <canvas id="snakeBoard" width="3
