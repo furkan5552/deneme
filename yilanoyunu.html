@@ -5,11 +5,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <style>
         body { background: #111; margin: 0; display: flex; flex-direction: column; align-items: center; color: white; font-family: sans-serif; overflow: hidden; touch-action: none; }
-        #skor { font-size: 20px; color: #ff0050; margin: 5px; }
-        canvas { background: #000; border: 2px solid #333; border-radius: 8px; }
-        .controls { display: grid; grid-template-columns: repeat(3, 1fr); gap: 5px; margin-top: 10px; }
-        .btn { background: #222; color: #fff; border: 2px solid #ff0050; padding: 15px; font-size: 20px; border-radius: 10px; width: 60px; height: 60px; display: flex; align-items: center; justify-content: center; user-select: none; }
-        .btn:active { background: #ff0050; }
+        #skor { font-size: 24px; font-weight: bold; color: #ff0050; margin: 10px; text-shadow: 0 0 10px rgba(255,0,80,0.5); }
+        canvas { background: #000; border: 3px solid #333; border-radius: 12px; box-shadow: 0 0 20px rgba(0,0,0,0.5); }
+        .controls { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 20px; }
+        .btn { 
+            background: #222; color: #fff; border: 2px solid #ff0050; 
+            width: 75px; height: 75px; border-radius: 15px; 
+            font-size: 30px; display: flex; align-items: center; 
+            justify-content: center; user-select: none;
+            -webkit-tap-highlight-color: transparent; /* Mobil tıklama gölgesini kaldırır */
+        }
+        .btn:active { background: #ff0050; transform: scale(0.9); }
         #up { grid-column: 2; }
         #left { grid-column: 1; }
         #right { grid-column: 3; }
@@ -20,11 +26,12 @@
     <div id="skor">SKOR: 0</div>
     <canvas id="snakeBoard" width="300" height="300"></canvas>
     <div class="controls">
-        <button class="btn" id="up">↑</button>
-        <button class="btn" id="left">←</button>
-        <button class="btn" id="down">↓</button>
-        <button class="btn" id="right">→</button>
+        <div class="btn" id="up">↑</div>
+        <div class="btn" id="left">←</div>
+        <div class="btn" id="down">↓</div>
+        <div class="btn" id="right">→</div>
     </div>
+
     <script>
         const canvas = document.getElementById("snakeBoard");
         const ctx = canvas.getContext("2d");
@@ -33,13 +40,25 @@
         let snake = [{x: 160, y: 160}, {x: 140, y: 160}];
         let apple = {x: 60, y: 60};
         let d = "RIGHT";
+        let nextD = "RIGHT"; // Hızlı basışlarda çakışmayı önlemek için
 
         function changeDir(newDir) {
-            if (newDir == "LEFT" && d != "RIGHT") d = "LEFT";
-            if (newDir == "UP" && d != "DOWN") d = "UP";
-            if (newDir == "RIGHT" && d != "LEFT") d = "RIGHT";
-            if (newDir == "DOWN" && d != "UP") d = "DOWN";
+            if (newDir == "LEFT" && d != "RIGHT") nextD = "LEFT";
+            if (newDir == "UP" && d != "DOWN") nextD = "UP";
+            if (newDir == "RIGHT" && d != "LEFT") nextD = "RIGHT";
+            if (newDir == "DOWN" && d != "UP") nextD = "DOWN";
         }
+
+        // Dokunmatik Gecikmesini Önleme (Hızlı Tepki)
+        const buttons = ["up", "down", "left", "right"];
+        buttons.forEach(id => {
+            const el = document.getElementById(id);
+            el.addEventListener("touchstart", (e) => {
+                e.preventDefault();
+                changeDir(id.toUpperCase());
+            });
+            el.addEventListener("mousedown", () => changeDir(id.toUpperCase()));
+        });
 
         document.addEventListener("keydown", e => {
             if(e.keyCode == 37) changeDir("LEFT");
@@ -48,20 +67,24 @@
             if(e.keyCode == 40) changeDir("DOWN");
         });
 
-        document.getElementById("up").onclick = () => changeDir("UP");
-        document.getElementById("down").onclick = () => changeDir("DOWN");
-        document.getElementById("left").onclick = () => changeDir("LEFT");
-        document.getElementById("right").onclick = () => changeDir("RIGHT");
-
         function draw() {
+            d = nextD;
             ctx.fillStyle = "black";
             ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // Elma (Parlak)
             ctx.fillStyle = "#ff0050";
+            ctx.shadowBlur = 10;
+            ctx.shadowColor = "#ff0050";
             ctx.fillRect(apple.x, apple.y, grid-2, grid-2);
+            ctx.shadowBlur = 0;
+
+            // Yılan
             snake.forEach((part, index) => {
                 ctx.fillStyle = (index === 0) ? "#00ff96" : "#008e54";
                 ctx.fillRect(part.x, part.y, grid-2, grid-2);
             });
+
             let headX = snake[0].x;
             let headY = snake[0].y;
             if(d == "LEFT") headX -= grid;
@@ -77,10 +100,12 @@
 
             let newHead = { x: headX, y: headY };
             if(headX < 0 || headX >= canvas.width || headY < 0 || headY >= canvas.height || snake.some(p => p.x === newHead.x && p.y === newHead.y)) {
-                snake = [{x: 160, y: 160}, {x: 140, y: 160}]; d = "RIGHT"; score = 0; document.getElementById("skor").innerHTML = "SKOR: 0";
+                snake = [{x: 160, y: 160}, {x: 140, y: 160}]; nextD = "RIGHT"; score = 0; document.getElementById("skor").innerHTML = "SKOR: 0";
             } else { snake.unshift(newHead); }
         }
-        setInterval(draw, 150);
+
+        // HIZ AYARI: 100ms (Daha akıcı)
+        setInterval(draw, 100);
     </script>
 </body>
 </html>
