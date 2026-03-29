@@ -1,0 +1,128 @@
+﻿<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <title>Furkan Server | Hard Mode V2</title>
+    <style>
+        body { background: #000; color: #fff; font-family: sans-serif; text-align: center; margin: 0; padding: 20px; }
+        .box { background: #111; border: 2px solid #333; border-radius: 15px; width: 100%; max-width: 400px; padding: 20px; margin: 10px auto; box-sizing: border-box; }
+        .btn { display: block; padding: 12px; margin: 10px 0; border-radius: 10px; text-decoration: none; color: #fff; font-weight: bold; font-size: 14px; }
+        .btn-insta { background: #e1306c; }
+        .btn-tiktok { background: #000; border: 1px solid #fff; }
+        
+        /* OYUN ALANI */
+        canvas { background: #000; border: 3px solid #ff0050; display: block; margin: 0 auto; box-shadow: 0 0 15px rgba(255, 0, 80, 0.3); }
+        .score { color: #ff0050; font-size: 22px; font-weight: bold; margin-bottom: 10px; font-family: 'Courier New', Courier, monospace; }
+    </style>
+</head>
+<body>
+
+    <div class="box" style="border-color: #00ff96;">
+        <h2 style="color: #00ff96; margin: 0;">FURKAN SERVER</h2>
+        <a href="https://www.instagram.com/furk4nn_c" class="btn btn-insta" target="_blank">Instagram</a>
+        <a href="https://www.tiktok.com/@furkan_52cc" class="btn btn-tiktok" target="_blank">TikTok</a>
+    </div>
+
+    <div class="box" style="border-color: #ff0050;">
+        <div class="score" id="skorTablosu">SKOR: 0</div>
+        <canvas id="gameCanvas" width="300" height="300"></canvas>
+        <p style="font-size: 10px; color: #555; margin-top: 10px;">DİKKAT: Duvara çarparsan yanarsın!</p>
+    </div>
+
+    <div class="box" style="border-color: #00f2ea;">
+        <h3 style="color: #00f2ea; margin: 0 0 10px 0;">SOHBET</h3>
+        <iframe src="https://www5.cbox.ws/box/?boxid=962178&boxtag=tg9dzV" width="100%" height="400" frameborder="0"></iframe>
+    </div>
+
+    <script>
+        var canvas = document.getElementById('gameCanvas');
+        var ctx = canvas.getContext('2d');
+        var skor = 0;
+        var grid = 20;
+        var yılan = [{x: 160, y: 160}, {x: 140, y: 160}];
+        var elma = {x: 80, y: 80};
+        var dx = grid;
+        var dy = 0;
+        var oyunBitti = false;
+
+        function oyun() {
+            if (oyunBitti) return;
+
+            var kafa = {x: yılan[0].x + dx, y: yılan[0].y + dy};
+
+            // DUVARA ÇARPMA KONTROLÜ (KESİN ÇALIŞIR)
+            if (kafa.x < 0 || kafa.x >= canvas.width || kafa.y < 0 || kafa.y >= canvas.height) {
+                oyunuBitir();
+                return;
+            }
+
+            // KENDİNE ÇARPMA KONTROLÜ
+            for (var i = 0; i < yılan.length; i++) {
+                if (kafa.x === yılan[i].x && kafa.y === yılan[i].y) {
+                    oyunuBitir();
+                    return;
+                }
+            }
+
+            yılan.unshift(kafa);
+
+            // ELMA YEME
+            if (kafa.x === elma.x && kafa.y === elma.y) {
+                skor += 10;
+                document.getElementById('skorTablosu').innerHTML = "SKOR: " + skor;
+                yeniElma();
+            } else {
+                yılan.pop();
+            }
+
+            // ÇIZİM
+            ctx.fillStyle = "black";
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // YILANI ÇİZ
+            ctx.fillStyle = "#00ff96";
+            yılan.forEach(function(parca) {
+                ctx.fillRect(parca.x, parca.y, grid-2, grid-2); // Parçalar arası boşluk
+            });
+
+            // ELMAYI ÇİZ
+            ctx.fillStyle = "red";
+            ctx.fillRect(elma.x, elma.y, grid-2, grid-2);
+        }
+
+        function yeniElma() {
+            elma.x = Math.floor(Math.random() * (canvas.width / grid)) * grid;
+            elma.y = Math.floor(Math.random() * (canvas.height / grid)) * grid;
+        }
+
+        function oyunuBitir() {
+            oyunBitti = true;
+            ctx.fillStyle = "white";
+            ctx.font = "30px sans-serif";
+            ctx.textAlign = "center";
+            ctx.fillText("OYUN BİTTİ!", canvas.width/2, canvas.height/2);
+            ctx.font = "20px sans-serif";
+            ctx.fillText("Skorun: " + skor, canvas.width/2, canvas.height/2 + 30);
+            
+            // 2 saniye sonra sayfayı yenile
+            setTimeout(function() {
+                location.reload();
+            }, 2000);
+        }
+
+        document.addEventListener('keydown', function(e) {
+            // Sol
+            if (e.keyCode === 37 && dx === 0) { dx = -grid; dy = 0; }
+            // Üst
+            else if (e.keyCode === 38 && dy === 0) { dx = 0; dy = -grid; }
+            // Sağ
+            else if (e.keyCode === 39 && dx === 0) { dx = grid; dy = 0; }
+            // Alt
+            else if (e.keyCode === 40 && dy === 0) { dx = 0; dy = grid; }
+        });
+
+        // Oyun hızı (150ms'de bir kare)
+        setInterval(oyun, 150);
+    </script>
+</body>
+</html>
