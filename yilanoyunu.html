@@ -3,57 +3,25 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Furkan Game Hub - Mobil Pro</title>
+    <title>Furkan Game Hub - Bugfix</title>
     <style>
         :root { --neon-green: #00ff96; --neon-blue: #00f2ea; --neon-pink: #ff0050; }
-        body { 
-            background: #050505; margin: 0; font-family: sans-serif; 
-            color: white; overflow: hidden; height: 100vh;
-            display: flex; flex-direction: column; align-items: center;
-        }
-        .overlay { 
-            position: fixed; top:0; left:0; width: 100%; height: 100%; background: rgba(0,0,0,0.95);
-            display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 100;
-        }
-        
-        /* GİRİŞ VE MENÜ */
+        body { background: #050505; margin: 0; font-family: sans-serif; color: white; overflow: hidden; height: 100vh; display: flex; flex-direction: column; align-items: center; }
+        .overlay { position: fixed; top:0; left:0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 100; }
         #menu-screen { display: none; text-align: center; }
-        .hub-title { font-size: 28px; color: var(--neon-blue); text-shadow: 0 0 10px var(--neon-blue); margin-bottom: 20px; }
-        .game-card {
-            width: 260px; padding: 20px; margin: 10px; background: #111;
-            border: 2px solid #333; border-radius: 15px; cursor: pointer;
-        }
-        input { padding: 15px; border-radius: 10px; border: 2px solid var(--neon-green); background: #000; color: white; width: 200px; text-align: center; margin-bottom: 10px; }
+        .game-card { width: 260px; padding: 20px; margin: 10px; background: #111; border: 2px solid #333; border-radius: 15px; cursor: pointer; transition: 0.2s; }
+        .game-card:hover { border-color: var(--neon-green); transform: scale(1.05); }
+        input { padding: 15px; border-radius: 10px; border: 2px solid var(--neon-green); background: #000; color: white; width: 200px; text-align: center; margin-bottom: 10px; outline: none; }
         .btn-ui { padding: 15px 30px; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; font-size: 16px; width: 240px; }
         .btn-green { background: var(--neon-green); color: black; }
         .btn-gray { background: #333; color: white; margin-top: 15px; }
-
-        /* OYUN ALANI */
         .game-container { display: none; flex-direction: column; align-items: center; width: 100%; height: 100%; padding-top: 20px; }
-        canvas { border: 2px solid #222; background: #000; border-radius: 10px; max-width: 95vw; box-shadow: 0 0 20px rgba(0,0,0,0.5); }
-        
-        /* 🔥 TELEFON İÇİN EN ALTA SABİTLENEN KONTROLLER */
-        .mobile-controls { 
-            position: fixed; bottom: 30px; left: 0; width: 100%;
-            display: grid; grid-template-columns: repeat(3, 80px); 
-            grid-template-rows: repeat(2, 80px); gap: 15px; 
-            justify-content: center; z-index: 50;
-        }
-        .btn-dir { 
-            background: rgba(20, 20, 20, 0.9); color: var(--neon-blue); 
-            border: 2px solid var(--neon-blue); border-radius: 20px; 
-            display: flex; align-items: center; justify-content: center; 
-            font-size: 30px; user-select: none; -webkit-tap-highlight-color: transparent;
-            box-shadow: 0 4px 0 var(--neon-blue);
-        }
-        .btn-dir:active { transform: translateY(4px); box-shadow: none; }
-        #s-up { grid-column: 2; }
-        #s-left { grid-column: 1; grid-row: 2; }
-        #s-down { grid-column: 2; grid-row: 2; }
-        #s-right { grid-column: 3; grid-row: 2; }
-
+        canvas { border: 2px solid #222; background: #000; border-radius: 10px; max-width: 95vw; box-shadow: 0 0 20px rgba(0,0,0,0.5); touch-action: none; }
+        .mobile-controls { position: fixed; bottom: 30px; left: 0; width: 100%; display: grid; grid-template-columns: repeat(3, 75px); grid-template-rows: repeat(2, 75px); gap: 15px; justify-content: center; z-index: 50; }
+        .btn-dir { background: rgba(20, 20, 20, 0.9); color: var(--neon-blue); border: 2px solid var(--neon-blue); border-radius: 20px; display: flex; align-items: center; justify-content: center; font-size: 30px; user-select: none; -webkit-tap-highlight-color: transparent; }
+        #s-up { grid-column: 2; } #s-left { grid-column: 1; grid-row: 2; } #s-down { grid-column: 2; grid-row: 2; } #s-right { grid-column: 3; grid-row: 2; }
         .score-box { font-size: 24px; font-weight: bold; color: var(--neon-green); margin-bottom: 10px; }
-        .back-btn { position: fixed; top: 10px; right: 10px; padding: 10px; background: #333; border-radius: 5px; font-size: 12px; z-index: 60; border:none; color:white; }
+        .back-btn { position: fixed; top: 10px; right: 10px; padding: 10px; background: #333; border-radius: 5px; font-size: 12px; z-index: 60; border:none; color:white; cursor: pointer; }
     </style>
 </head>
 <body>
@@ -61,50 +29,37 @@
     <div id="login-screen" class="overlay">
         <h1 style="color: var(--neon-green);">GAME HUB</h1>
         <input type="text" id="username" placeholder="Oyuncu Adı" maxlength="10">
-        <div id="error-msg" style="color:var(--neon-pink); font-size:14px; margin-bottom:10px;"></div>
         <button class="btn-ui btn-green" onclick="handleLogin()">GİRİŞ</button>
     </div>
 
     <div id="menu-screen" class="overlay">
-        <h1 class="hub-title">SELAM, <span id="welcome-user"></span></h1>
-        <div class="game-card" onclick="startSnake()">
-            <h3 style="color:var(--neon-green)">🐍 YILAN</h3>
-            <p>Klasik macera!</p>
-        </div>
-        <div class="game-card" onclick="startBird()">
-            <h3 style="color:var(--neon-blue)">🐦 NEON BIRD</h3>
-            <p>Ekrana dokun ve uç!</p>
-        </div>
+        <h1 style="color: var(--neon-blue);">SELAM, <span id="welcome-user"></span></h1>
+        <div class="game-card" onclick="startSnake()"><h3>🐍 YILAN</h3><p>Klasik Macera</p></div>
+        <div class="game-card" onclick="startBird()"><h3>🐦 NEON BIRD</h3><p>Engelleri Aş</p></div>
         <button class="btn-ui btn-gray" onclick="clearMyAccount()">HESABI SİL</button>
     </div>
 
     <div id="snake-container" class="game-container">
         <button class="back-btn" onclick="backToMenu()">MENÜ ☰</button>
-        <div class="score-box">Skor: <span id="snake-score">0</span></div>
+        <div class="score-box">Yılan: <span id="snake-score">0</span></div>
         <canvas id="snakeCanvas" width="400" height="400"></canvas>
-        
         <div class="mobile-controls">
-            <div class="btn-dir" id="s-up">↑</div>
-            <div class="btn-dir" id="s-left">←</div>
-            <div class="btn-dir" id="s-down">↓</div>
-            <div class="btn-dir" id="s-right">→</div>
+            <div class="btn-dir" id="s-up">↑</div><div class="btn-dir" id="s-left">←</div><div class="btn-dir" id="s-down">↓</div><div class="btn-dir" id="s-right">→</div>
         </div>
     </div>
 
     <div id="bird-container" class="game-container">
         <button class="back-btn" onclick="backToMenu()">MENÜ ☰</button>
-        <div class="score-box">Skor: <span id="bird-score">0</span></div>
+        <div class="score-box">Bird: <span id="bird-score">0</span></div>
         <canvas id="birdCanvas" width="320" height="480"></canvas>
-        </div>
+    </div>
 
     <script>
         let playerName = "";
-        let gameRunning = false;
-        let birdRunning = false;
+        let gameActive = false;
+        let birdTimer, snakeTimer;
 
-        const getScores = (key) => JSON.parse(localStorage.getItem(key) || "[]");
         const getMyAcc = () => localStorage.getItem("hubAccount");
-
         window.onload = () => { if(getMyAcc()) { playerName = getMyAcc(); showMenu(); } };
 
         function handleLogin() {
@@ -119,10 +74,12 @@
             document.querySelectorAll('.overlay, .game-container').forEach(el => el.style.display = 'none');
             document.getElementById("menu-screen").style.display = "flex";
             document.getElementById("welcome-user").innerText = playerName;
+            gameActive = false;
+            clearInterval(snakeTimer);
         }
 
-        function backToMenu() { gameRunning = false; birdRunning = false; showMenu(); }
-        function clearMyAccount() { if(confirm("Silinsin mi?")) { localStorage.clear(); location.reload(); } }
+        function backToMenu() { location.reload(); }
+        function clearMyAccount() { localStorage.clear(); location.reload(); }
 
         // --- YILAN ---
         const sCanvas = document.getElementById("snakeCanvas"), sCtx = sCanvas.getContext("2d");
@@ -134,11 +91,13 @@
             sScore = 0; sDir = "RIGHT"; sNextDir = "RIGHT";
             snake = [{x:200, y:200}, {x:180, y:200}];
             apple = {x: 100, y:100};
-            gameRunning = true; snakeLoop();
+            gameActive = true;
+            clearInterval(snakeTimer);
+            snakeTimer = setInterval(snakeUpdate, 150);
         }
 
-        function snakeLoop() {
-            if(!gameRunning) return;
+        function snakeUpdate() {
+            if(!gameActive) return;
             sDir = sNextDir;
             sCtx.fillStyle = "black"; sCtx.fillRect(0,0,400,400);
             sCtx.fillStyle = "red"; sCtx.fillRect(apple.x, apple.y, 18, 18);
@@ -152,38 +111,60 @@
             let nH = {x:hX, y:hY};
             if(hX<0 || hX>=400 || hY<0 || hY>=400 || snake.some(p => p.x===nH.x && p.y===nH.y)) {
                 alert("Yandın! Skor: " + sScore); startSnake();
-            } else { snake.unshift(nH); setTimeout(snakeLoop, 150); }
+            } else { snake.unshift(nH); }
         }
 
-        // --- BIRD ---
+        // --- BIRD (STABİL VERSİYON) ---
         const bCanvas = document.getElementById("birdCanvas"), bCtx = bCanvas.getContext("2d");
-        let birdY, birdV, pipes, bScore;
+        let birdY, birdV, pipes, bScore, bActive = false;
 
         function startBird() {
             document.getElementById("menu-screen").style.display = "none";
             document.getElementById("bird-container").style.display = "flex";
-            birdY = 200; birdV = 0; pipes = []; bScore = 0; birdRunning = true;
+            birdY = 200; birdV = 0; pipes = []; bScore = 0; bActive = true;
+            document.getElementById("bird-score").innerText = "0";
             birdLoop();
         }
 
         function birdLoop() {
-            if(!birdRunning) return;
+            if(!bActive) return;
             bCtx.fillStyle = "#050505"; bCtx.fillRect(0,0,320,480);
-            birdV += 0.5; birdY += birdV;
-            bCtx.fillStyle = "yellow"; bCtx.beginPath(); bCtx.arc(50, birdY, 12, 0, Math.PI*2); bCtx.fill();
-            if(Date.now() % 120 < 20) pipes.push({x: 320, h: Math.random()*200 + 100});
-            pipes.forEach(p => {
+            
+            birdV += 0.5; birdY += birdV; // Yerçekimi
+            bCtx.fillStyle = "#ffff00"; bCtx.beginPath(); bCtx.arc(50, birdY, 12, 0, Math.PI*2); bCtx.fill();
+
+            // Boru Oluşturma (Sabit Mesafe)
+            if(pipes.length === 0 || pipes[pipes.length-1].x < 150) {
+                let gap = 130;
+                let h = Math.random() * (480 - gap - 100) + 50;
+                pipes.push({x: 320, h: h, gap: gap, passed: false});
+            }
+
+            for(let i = pipes.length-1; i >= 0; i--) {
+                let p = pipes[i];
                 p.x -= 3;
-                bCtx.fillStyle = var(--neon-blue); // Hata düzeltme için string verelim
                 bCtx.fillStyle = "#00f2ea";
-                bCtx.fillRect(p.x, 0, 40, p.h); bCtx.fillRect(p.x, p.h+130, 40, 480);
-                if(50 > p.x && 50 < p.x+40 && (birdY < p.h || birdY > p.h+130)) birdRunning = false;
-                if(p.x === 50) { bScore++; document.getElementById("bird-score").innerText = bScore; }
-            });
-            pipes = pipes.filter(p => p.x > -40);
-            if(birdY > 480 || birdY < 0) birdRunning = false;
-            if(!birdRunning) { alert("Düştün! Skor: " + bScore); startBird(); }
-            else requestAnimationFrame(birdLoop);
+                bCtx.fillRect(p.x, 0, 50, p.h);
+                bCtx.fillRect(p.x, p.h + p.gap, 50, 480);
+
+                // Çarpışma Kontrolü
+                if(50 + 10 > p.x && 50 - 10 < p.x + 50) {
+                    if(birdY - 10 < p.h || birdY + 10 > p.h + p.gap) { bActive = false; }
+                }
+                // Skor
+                if(!p.passed && p.x < 50) { p.passed = true; bScore++; document.getElementById("bird-score").innerText = bScore; }
+                // Silme
+                if(p.x < -60) pipes.splice(i, 1);
+            }
+
+            if(birdY > 480 || birdY < 0) bActive = false;
+
+            if(!bActive) {
+                alert("Bird Düştü! Skor: " + bScore);
+                startBird();
+            } else {
+                requestAnimationFrame(birdLoop);
+            }
         }
 
         // KONTROLLER
@@ -194,25 +175,14 @@
             if(d==="RIGHT" && sDir!=="LEFT") sNextDir="RIGHT";
         };
 
-        // Yılan Tuş Atamaları
-        document.getElementById("s-up").ontouchstart = (e) => { e.preventDefault(); setDir("UP"); };
-        document.getElementById("s-down").ontouchstart = (e) => { e.preventDefault(); setDir("DOWN"); };
-        document.getElementById("s-left").ontouchstart = (e) => { e.preventDefault(); setDir("LEFT"); };
-        document.getElementById("s-right").ontouchstart = (e) => { e.preventDefault(); setDir("RIGHT"); };
-        
-        // Mouse desteği (PC için)
-        document.getElementById("s-up").onmousedown = () => setDir("UP");
-        document.getElementById("s-down").onmousedown = () => setDir("DOWN");
-        document.getElementById("s-left").onmousedown = () => setDir("LEFT");
-        document.getElementById("s-right").onmousedown = () => setDir("RIGHT");
+        const jump = () => { if(bActive) birdV = -7; };
 
-        // Bird Kontrolü (Tüm ekran)
-        document.body.onclick = () => { if(birdRunning) birdV = -7; };
-        document.body.ontouchstart = (e) => { if(birdRunning) { birdV = -7; e.preventDefault(); } };
-        window.onkeydown = (e) => { 
-            if(e.key === " ") birdV = -7; 
-            if(e.key.includes("Arrow")) setDir(e.key.replace("Arrow","").toUpperCase());
-        };
-    </script>
-</body>
-</html>
+        // Mobil Dokunma
+        window.addEventListener("touchstart", (e) => { 
+            if(bActive) jump(); 
+            if(e.target.classList.contains('btn-dir')) {
+                setDir(e.target.id.replace('s-','').toUpperCase());
+            }
+        }, {passive: false});
+
+        //
