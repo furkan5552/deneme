@@ -3,107 +3,207 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Furkan Game Hub - Ultra Pro</title>
+    <title>Furkan Game Hub v5</title>
     <style>
-        :root {
-            --neon-green: #00ff96;
-            --neon-blue: #00f2ea;
-            --neon-pink: #ff0050;
-            --bg-dark: #050505;
-        }
-
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; }
-        
+        :root { --neon: #00ff96; --cyber: #00f2ea; --rose: #ff0050; }
+        * { box-sizing: border-box; touch-action: manipulation; }
         body { 
-            background: var(--bg-dark); margin: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
-            color: white; overflow: hidden; display: flex; flex-direction: column; 
-            align-items: center; height: 100vh;
+            background: #050505; margin: 0; font-family: 'Segoe UI', sans-serif; 
+            color: white; overflow: hidden; height: 100vh;
+            display: flex; align-items: center; justify-content: center;
         }
 
-        /* --- EKRAN GEÇİŞLERİ --- */
-        .screen { 
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+        /* EKRAN KATMANLARI */
+        .page { 
+            position: fixed; inset: 0; background: #050505;
             display: flex; flex-direction: column; align-items: center; 
-            justify-content: center; z-index: 100; background: var(--bg-dark);
-            transition: opacity 0.4s ease;
+            justify-content: center; z-index: 10;
         }
-        .hidden { display: none !important; opacity: 0; }
+        .hidden { display: none !important; }
 
-        /* --- GİRİŞ VE LOBİ --- */
-        .logo-main { font-size: 48px; font-weight: 900; color: var(--neon-green); text-shadow: 0 0 20px rgba(0,255,150,0.6); margin-bottom: 25px; letter-spacing: 2px; }
-        .input-box { 
-            padding: 18px; border-radius: 12px; border: 2px solid var(--neon-green); 
-            background: #111; color: white; width: 280px; text-align: center; 
-            font-size: 18px; margin-bottom: 20px; transition: 0.3s;
+        /* GİRİŞ VE MENÜ TASARIMI */
+        .title { font-size: 40px; font-weight: 900; color: var(--neon); text-shadow: 0 0 20px var(--neon); margin-bottom: 30px; }
+        input { 
+            padding: 15px; border-radius: 12px; border: 2px solid var(--neon); 
+            background: #111; color: white; width: 250px; text-align: center; font-size: 18px;
+            margin-bottom: 20px; outline: none;
         }
-        .input-box:focus { box-shadow: 0 0 15px var(--neon-green); }
-        .btn-start { 
-            padding: 18px 45px; border: none; border-radius: 12px; font-weight: bold; 
-            cursor: pointer; background: var(--neon-green); color: black; 
-            font-size: 20px; transition: 0.3s; width: 280px;
+        .btn { 
+            padding: 15px 40px; border: none; border-radius: 12px; font-weight: bold; 
+            cursor: pointer; background: var(--neon); color: black; font-size: 18px;
+            transition: 0.3s; width: 250px;
         }
-        .btn-start:hover { transform: scale(1.05); box-shadow: 0 0 25px var(--neon-green); }
+        .btn:active { transform: scale(0.95); }
 
-        .game-selection { display: flex; flex-direction: column; gap: 20px; padding: 20px; }
-        .game-card { 
-            width: 300px; padding: 35px; background: #0f0f0f; border: 2px solid #222; 
-            border-radius: 20px; cursor: pointer; transition: 0.4s; text-align: center;
-            box-shadow: 0 10px 20px rgba(0,0,0,0.5);
+        .card { 
+            width: 280px; padding: 25px; margin: 10px; background: #111; 
+            border: 2px solid #333; border-radius: 20px; cursor: pointer; text-align: center;
         }
-        .game-card:hover { border-color: var(--neon-blue); transform: translateY(-8px); background: #151515; }
-        .game-card h3 { color: var(--neon-blue); margin: 0; font-size: 26px; text-shadow: 0 0 10px var(--neon-blue); }
-        .game-card p { color: #777; font-size: 14px; margin-top: 12px; font-weight: 500; }
+        .card:hover { border-color: var(--cyber); }
 
-        /* --- OYUN ALANLARI --- */
-        canvas { 
-            border: 3px solid #222; background: #000; border-radius: 18px; 
-            max-width: 95vw; box-shadow: 0 0 50px rgba(0,0,0,0.9);
-        }
-        .score-panel { 
-            font-size: 32px; font-weight: 800; color: var(--neon-green); 
-            margin-bottom: 20px; text-shadow: 0 0 15px var(--neon-green);
-        }
+        /* OYUN ALANLARI */
+        canvas { border: 2px solid #222; background: #000; border-radius: 15px; max-width: 95vw; }
+        .score { font-size: 24px; color: var(--neon); margin-bottom: 10px; font-weight: bold; }
 
-        /* --- MOBİL JOYSTICK (EN ALTTA) --- */
-        .controls-layer { 
-            position: fixed; bottom: 40px; display: grid; 
-            grid-template-columns: repeat(3, 85px); grid-template-rows: repeat(2, 85px); 
-            gap: 15px; z-index: 200;
+        /* MOBIL KONTROLLER (EN ALTTA) */
+        .joy-pad { 
+            position: fixed; bottom: 30px; display: grid; 
+            grid-template-columns: repeat(3, 75px); grid-template-rows: repeat(2, 75px); gap: 10px; 
         }
-        .joy { 
-            background: rgba(25, 25, 25, 0.9); border: 2px solid var(--neon-blue); 
-            border-radius: 20px; display: flex; align-items: center; 
-            justify-content: center; font-size: 35px; color: var(--neon-blue); 
-            box-shadow: 0 6px 0 #00817d; transition: 0.1s;
+        .joy-btn { 
+            background: #222; border: 2px solid var(--cyber); border-radius: 15px; 
+            display: flex; align-items: center; justify-content: center; 
+            font-size: 30px; color: var(--cyber); user-select: none;
         }
-        .joy:active { transform: translateY(4px); box-shadow: none; background: var(--neon-blue); color: black; }
-        #up-j { grid-column: 2; }
-        #left-j { grid-column: 1; grid-row: 2; }
-        #down-j { grid-column: 2; grid-row: 2; }
-        #right-j { grid-column: 3; grid-row: 2; }
+        #j-up { grid-column: 2; } #j-left { grid-column: 1; grid-row: 2; }
+        #j-down { grid-column: 2; grid-row: 2; } #j-right { grid-column: 3; grid-row: 2; }
 
-        .btn-exit { 
-            position: fixed; top: 20px; left: 20px; padding: 12px 25px; 
-            background: #222; border: 1px solid #444; color: white; 
-            border-radius: 12px; cursor: pointer; z-index: 300; font-weight: bold;
-        }
+        .back-menu { position: fixed; top: 15px; left: 15px; padding: 10px; background: #333; border-radius: 8px; border:none; color:white; cursor:pointer; }
     </style>
 </head>
 <body>
 
-    <div id="scr-login" class="screen">
-        <div class="logo-main">NEON HUB</div>
-        <input type="text" id="user-in" class="input-box" placeholder="OYUNCU ADI" maxlength="10">
-        <button class="btn-start" onclick="saveUser()">BAŞLAT</button>
+    <div id="p-login" class="page">
+        <div class="title">GAME HUB</div>
+        <input type="text" id="user-input" placeholder="ADINI YAZ">
+        <button class="btn" onclick="app.login()">BAŞLA</button>
     </div>
 
-    <div id="scr-lobby" class="screen hidden">
-        <div style="font-size: 20px; color: #888; margin-bottom: 10px;">HOŞ GELDİN PİLOT</div>
-        <div id="display-nick" style="font-size: 32px; font-weight: bold; margin-bottom: 40px; color: var(--neon-pink);"></div>
-        <div class="game-selection">
-            <div class="game-card" onclick="startSnakeGame()">
-                <h3>🐍 NEON SNAKE</h3>
-                <p>Hızlandıkça uzayan macera.</p>
-            </div>
-            <div class="game-card" onclick="startBirdGame()">
-                <h3>🐦
+    <div id="p-lobby" class="page hidden">
+        <div class="title" style="font-size: 24px;">SELAM <span id="user-name"></span></div>
+        <div class="card" onclick="app.startSnake()"><h3>🐍 YILAN</h3></div>
+        <div class="card" onclick="app.startBird()"><h3>🐦 NEON BIRD</h3></div>
+        <button style="margin-top:20px; color:gray; background:none; border:none;" onclick="app.reset()">Hesabı Sıfırla</button>
+    </div>
+
+    <div id="p-snake" class="page hidden">
+        <button class="back-menu" onclick="location.reload()">MENÜ</button>
+        <div class="score">Skor: <span id="s-score">0</span></div>
+        <canvas id="sCanvas" width="400" height="400"></canvas>
+        <div class="joy-pad">
+            <div class="joy-btn" id="j-up">↑</div>
+            <div class="joy-btn" id="j-left">←</div>
+            <div class="joy-btn" id="j-down">↓</div>
+            <div class="joy-btn" id="j-right">→</div>
+        </div>
+    </div>
+
+    <div id="p-bird" class="page hidden">
+        <button class="back-menu" onclick="location.reload()">MENÜ</button>
+        <div class="score">Skor: <span id="b-score">0</span></div>
+        <canvas id="bCanvas" width="320" height="480"></canvas>
+        <p style="color:var(--cyber); margin-top:15px;">ZIPLAMAK İÇİN EKRANA DOKUN</p>
+    </div>
+
+    <script>
+        const app = {
+            user: localStorage.getItem("f_user"),
+            
+            login() {
+                const n = document.getElementById("user-input").value.trim();
+                if(!n) return;
+                localStorage.setItem("f_user", n);
+                this.user = n;
+                this.showLobby();
+            },
+
+            showLobby() {
+                document.querySelectorAll('.page').forEach(p => p.classList.add('hidden'));
+                document.getElementById("p-lobby").classList.remove('hidden');
+                document.getElementById("user-name").innerText = this.user;
+            },
+
+            reset() { localStorage.clear(); location.reload(); },
+
+            // --- YILAN OYUNU ---
+            startSnake() {
+                document.querySelectorAll('.page').forEach(p => p.classList.add('hidden'));
+                document.getElementById("p-snake").classList.remove('hidden');
+                this.initSnake();
+            },
+
+            initSnake() {
+                const canvas = document.getElementById("sCanvas"), ctx = canvas.getContext("2d");
+                let snake = [{x:200, y:200}, {x:180, y:200}], apple = {x:100, y:100};
+                let d = "RIGHT", nextD = "RIGHT", score = 0;
+
+                const setDir = (dir) => { 
+                    if(dir=="UP" && d!="DOWN") nextD="UP";
+                    if(dir=="DOWN" && d!="UP") nextD="DOWN";
+                    if(dir=="LEFT" && d!="RIGHT") nextD="LEFT";
+                    if(dir=="RIGHT" && d!="LEFT") nextD="RIGHT";
+                };
+
+                // Tuşlar
+                document.getElementById("j-up").onclick = () => setDir("UP");
+                document.getElementById("j-down").onclick = () => setDir("DOWN");
+                document.getElementById("j-left").onclick = () => setDir("LEFT");
+                document.getElementById("j-right").onclick = () => setDir("RIGHT");
+                window.onkeydown = (e) => { if(e.key.includes("Arrow")) setDir(e.key.replace("Arrow","").toUpperCase()); };
+
+                const loop = setInterval(() => {
+                    d = nextD;
+                    ctx.fillStyle = "black"; ctx.fillRect(0,0,400,400);
+                    ctx.fillStyle = "red"; ctx.fillRect(apple.x, apple.y, 18, 18);
+                    snake.forEach((p, i) => { ctx.fillStyle = i==0 ? "#00ff96" : "#00a1ff"; ctx.fillRect(p.x, p.y, 18, 18); });
+
+                    let hX = snake[0].x, hY = snake[0].y;
+                    if(d=="UP") hY-=20; if(d=="DOWN") hY+=20; if(d=="LEFT") hX-=20; if(d=="RIGHT") hX+=20;
+
+                    if(hX==apple.x && hY==apple.y) {
+                        score+=10; document.getElementById("s-score").innerText = score;
+                        apple = {x: Math.floor(Math.random()*19)*20, y: Math.floor(Math.random()*19)*20};
+                    } else { snake.pop(); }
+
+                    let nH = {x:hX, y:hY};
+                    if(hX<0 || hX>=400 || hY<0 || hY>=400 || snake.some(p => p.x==nH.x && p.y==nH.y)) {
+                        clearInterval(loop); alert("Yandın! Skor: " + score); this.initSnake();
+                    } else { snake.unshift(nH); }
+                }, 150);
+            },
+
+            // --- BIRD OYUNU ---
+            startBird() {
+                document.querySelectorAll('.page').forEach(p => p.classList.add('hidden'));
+                document.getElementById("p-bird").classList.remove('hidden');
+                this.initBird();
+            },
+
+            initBird() {
+                const canvas = document.getElementById("bCanvas"), ctx = canvas.getContext("2d");
+                let bY = 200, bV = 0, pipes = [], score = 0, active = true;
+
+                window.onclick = () => { bV = -7; };
+                window.onkeydown = (e) => { if(e.key == " ") bV = -7; };
+
+                const birdLoop = () => {
+                    if(!active) return;
+                    ctx.fillStyle = "black"; ctx.fillRect(0,0,320,480);
+                    bV += 0.4; bY += bV;
+                    ctx.fillStyle = "yellow"; ctx.beginPath(); ctx.arc(50, bY, 12, 0, Math.PI*2); ctx.fill();
+
+                    if(pipes.length == 0 || pipes[pipes.length-1].x < 160) {
+                        pipes.push({x:320, h: Math.random()*200+50, gap:140});
+                    }
+
+                    for(let i=pipes.length-1; i>=0; i--) {
+                        let p = pipes[i]; p.x -= 3;
+                        ctx.fillStyle = "#00f2ea";
+                        ctx.fillRect(p.x, 0, 50, p.h); ctx.fillRect(p.x, p.h+p.gap, 50, 480);
+                        if(50+10 > p.x && 50-10 < p.x+50 && (bY-10 < p.h || bY+10 > p.h+p.gap)) active = false;
+                        if(p.x == 50) { score++; document.getElementById("b-score").innerText = score; }
+                        if(p.x < -60) pipes.splice(i, 1);
+                    }
+
+                    if(bY > 480 || bY < 0) active = false;
+                    if(!active) { alert("Düştün! Skor: " + score); this.initBird(); }
+                    else { requestAnimationFrame(birdLoop); }
+                };
+                birdLoop();
+            }
+        };
+
+        if(app.user) app.showLobby();
+    </script>
+</body>
+</html>
