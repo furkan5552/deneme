@@ -3,207 +3,146 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Furkan Game Hub v5</title>
+    <title>Furkan Hub v100</title>
     <style>
-        :root { --neon: #00ff96; --cyber: #00f2ea; --rose: #ff0050; }
-        * { box-sizing: border-box; touch-action: manipulation; }
-        body { 
-            background: #050505; margin: 0; font-family: 'Segoe UI', sans-serif; 
-            color: white; overflow: hidden; height: 100vh;
-            display: flex; align-items: center; justify-content: center;
-        }
-
-        /* EKRAN KATMANLARI */
-        .page { 
-            position: fixed; inset: 0; background: #050505;
-            display: flex; flex-direction: column; align-items: center; 
-            justify-content: center; z-index: 10;
-        }
+        * { box-sizing: border-box; touch-action: manipulation; -webkit-user-select: none; }
+        body { background: #000; margin: 0; font-family: sans-serif; color: #fff; overflow: hidden; height: 100vh; display: flex; justify-content: center; align-items: center; }
+        
+        .screen { position: fixed; inset: 0; background: #000; display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 10; }
         .hidden { display: none !important; }
 
-        /* GİRİŞ VE MENÜ TASARIMI */
-        .title { font-size: 40px; font-weight: 900; color: var(--neon); text-shadow: 0 0 20px var(--neon); margin-bottom: 30px; }
-        input { 
-            padding: 15px; border-radius: 12px; border: 2px solid var(--neon); 
-            background: #111; color: white; width: 250px; text-align: center; font-size: 18px;
-            margin-bottom: 20px; outline: none;
-        }
-        .btn { 
-            padding: 15px 40px; border: none; border-radius: 12px; font-weight: bold; 
-            cursor: pointer; background: var(--neon); color: black; font-size: 18px;
-            transition: 0.3s; width: 250px;
-        }
-        .btn:active { transform: scale(0.95); }
+        /* Arayüz Tasarımı */
+        .neon-text { color: #00ff96; text-shadow: 0 0 15px #00ff96; font-size: 40px; margin-bottom: 20px; font-weight: 900; }
+        input { padding: 15px; border: 2px solid #00ff96; background: #111; color: #fff; border-radius: 10px; width: 250px; text-align: center; margin-bottom: 15px; font-size: 18px; }
+        .btn { padding: 15px 40px; background: #00ff96; color: #000; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; width: 250px; font-size: 18px; }
+        
+        .card { width: 280px; padding: 25px; margin: 10px; background: #111; border: 2px solid #333; border-radius: 15px; text-align: center; cursor: pointer; }
+        .card:active { border-color: #00f2ea; transform: scale(0.95); }
 
-        .card { 
-            width: 280px; padding: 25px; margin: 10px; background: #111; 
-            border: 2px solid #333; border-radius: 20px; cursor: pointer; text-align: center;
-        }
-        .card:hover { border-color: var(--cyber); }
+        /* Oyun Görünümü */
+        canvas { border: 2px solid #333; background: #000; max-width: 95vw; border-radius: 10px; }
+        .score { font-size: 24px; color: #00ff96; margin-bottom: 10px; font-weight: bold; }
 
-        /* OYUN ALANLARI */
-        canvas { border: 2px solid #222; background: #000; border-radius: 15px; max-width: 95vw; }
-        .score { font-size: 24px; color: var(--neon); margin-bottom: 10px; font-weight: bold; }
-
-        /* MOBIL KONTROLLER (EN ALTTA) */
-        .joy-pad { 
-            position: fixed; bottom: 30px; display: grid; 
-            grid-template-columns: repeat(3, 75px); grid-template-rows: repeat(2, 75px); gap: 10px; 
-        }
-        .joy-btn { 
-            background: #222; border: 2px solid var(--cyber); border-radius: 15px; 
-            display: flex; align-items: center; justify-content: center; 
-            font-size: 30px; color: var(--cyber); user-select: none;
-        }
-        #j-up { grid-column: 2; } #j-left { grid-column: 1; grid-row: 2; }
-        #j-down { grid-column: 2; grid-row: 2; } #j-right { grid-column: 3; grid-row: 2; }
-
-        .back-menu { position: fixed; top: 15px; left: 15px; padding: 10px; background: #333; border-radius: 8px; border:none; color:white; cursor:pointer; }
+        /* Mobil Kontroller */
+        .joy { position: fixed; bottom: 30px; display: grid; grid-template-columns: repeat(3, 75px); grid-template-rows: repeat(2, 75px); gap: 10px; }
+        .j-btn { background: #222; border: 2px solid #00f2ea; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 30px; color: #00f2ea; }
+        #up { grid-column: 2; } #left { grid-column: 1; grid-row: 2; } #down { grid-column: 2; grid-row: 2; } #right { grid-column: 3; grid-row: 2; }
+        
+        .exit { position: fixed; top: 15px; left: 15px; padding: 8px 15px; background: #444; border-radius: 5px; color: #fff; border: none; font-size: 12px; z-index: 100; }
     </style>
 </head>
 <body>
 
-    <div id="p-login" class="page">
-        <div class="title">GAME HUB</div>
-        <input type="text" id="user-input" placeholder="ADINI YAZ">
-        <button class="btn" onclick="app.login()">BAŞLA</button>
+    <div id="scr-login" class="screen">
+        <div class="neon-text">GAME HUB</div>
+        <input type="text" id="nick" placeholder="İsmini Yaz">
+        <button class="btn" id="login-btn">GİRİŞ YAP</button>
     </div>
 
-    <div id="p-lobby" class="page hidden">
-        <div class="title" style="font-size: 24px;">SELAM <span id="user-name"></span></div>
-        <div class="card" onclick="app.startSnake()"><h3>🐍 YILAN</h3></div>
-        <div class="card" onclick="app.startBird()"><h3>🐦 NEON BIRD</h3></div>
-        <button style="margin-top:20px; color:gray; background:none; border:none;" onclick="app.reset()">Hesabı Sıfırla</button>
+    <div id="scr-lobby" class="screen hidden">
+        <div class="neon-text" style="font-size: 24px;">SELAM <span id="hello"></span></div>
+        <div class="card" id="go-snake"><h3>🐍 YILAN OYUNU</h3></div>
+        <div class="card" id="go-bird"><h3>🐦 NEON BIRD</h3></div>
+        <button style="margin-top:20px; color:gray; background:none; border:none; text-decoration:underline;" onclick="localStorage.clear();location.reload()">Sıfırla</button>
     </div>
 
-    <div id="p-snake" class="page hidden">
-        <button class="back-menu" onclick="location.reload()">MENÜ</button>
-        <div class="score">Skor: <span id="s-score">0</span></div>
-        <canvas id="sCanvas" width="400" height="400"></canvas>
-        <div class="joy-pad">
-            <div class="joy-btn" id="j-up">↑</div>
-            <div class="joy-btn" id="j-left">←</div>
-            <div class="joy-btn" id="j-down">↓</div>
-            <div class="joy-btn" id="j-right">→</div>
+    <div id="scr-snake" class="screen hidden">
+        <button class="exit" onclick="location.reload()">MENÜ ☰</button>
+        <div class="score">Skor: <span id="s-scr">0</span></div>
+        <canvas id="sCanv" width="400" height="400"></canvas>
+        <div class="joy">
+            <div class="j-btn" id="up">↑</div>
+            <div class="j-btn" id="left">←</div>
+            <div class="j-btn" id="down">↓</div>
+            <div class="j-btn" id="right">→</div>
         </div>
     </div>
 
-    <div id="p-bird" class="page hidden">
-        <button class="back-menu" onclick="location.reload()">MENÜ</button>
-        <div class="score">Skor: <span id="b-score">0</span></div>
-        <canvas id="bCanvas" width="320" height="480"></canvas>
-        <p style="color:var(--cyber); margin-top:15px;">ZIPLAMAK İÇİN EKRANA DOKUN</p>
+    <div id="scr-bird" class="screen hidden">
+        <button class="exit" onclick="location.reload()">MENÜ ☰</button>
+        <div class="score">Skor: <span id="b-scr">0</span></div>
+        <canvas id="bCanv" width="320" height="480"></canvas>
+        <div style="margin-top:15px; color:#00f2ea;">ZIPLAMAK İÇİN EKRANA DOKUN</div>
     </div>
 
     <script>
-        const app = {
-            user: localStorage.getItem("f_user"),
-            
-            login() {
-                const n = document.getElementById("user-input").value.trim();
-                if(!n) return;
-                localStorage.setItem("f_user", n);
-                this.user = n;
-                this.showLobby();
-            },
-
-            showLobby() {
-                document.querySelectorAll('.page').forEach(p => p.classList.add('hidden'));
-                document.getElementById("p-lobby").classList.remove('hidden');
-                document.getElementById("user-name").innerText = this.user;
-            },
-
-            reset() { localStorage.clear(); location.reload(); },
-
-            // --- YILAN OYUNU ---
-            startSnake() {
-                document.querySelectorAll('.page').forEach(p => p.classList.add('hidden'));
-                document.getElementById("p-snake").classList.remove('hidden');
-                this.initSnake();
-            },
-
-            initSnake() {
-                const canvas = document.getElementById("sCanvas"), ctx = canvas.getContext("2d");
-                let snake = [{x:200, y:200}, {x:180, y:200}], apple = {x:100, y:100};
-                let d = "RIGHT", nextD = "RIGHT", score = 0;
-
-                const setDir = (dir) => { 
-                    if(dir=="UP" && d!="DOWN") nextD="UP";
-                    if(dir=="DOWN" && d!="UP") nextD="DOWN";
-                    if(dir=="LEFT" && d!="RIGHT") nextD="LEFT";
-                    if(dir=="RIGHT" && d!="LEFT") nextD="RIGHT";
-                };
-
-                // Tuşlar
-                document.getElementById("j-up").onclick = () => setDir("UP");
-                document.getElementById("j-down").onclick = () => setDir("DOWN");
-                document.getElementById("j-left").onclick = () => setDir("LEFT");
-                document.getElementById("j-right").onclick = () => setDir("RIGHT");
-                window.onkeydown = (e) => { if(e.key.includes("Arrow")) setDir(e.key.replace("Arrow","").toUpperCase()); };
-
-                const loop = setInterval(() => {
-                    d = nextD;
-                    ctx.fillStyle = "black"; ctx.fillRect(0,0,400,400);
-                    ctx.fillStyle = "red"; ctx.fillRect(apple.x, apple.y, 18, 18);
-                    snake.forEach((p, i) => { ctx.fillStyle = i==0 ? "#00ff96" : "#00a1ff"; ctx.fillRect(p.x, p.y, 18, 18); });
-
-                    let hX = snake[0].x, hY = snake[0].y;
-                    if(d=="UP") hY-=20; if(d=="DOWN") hY+=20; if(d=="LEFT") hX-=20; if(d=="RIGHT") hX+=20;
-
-                    if(hX==apple.x && hY==apple.y) {
-                        score+=10; document.getElementById("s-score").innerText = score;
-                        apple = {x: Math.floor(Math.random()*19)*20, y: Math.floor(Math.random()*19)*20};
-                    } else { snake.pop(); }
-
-                    let nH = {x:hX, y:hY};
-                    if(hX<0 || hX>=400 || hY<0 || hY>=400 || snake.some(p => p.x==nH.x && p.y==nH.y)) {
-                        clearInterval(loop); alert("Yandın! Skor: " + score); this.initSnake();
-                    } else { snake.unshift(nH); }
-                }, 150);
-            },
-
-            // --- BIRD OYUNU ---
-            startBird() {
-                document.querySelectorAll('.page').forEach(p => p.classList.add('hidden'));
-                document.getElementById("p-bird").classList.remove('hidden');
-                this.initBird();
-            },
-
-            initBird() {
-                const canvas = document.getElementById("bCanvas"), ctx = canvas.getContext("2d");
-                let bY = 200, bV = 0, pipes = [], score = 0, active = true;
-
-                window.onclick = () => { bV = -7; };
-                window.onkeydown = (e) => { if(e.key == " ") bV = -7; };
-
-                const birdLoop = () => {
-                    if(!active) return;
-                    ctx.fillStyle = "black"; ctx.fillRect(0,0,320,480);
-                    bV += 0.4; bY += bV;
-                    ctx.fillStyle = "yellow"; ctx.beginPath(); ctx.arc(50, bY, 12, 0, Math.PI*2); ctx.fill();
-
-                    if(pipes.length == 0 || pipes[pipes.length-1].x < 160) {
-                        pipes.push({x:320, h: Math.random()*200+50, gap:140});
-                    }
-
-                    for(let i=pipes.length-1; i>=0; i--) {
-                        let p = pipes[i]; p.x -= 3;
-                        ctx.fillStyle = "#00f2ea";
-                        ctx.fillRect(p.x, 0, 50, p.h); ctx.fillRect(p.x, p.h+p.gap, 50, 480);
-                        if(50+10 > p.x && 50-10 < p.x+50 && (bY-10 < p.h || bY+10 > p.h+p.gap)) active = false;
-                        if(p.x == 50) { score++; document.getElementById("b-score").innerText = score; }
-                        if(p.x < -60) pipes.splice(i, 1);
-                    }
-
-                    if(bY > 480 || bY < 0) active = false;
-                    if(!active) { alert("Düştün! Skor: " + score); this.initBird(); }
-                    else { requestAnimationFrame(birdLoop); }
-                };
-                birdLoop();
-            }
+        // TÜM SİSTEMİ TEK BİR YERDEN YÖNETELİM
+        const UI = {
+            login: document.getElementById("scr-login"),
+            lobby: document.getElementById("scr-lobby"),
+            snake: document.getElementById("scr-snake"),
+            bird: document.getElementById("scr-bird")
         };
 
-        if(app.user) app.showLobby();
+        // GİRİŞ MANTIĞI
+        document.getElementById("login-btn").addEventListener("click", () => {
+            const name = document.getElementById("nick").value;
+            if(name.length < 1) return;
+            localStorage.setItem("user", name);
+            checkUser();
+        });
+
+        function checkUser() {
+            const saved = localStorage.getItem("user");
+            if(saved) {
+                UI.login.classList.add("hidden");
+                UI.lobby.classList.remove("hidden");
+                document.getElementById("hello").innerText = saved;
+            }
+        }
+        checkUser();
+
+        // OYUN SEÇİMİ
+        document.getElementById("go-snake").onclick = () => { UI.lobby.classList.add("hidden"); UI.snake.classList.remove("hidden"); startSnake(); };
+        document.getElementById("go-bird").onclick = () => { UI.lobby.classList.add("hidden"); UI.bird.classList.remove("hidden"); startBird(); };
+
+        // --- YILAN OYUNU ---
+        function startSnake() {
+            const cv = document.getElementById("sCanv"), cx = cv.getContext("2d");
+            let sn = [{x:200, y:200}, {x:180, y:200}], ap = {x:100, y:100}, d = "RIGHT", nextD = "RIGHT", sc = 0;
+            
+            const move = (dir) => { if(dir=="UP"&&d!="DOWN")nextD="UP"; if(dir=="DOWN"&&d!="UP")nextD="DOWN"; if(dir=="LEFT"&&d!="RIGHT")nextD="LEFT"; if(dir=="RIGHT"&&d!="LEFT")nextD="RIGHT"; };
+            document.getElementById("up").onclick = () => move("UP"); document.getElementById("down").onclick = () => move("DOWN");
+            document.getElementById("left").onclick = () => move("LEFT"); document.getElementById("right").onclick = () => move("RIGHT");
+            window.onkeydown = (e) => { if(e.key.includes("Arrow")) move(e.key.replace("Arrow","").toUpperCase()); };
+
+            const sLoop = setInterval(() => {
+                d = nextD;
+                cx.fillStyle = "#000"; cx.fillRect(0,0,400,400);
+                cx.fillStyle = "red"; cx.fillRect(ap.x, ap.y, 18, 18);
+                sn.forEach((p,i) => { cx.fillStyle = i==0?"#00ff96":"#00a1ff"; cx.fillRect(p.x, p.y, 18, 18); });
+                let hX = sn[0].x, hY = sn[0].y;
+                if(d=="UP")hY-=20; if(d=="DOWN")hY+=20; if(d=="LEFT")hX-=20; if(d=="RIGHT")hX+=20;
+                if(hX==ap.x && hY==ap.y) { sc+=10; document.getElementById("s-scr").innerText = sc; ap={x:Math.floor(Math.random()*19)*20, y:Math.floor(Math.random()*19)*20}; } else { sn.pop(); }
+                let nH = {x:hX, y:hY};
+                if(hX<0||hX>=400||hY<0||hY>=400||sn.some(p=>p.x==nH.x&&p.y==nH.y)) { clearInterval(sLoop); alert("Skor: "+sc); location.reload(); } else { sn.unshift(nH); }
+            }, 150);
+        }
+
+        // --- BIRD OYUNU ---
+        function startBird() {
+            const cv = document.getElementById("bCanv"), cx = cv.getContext("2d");
+            let bY = 200, bV = 0, pipes = [], sc = 0, active = true;
+            window.onclick = () => bV = -7;
+            window.onkeydown = (e) => { if(e.key==" ") bV = -7; };
+            function bLoop() {
+                if(!active) return;
+                cx.fillStyle = "#000"; cx.fillRect(0,0,320,480);
+                bV += 0.4; bY += bV;
+                cx.fillStyle = "yellow"; cx.beginPath(); cx.arc(50, bY, 12, 0, Math.PI*2); cx.fill();
+                if(pipes.length==0 || pipes[pipes.length-1].x < 160) pipes.push({x:320, h:Math.random()*200+50, g:140});
+                for(let i=pipes.length-1; i>=0; i--) {
+                    let p = pipes[i]; p.x -= 3;
+                    cx.fillStyle = "#00f2ea"; cx.fillRect(p.x, 0, 50, p.h); cx.fillRect(p.x, p.h+p.g, 50, 480);
+                    if(50+10>p.x && 50-10<p.x+50 && (bY-10<p.h || bY+10>p.h+p.g)) active = false;
+                    if(p.x == 50) { sc++; document.getElementById("b-scr").innerText = sc; }
+                    if(p.x < -60) pipes.splice(i,1);
+                }
+                if(bY>480 || bY<0) active = false;
+                if(!active) { alert("Skor: "+sc); location.reload(); } else { requestAnimationFrame(bLoop); }
+            }
+            bLoop();
+        }
     </script>
 </body>
 </html>
