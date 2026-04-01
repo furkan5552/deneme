@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Yılan Oyunu - Pro</title>
+    <title>Yılan Oyunu Pro - Skor Tablolu</title>
     <style>
         @keyframes gradientBG {
             0% { background-position: 0% 50%; }
@@ -22,28 +22,33 @@
 
         /* GİRİŞ EKRANI */
         #login-screen {
-            position: absolute; width: 100%; height: 100%; background: rgba(0,0,0,0.9);
-            display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 10;
+            position: absolute; width: 100%; height: 100%; background: rgba(0,0,0,0.95);
+            display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 100;
         }
-        input { padding: 12px; border-radius: 8px; border: 2px solid #00ff96; background: #111; color: white; margin-bottom: 15px; width: 200px; text-align: center; }
-        .start-btn { padding: 10px 25px; background: #00ff96; color: black; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; }
+        #login-screen h1 { color: #00ff96; text-shadow: 0 0 15px #00ff96; margin-bottom: 20px; }
+        input { padding: 15px; border-radius: 10px; border: 2px solid #00ff96; background: #111; color: white; margin-bottom: 15px; width: 220px; text-align: center; font-size: 18px; }
+        .start-btn { padding: 12px 35px; background: #00ff96; color: black; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; font-size: 18px; transition: 0.3s; }
+        .start-btn:hover { transform: scale(1.1); box-shadow: 0 0 20px #00ff96; }
 
         /* SKOR TABLOSU (SAĞ ÜST) */
         #leaderboard {
-            position: absolute; top: 10px; right: 10px; background: rgba(0,0,0,0.7);
-            border: 1px solid #00f2ea; padding: 10px; border-radius: 8px; font-size: 12px;
-            max-width: 120px;
+            position: absolute; top: 15px; right: 15px; background: rgba(0,0,0,0.8);
+            border: 2px solid #00f2ea; padding: 12px; border-radius: 12px; font-size: 13px;
+            min-width: 130px; box-shadow: 0 0 15px rgba(0, 242, 234, 0.3);
         }
+        #leaderboard h3 { margin: 0 0 8px 0; color: #00f2ea; text-align: center; border-bottom: 1px solid #00f2ea; padding-bottom: 5px; }
+        .score-entry { display: flex; justify-content: space-between; margin-bottom: 4px; }
+        .score-entry span:last-child { font-weight: bold; color: #00ff96; }
 
         #game-container { display: none; flex-direction: column; align-items: center; }
+        #skor-panel { font-size: 26px; font-weight: bold; color: #00ff96; margin-bottom: 10px; text-shadow: 0 0 10px #00ff96; }
 
-        #skor-panel { font-size: 24px; font-weight: bold; color: #00ff96; margin-bottom: 10px; }
+        canvas { border: 3px solid #333; border-radius: 15px; background: rgba(0,0,0,0.9); max-width: 90vw; max-height: 40vh; }
 
-        canvas { border: 3px solid #00f2ea; border-radius: 12px; box-shadow: 0 0 20px rgba(0, 242, 234, 0.4); max-width: 90vw; max-height: 40vh; }
-
-        .controls { display: grid; grid-template-columns: repeat(3, 70px); grid-template-rows: repeat(2, 70px); gap: 10px; margin-top: 15px; }
-        .btn { background: rgba(255,255,255,0.1); color: #00f2ea; border: 2px solid #00f2ea; border-radius: 15px; font-size: 28px; display: flex; align-items: center; justify-content: center; user-select: none; }
-        .btn:active { background: #00f2ea; color: black; }
+        /* KONTROLLER */
+        .controls { display: grid; grid-template-columns: repeat(3, 75px); grid-template-rows: repeat(2, 75px); gap: 12px; margin-top: 20px; }
+        .btn { background: #1a1a1a; color: #00f2ea; border: 2px solid #00f2ea; border-radius: 18px; font-size: 32px; display: flex; align-items: center; justify-content: center; user-select: none; box-shadow: 0 4px 0 #008e54; }
+        .btn:active { background: #00f2ea; color: black; transform: translateY(4px); box-shadow: none; }
         #up { grid-column: 2; }
         #left { grid-column: 1; grid-row: 2; }
         #down { grid-column: 2; grid-row: 2; }
@@ -53,13 +58,13 @@
 <body>
 
     <div id="login-screen">
-        <h1 style="color: #00ff96;">YILAN PRO</h1>
-        <input type="text" id="username" placeholder="Kullanıcı Adı Gir" maxlength="10">
-        <button class="start-btn" onclick="startGame()">BAŞLA</button>
+        <h1>🐍 YILAN PRO</h1>
+        <input type="text" id="username" placeholder="İsmini Yaz..." maxlength="10">
+        <button class="start-btn" onclick="startGame()">OYUNA BAŞLA</button>
     </div>
 
     <div id="leaderboard">
-        <strong style="color: #00f2ea;">TOP SKORLAR</strong>
+        <h3>🏆 TOP 5</h3>
         <div id="score-list"></div>
     </div>
 
@@ -82,33 +87,42 @@
         let snake = [{x: 200, y: 200}, {x: 180, y: 200}];
         let apple = {x: 100, y: 100};
         let d = "RIGHT", nextD = "RIGHT", currentSpeed = 200;
-        let playerName = "Anonim";
+        let playerName = "Oyuncu";
 
-        // SKORLARI YÜKLE
-        function updateLeaderboard() {
-            let scores = JSON.parse(localStorage.getItem("snakeScores") || "[]");
+        // LİDERLİK TABLOSUNU GÜNCELLE
+        function showLeaderboard() {
+            let scores = JSON.parse(localStorage.getItem("furkanSnakeScores") || "[]");
             scores.sort((a, b) => b.score - a.score);
-            scores = scores.slice(0, 5); // İlk 5 kişi
-            document.getElementById("score-list").innerHTML = scores.map(s => `<div>${s.name}: ${s.score}</div>`).join("");
+            scores = scores.slice(0, 5); // Sadece ilk 5
+            const list = document.getElementById("score-list");
+            list.innerHTML = scores.map(s => `
+                <div class="score-entry">
+                    <span>${s.name}</span>
+                    <span>${s.score}</span>
+                </div>
+            `).join("");
         }
 
-        function saveScore() {
-            let scores = JSON.parse(localStorage.getItem("snakeScores") || "[]");
-            scores.push({name: playerName, score: score});
-            localStorage.setItem("snakeScores", JSON.stringify(scores));
-            updateLeaderboard();
+        // SKORU KAYDET
+        function saveFinalScore() {
+            let scores = JSON.parse(localStorage.getItem("furkanSnakeScores") || "[]");
+            scores.push({ name: playerName, score: score });
+            localStorage.setItem("furkanSnakeScores", JSON.stringify(scores));
+            showLeaderboard();
         }
 
+        // OYUNU BAŞLAT
         function startGame() {
-            const input = document.getElementById("username").value;
-            if(input) playerName = input;
+            const inputName = document.getElementById("username").value.trim();
+            if (inputName) playerName = inputName;
             document.getElementById("user-display").innerText = playerName;
             document.getElementById("login-screen").style.display = "none";
             document.getElementById("game-container").style.display = "flex";
-            updateLeaderboard();
+            showLeaderboard();
             gameLoop();
         }
 
+        // YÖN DEĞİŞTİRME
         function changeDir(newDir) {
             if (newDir == "LEFT" && d != "RIGHT") nextD = "LEFT";
             if (newDir == "UP" && d != "DOWN") nextD = "UP";
@@ -116,7 +130,7 @@
             if (newDir == "DOWN" && d != "UP") nextD = "DOWN";
         }
 
-        // KONTROLLER
+        // KONTROLLER (PC + MOBİL)
         document.addEventListener("keydown", (e) => {
             if (e.key === "ArrowUp") changeDir("UP");
             if (e.key === "ArrowDown") changeDir("DOWN");
@@ -126,17 +140,21 @@
 
         ["up", "down", "left", "right"].forEach(id => {
             const el = document.getElementById(id);
-            el.addEventListener("touchstart", (e) => { e.preventDefault(); changeDir(id.toUpperCase()); });
-            el.addEventListener("mousedown", () => changeDir(id.toUpperCase()));
+            const handleAction = (e) => { e.preventDefault(); changeDir(id.toUpperCase()); };
+            el.addEventListener("touchstart", handleAction);
+            el.addEventListener("mousedown", handleAction);
         });
 
         function gameLoop() {
             d = nextD;
-            ctx.fillStyle = "black"; ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = "black";
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
             
             // Elma
-            ctx.fillStyle = "#ff0050"; ctx.shadowBlur = 15; ctx.shadowColor = "#ff0050";
-            ctx.fillRect(apple.x, apple.y, grid-2, grid-2); ctx.shadowBlur = 0;
+            ctx.fillStyle = "#ff0050";
+            ctx.shadowBlur = 15; ctx.shadowColor = "#ff0050";
+            ctx.fillRect(apple.x, apple.y, grid-2, grid-2);
+            ctx.shadowBlur = 0;
 
             // Yılan
             snake.forEach((part, index) => {
@@ -144,29 +162,42 @@
                 ctx.fillRect(part.x, part.y, grid-2, grid-2);
             });
 
-            let headX = snake[0].x; let headY = snake[0].y;
-            if(d == "LEFT") headX -= grid; if(d == "UP") headY -= grid;
-            if(d == "RIGHT") headX += grid; if(d == "DOWN") headY += grid;
+            let headX = snake[0].x;
+            let headY = snake[0].y;
+            if(d == "LEFT") headX -= grid;
+            if(d == "UP") headY -= grid;
+            if(d == "RIGHT") headX += grid;
+            if(d == "DOWN") headY += grid;
 
+            // ELMA YEME
             if(headX == apple.x && headY == apple.y) {
                 score += 10;
-                if (currentSpeed > 50) currentSpeed -= 10;
+                if (currentSpeed > 50) currentSpeed -= 8;
                 document.getElementById("skor").innerText = score;
-                apple = { x: Math.floor(Math.random() * 19) * grid, y: Math.floor(Math.random() * 19) * grid };
-            } else { snake.pop(); }
+                apple = { 
+                    x: Math.floor(Math.random() * (canvas.width/grid)) * grid, 
+                    y: Math.floor(Math.random() * (canvas.height/grid)) * grid 
+                };
+            } else {
+                snake.pop();
+            }
 
             let newHead = { x: headX, y: headY };
 
+            // ÖLME KONTROLÜ
             if(headX < 0 || headX >= canvas.width || headY < 0 || headY >= canvas.height || snake.some(p => p.x === newHead.x && p.y === newHead.y)) {
-                saveScore();
-                alert("Oyun Bitti! Skorun: " + score);
-                location.reload(); // Yeniden başlat
-            } else {
-                snake.unshift(newHead);
-                setTimeout(gameLoop, currentSpeed);
+                saveFinalScore();
+                alert("OYUN BİTTİ!\nSkorun: " + score);
+                location.reload(); // Sayfayı yenileyerek başa dön
+                return;
             }
+
+            snake.unshift(newHead);
+            setTimeout(gameLoop, currentSpeed);
         }
-        updateLeaderboard();
+
+        // Sayfa yüklendiğinde tabloyu göster
+        showLeaderboard();
     </script>
 </body>
 </html>
