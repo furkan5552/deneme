@@ -3,186 +3,107 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Furkan Game Hub - Bugfix</title>
+    <title>Furkan Game Hub - Ultra Pro</title>
     <style>
-        :root { --neon-green: #00ff96; --neon-blue: #00f2ea; --neon-pink: #ff0050; }
-        body { background: #050505; margin: 0; font-family: sans-serif; color: white; overflow: hidden; height: 100vh; display: flex; flex-direction: column; align-items: center; }
-        .overlay { position: fixed; top:0; left:0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 100; }
-        #menu-screen { display: none; text-align: center; }
-        .game-card { width: 260px; padding: 20px; margin: 10px; background: #111; border: 2px solid #333; border-radius: 15px; cursor: pointer; transition: 0.2s; }
-        .game-card:hover { border-color: var(--neon-green); transform: scale(1.05); }
-        input { padding: 15px; border-radius: 10px; border: 2px solid var(--neon-green); background: #000; color: white; width: 200px; text-align: center; margin-bottom: 10px; outline: none; }
-        .btn-ui { padding: 15px 30px; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; font-size: 16px; width: 240px; }
-        .btn-green { background: var(--neon-green); color: black; }
-        .btn-gray { background: #333; color: white; margin-top: 15px; }
-        .game-container { display: none; flex-direction: column; align-items: center; width: 100%; height: 100%; padding-top: 20px; }
-        canvas { border: 2px solid #222; background: #000; border-radius: 10px; max-width: 95vw; box-shadow: 0 0 20px rgba(0,0,0,0.5); touch-action: none; }
-        .mobile-controls { position: fixed; bottom: 30px; left: 0; width: 100%; display: grid; grid-template-columns: repeat(3, 75px); grid-template-rows: repeat(2, 75px); gap: 15px; justify-content: center; z-index: 50; }
-        .btn-dir { background: rgba(20, 20, 20, 0.9); color: var(--neon-blue); border: 2px solid var(--neon-blue); border-radius: 20px; display: flex; align-items: center; justify-content: center; font-size: 30px; user-select: none; -webkit-tap-highlight-color: transparent; }
-        #s-up { grid-column: 2; } #s-left { grid-column: 1; grid-row: 2; } #s-down { grid-column: 2; grid-row: 2; } #s-right { grid-column: 3; grid-row: 2; }
-        .score-box { font-size: 24px; font-weight: bold; color: var(--neon-green); margin-bottom: 10px; }
-        .back-btn { position: fixed; top: 10px; right: 10px; padding: 10px; background: #333; border-radius: 5px; font-size: 12px; z-index: 60; border:none; color:white; cursor: pointer; }
+        :root {
+            --neon-green: #00ff96;
+            --neon-blue: #00f2ea;
+            --neon-pink: #ff0050;
+            --bg-dark: #050505;
+        }
+
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; }
+        
+        body { 
+            background: var(--bg-dark); margin: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            color: white; overflow: hidden; display: flex; flex-direction: column; 
+            align-items: center; height: 100vh;
+        }
+
+        /* --- EKRAN GEÇİŞLERİ --- */
+        .screen { 
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+            display: flex; flex-direction: column; align-items: center; 
+            justify-content: center; z-index: 100; background: var(--bg-dark);
+            transition: opacity 0.4s ease;
+        }
+        .hidden { display: none !important; opacity: 0; }
+
+        /* --- GİRİŞ VE LOBİ --- */
+        .logo-main { font-size: 48px; font-weight: 900; color: var(--neon-green); text-shadow: 0 0 20px rgba(0,255,150,0.6); margin-bottom: 25px; letter-spacing: 2px; }
+        .input-box { 
+            padding: 18px; border-radius: 12px; border: 2px solid var(--neon-green); 
+            background: #111; color: white; width: 280px; text-align: center; 
+            font-size: 18px; margin-bottom: 20px; transition: 0.3s;
+        }
+        .input-box:focus { box-shadow: 0 0 15px var(--neon-green); }
+        .btn-start { 
+            padding: 18px 45px; border: none; border-radius: 12px; font-weight: bold; 
+            cursor: pointer; background: var(--neon-green); color: black; 
+            font-size: 20px; transition: 0.3s; width: 280px;
+        }
+        .btn-start:hover { transform: scale(1.05); box-shadow: 0 0 25px var(--neon-green); }
+
+        .game-selection { display: flex; flex-direction: column; gap: 20px; padding: 20px; }
+        .game-card { 
+            width: 300px; padding: 35px; background: #0f0f0f; border: 2px solid #222; 
+            border-radius: 20px; cursor: pointer; transition: 0.4s; text-align: center;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.5);
+        }
+        .game-card:hover { border-color: var(--neon-blue); transform: translateY(-8px); background: #151515; }
+        .game-card h3 { color: var(--neon-blue); margin: 0; font-size: 26px; text-shadow: 0 0 10px var(--neon-blue); }
+        .game-card p { color: #777; font-size: 14px; margin-top: 12px; font-weight: 500; }
+
+        /* --- OYUN ALANLARI --- */
+        canvas { 
+            border: 3px solid #222; background: #000; border-radius: 18px; 
+            max-width: 95vw; box-shadow: 0 0 50px rgba(0,0,0,0.9);
+        }
+        .score-panel { 
+            font-size: 32px; font-weight: 800; color: var(--neon-green); 
+            margin-bottom: 20px; text-shadow: 0 0 15px var(--neon-green);
+        }
+
+        /* --- MOBİL JOYSTICK (EN ALTTA) --- */
+        .controls-layer { 
+            position: fixed; bottom: 40px; display: grid; 
+            grid-template-columns: repeat(3, 85px); grid-template-rows: repeat(2, 85px); 
+            gap: 15px; z-index: 200;
+        }
+        .joy { 
+            background: rgba(25, 25, 25, 0.9); border: 2px solid var(--neon-blue); 
+            border-radius: 20px; display: flex; align-items: center; 
+            justify-content: center; font-size: 35px; color: var(--neon-blue); 
+            box-shadow: 0 6px 0 #00817d; transition: 0.1s;
+        }
+        .joy:active { transform: translateY(4px); box-shadow: none; background: var(--neon-blue); color: black; }
+        #up-j { grid-column: 2; }
+        #left-j { grid-column: 1; grid-row: 2; }
+        #down-j { grid-column: 2; grid-row: 2; }
+        #right-j { grid-column: 3; grid-row: 2; }
+
+        .btn-exit { 
+            position: fixed; top: 20px; left: 20px; padding: 12px 25px; 
+            background: #222; border: 1px solid #444; color: white; 
+            border-radius: 12px; cursor: pointer; z-index: 300; font-weight: bold;
+        }
     </style>
 </head>
 <body>
 
-    <div id="login-screen" class="overlay">
-        <h1 style="color: var(--neon-green);">GAME HUB</h1>
-        <input type="text" id="username" placeholder="Oyuncu Adı" maxlength="10">
-        <button class="btn-ui btn-green" onclick="handleLogin()">GİRİŞ</button>
+    <div id="scr-login" class="screen">
+        <div class="logo-main">NEON HUB</div>
+        <input type="text" id="user-in" class="input-box" placeholder="OYUNCU ADI" maxlength="10">
+        <button class="btn-start" onclick="saveUser()">BAŞLAT</button>
     </div>
 
-    <div id="menu-screen" class="overlay">
-        <h1 style="color: var(--neon-blue);">SELAM, <span id="welcome-user"></span></h1>
-        <div class="game-card" onclick="startSnake()"><h3>🐍 YILAN</h3><p>Klasik Macera</p></div>
-        <div class="game-card" onclick="startBird()"><h3>🐦 NEON BIRD</h3><p>Engelleri Aş</p></div>
-        <button class="btn-ui btn-gray" onclick="clearMyAccount()">HESABI SİL</button>
-    </div>
-
-    <div id="snake-container" class="game-container">
-        <button class="back-btn" onclick="backToMenu()">MENÜ ☰</button>
-        <div class="score-box">Yılan: <span id="snake-score">0</span></div>
-        <canvas id="snakeCanvas" width="400" height="400"></canvas>
-        <div class="mobile-controls">
-            <div class="btn-dir" id="s-up">↑</div><div class="btn-dir" id="s-left">←</div><div class="btn-dir" id="s-down">↓</div><div class="btn-dir" id="s-right">→</div>
-        </div>
-    </div>
-
-    <div id="bird-container" class="game-container">
-        <button class="back-btn" onclick="backToMenu()">MENÜ ☰</button>
-        <div class="score-box">Bird: <span id="bird-score">0</span></div>
-        <canvas id="birdCanvas" width="320" height="480"></canvas>
-    </div>
-
-    <script>
-        let playerName = "";
-        let gameActive = false;
-        let birdTimer, snakeTimer;
-
-        const getMyAcc = () => localStorage.getItem("hubAccount");
-        window.onload = () => { if(getMyAcc()) { playerName = getMyAcc(); showMenu(); } };
-
-        function handleLogin() {
-            const input = document.getElementById("username").value.trim();
-            if(!input) return;
-            playerName = input;
-            localStorage.setItem("hubAccount", playerName);
-            showMenu();
-        }
-
-        function showMenu() {
-            document.querySelectorAll('.overlay, .game-container').forEach(el => el.style.display = 'none');
-            document.getElementById("menu-screen").style.display = "flex";
-            document.getElementById("welcome-user").innerText = playerName;
-            gameActive = false;
-            clearInterval(snakeTimer);
-        }
-
-        function backToMenu() { location.reload(); }
-        function clearMyAccount() { localStorage.clear(); location.reload(); }
-
-        // --- YILAN ---
-        const sCanvas = document.getElementById("snakeCanvas"), sCtx = sCanvas.getContext("2d");
-        let snake, apple, sDir, sNextDir, sScore;
-
-        function startSnake() {
-            document.getElementById("menu-screen").style.display = "none";
-            document.getElementById("snake-container").style.display = "flex";
-            sScore = 0; sDir = "RIGHT"; sNextDir = "RIGHT";
-            snake = [{x:200, y:200}, {x:180, y:200}];
-            apple = {x: 100, y:100};
-            gameActive = true;
-            clearInterval(snakeTimer);
-            snakeTimer = setInterval(snakeUpdate, 150);
-        }
-
-        function snakeUpdate() {
-            if(!gameActive) return;
-            sDir = sNextDir;
-            sCtx.fillStyle = "black"; sCtx.fillRect(0,0,400,400);
-            sCtx.fillStyle = "red"; sCtx.fillRect(apple.x, apple.y, 18, 18);
-            snake.forEach((p, i) => { sCtx.fillStyle = i===0 ? "#00ff96" : "#00a1ff"; sCtx.fillRect(p.x, p.y, 18, 18); });
-            let hX = snake[0].x, hY = snake[0].y;
-            if(sDir==="UP") hY-=20; if(sDir==="DOWN") hY+=20; if(sDir==="LEFT") hX-=20; if(sDir==="RIGHT") hX+=20;
-            if(hX===apple.x && hY===apple.y) {
-                sScore+=10; document.getElementById("snake-score").innerText = sScore;
-                apple = {x: Math.floor(Math.random()*19)*20, y: Math.floor(Math.random()*19)*20};
-            } else { snake.pop(); }
-            let nH = {x:hX, y:hY};
-            if(hX<0 || hX>=400 || hY<0 || hY>=400 || snake.some(p => p.x===nH.x && p.y===nH.y)) {
-                alert("Yandın! Skor: " + sScore); startSnake();
-            } else { snake.unshift(nH); }
-        }
-
-        // --- BIRD (STABİL VERSİYON) ---
-        const bCanvas = document.getElementById("birdCanvas"), bCtx = bCanvas.getContext("2d");
-        let birdY, birdV, pipes, bScore, bActive = false;
-
-        function startBird() {
-            document.getElementById("menu-screen").style.display = "none";
-            document.getElementById("bird-container").style.display = "flex";
-            birdY = 200; birdV = 0; pipes = []; bScore = 0; bActive = true;
-            document.getElementById("bird-score").innerText = "0";
-            birdLoop();
-        }
-
-        function birdLoop() {
-            if(!bActive) return;
-            bCtx.fillStyle = "#050505"; bCtx.fillRect(0,0,320,480);
-            
-            birdV += 0.5; birdY += birdV; // Yerçekimi
-            bCtx.fillStyle = "#ffff00"; bCtx.beginPath(); bCtx.arc(50, birdY, 12, 0, Math.PI*2); bCtx.fill();
-
-            // Boru Oluşturma (Sabit Mesafe)
-            if(pipes.length === 0 || pipes[pipes.length-1].x < 150) {
-                let gap = 130;
-                let h = Math.random() * (480 - gap - 100) + 50;
-                pipes.push({x: 320, h: h, gap: gap, passed: false});
-            }
-
-            for(let i = pipes.length-1; i >= 0; i--) {
-                let p = pipes[i];
-                p.x -= 3;
-                bCtx.fillStyle = "#00f2ea";
-                bCtx.fillRect(p.x, 0, 50, p.h);
-                bCtx.fillRect(p.x, p.h + p.gap, 50, 480);
-
-                // Çarpışma Kontrolü
-                if(50 + 10 > p.x && 50 - 10 < p.x + 50) {
-                    if(birdY - 10 < p.h || birdY + 10 > p.h + p.gap) { bActive = false; }
-                }
-                // Skor
-                if(!p.passed && p.x < 50) { p.passed = true; bScore++; document.getElementById("bird-score").innerText = bScore; }
-                // Silme
-                if(p.x < -60) pipes.splice(i, 1);
-            }
-
-            if(birdY > 480 || birdY < 0) bActive = false;
-
-            if(!bActive) {
-                alert("Bird Düştü! Skor: " + bScore);
-                startBird();
-            } else {
-                requestAnimationFrame(birdLoop);
-            }
-        }
-
-        // KONTROLLER
-        const setDir = (d) => {
-            if(d==="UP" && sDir!=="DOWN") sNextDir="UP";
-            if(d==="DOWN" && sDir!=="UP") sNextDir="DOWN";
-            if(d==="LEFT" && sDir!=="RIGHT") sNextDir="LEFT";
-            if(d==="RIGHT" && sDir!=="LEFT") sNextDir="RIGHT";
-        };
-
-        const jump = () => { if(bActive) birdV = -7; };
-
-        // Mobil Dokunma
-        window.addEventListener("touchstart", (e) => { 
-            if(bActive) jump(); 
-            if(e.target.classList.contains('btn-dir')) {
-                setDir(e.target.id.replace('s-','').toUpperCase());
-            }
-        }, {passive: false});
-
-        //
+    <div id="scr-lobby" class="screen hidden">
+        <div style="font-size: 20px; color: #888; margin-bottom: 10px;">HOŞ GELDİN PİLOT</div>
+        <div id="display-nick" style="font-size: 32px; font-weight: bold; margin-bottom: 40px; color: var(--neon-pink);"></div>
+        <div class="game-selection">
+            <div class="game-card" onclick="startSnakeGame()">
+                <h3>🐍 NEON SNAKE</h3>
+                <p>Hızlandıkça uzayan macera.</p>
+            </div>
+            <div class="game-card" onclick="startBirdGame()">
+                <h3>🐦
