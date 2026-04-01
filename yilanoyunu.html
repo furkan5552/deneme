@@ -3,197 +3,244 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Yılan Pro - VIP</title>
+    <title>Furkan Game Hub - VIP</title>
     <style>
-        body { background: #0a101e; margin: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; color: white; font-family: sans-serif; overflow: hidden; touch-action: none; height: 100vh; }
-        .overlay { position: absolute; width: 100%; height: 100%; background: rgba(0,0,0,0.95); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 100; }
-        #game-over-screen, #leaderboard-modal, #game-container { display: none; }
-        input { padding: 12px; border-radius: 8px; border: 2px solid #00ff96; background: #111; color: white; margin-bottom: 10px; width: 200px; text-align: center; font-size: 16px; }
-        .btn-ui { padding: 12px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; width: 220px; margin: 5px 0; font-size: 15px; }
-        .btn-green { background: #00ff96; color: black; }
-        .btn-blue { background: #00f2ea; color: black; }
-        .btn-gray { background: #444; color: white; }
-        canvas { border: 3px solid #1a1a1a; border-radius: 12px; background: #000; max-width: 90vw; max-height: 45vh; box-shadow: 0 0 20px rgba(0,255,150,0.1); }
-        .controls { display: grid; grid-template-columns: repeat(3, 75px); grid-template-rows: repeat(2, 75px); gap: 10px; margin-top: 20px; }
-        .btn-game { background: #111; color: #00f2ea; border: 2px solid #00f2ea; border-radius: 18px; font-size: 28px; display: flex; align-items: center; justify-content: center; user-select: none; -webkit-tap-highlight-color: transparent; }
-        #up { grid-column: 2; } #left { grid-column: 1; grid-row: 2; } #down { grid-column: 2; grid-row: 2; } #right { grid-column: 3; grid-row: 2; }
+        :root { --neon-green: #00ff96; --neon-blue: #00f2ea; --neon-pink: #ff0050; }
+        body { 
+            background: #050505; margin: 0; font-family: 'Segoe UI', sans-serif; 
+            color: white; overflow: hidden; height: 100vh;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .overlay { 
+            position: absolute; width: 100%; height: 100%; background: rgba(0,0,0,0.95);
+            display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 100;
+        }
+        /* MENÜ TASARIMI */
+        #menu-screen { display: none; text-align: center; }
+        .hub-title { font-size: 32px; color: var(--neon-blue); text-shadow: 0 0 15px var(--neon-blue); margin-bottom: 30px; }
+        .game-card {
+            width: 280px; padding: 20px; margin: 10px; background: #111;
+            border: 2px solid #333; border-radius: 15px; cursor: pointer;
+            transition: 0.3s; position: relative; overflow: hidden;
+        }
+        .game-card:hover { border-color: var(--neon-green); transform: translateY(-5px); box-shadow: 0 5px 20px rgba(0,255,150,0.2); }
+        .game-card h3 { margin: 0; font-size: 20px; color: var(--neon-green); }
+        .game-card p { font-size: 13px; color: #888; margin: 8px 0 0; }
+
+        /* FORM VE BUTONLAR */
+        input { padding: 14px; border-radius: 10px; border: 2px solid var(--neon-green); background: #000; color: white; width: 220px; text-align: center; margin-bottom: 15px; outline: none; }
+        .btn-ui { padding: 14px 30px; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; transition: 0.3s; font-size: 16px; }
+        .btn-green { background: var(--neon-green); color: black; }
+        .btn-gray { background: #333; color: white; margin-top: 20px; }
+
+        /* OYUN ALANLARI */
+        .game-container { display: none; flex-direction: column; align-items: center; }
+        canvas { border: 3px solid #1a1a1a; background: #000; border-radius: 15px; box-shadow: 0 0 30px rgba(0,0,0,0.5); max-width: 95vw; }
+        
+        #leaderboard-modal { display: none; }
+        .score-row { display: flex; justify-content: space-between; width: 240px; padding: 8px 0; border-bottom: 1px solid #222; }
+        
+        /* KONTROLLER */
+        .controls { display: grid; grid-template-columns: repeat(3, 75px); gap: 10px; margin-top: 15px; }
+        .btn-dir { background: #111; color: var(--neon-blue); border: 2px solid var(--neon-blue); height: 70px; border-radius: 15px; display: flex; align-items: center; justify-content: center; font-size: 24px; }
+        #up-btn { grid-column: 2; }
     </style>
 </head>
 <body>
 
     <div id="login-screen" class="overlay">
-        <h1 style="color: #00ff96; letter-spacing: 2px;">🐍 YILAN PRO</h1>
-        <input type="text" id="username" placeholder="İsmini Yaz..." maxlength="10">
-        <div id="error-msg" style="color:#ff0050; font-size:13px; margin-bottom:10px; font-weight:bold; height:20px;"></div>
-        <button class="btn-ui btn-green" onclick="handleLogin()">OYUNA BAŞLA</button>
+        <h1 style="color: var(--neon-green);">GAME HUB LOGIN</h1>
+        <input type="text" id="username" placeholder="Oyuncu Adı" maxlength="10">
+        <div id="error-msg" style="color:var(--neon-pink); font-size:14px; height:25px;"></div>
+        <button class="btn-ui btn-green" onclick="handleLogin()">GİRİŞ YAP</button>
     </div>
 
-    <div id="game-over-screen" class="overlay">
-        <h1 style="color:#ff0050; margin:0;">EYVAH!</h1>
-        <p id="final-score-text" style="font-size:20px; margin:15px 0;"></p>
-        <button class="btn-ui btn-green" onclick="resetGame()">TEKRAR OYNA</button>
-        <button class="btn-ui btn-blue" onclick="openLeaderboard()">SKOR TABLOSU</button>
-        <button class="btn-ui btn-gray" onclick="clearMyAccount()">HESABI SİL / YENİ İSİM</button>
-    </div>
-
-    <div id="leaderboard-modal" class="overlay">
-        <div style="background:#0a0a0a; padding:25px; border-radius:20px; border:2px solid #00f2ea; width:280px; box-shadow: 0 0 30px rgba(0,242,234,0.2);">
-            <h2 style="text-align:center; color:#00f2ea; margin-top:0;">🏆 SIRALAMA</h2>
-            <div id="full-score-list" style="margin:15px 0; max-height:180px; overflow-y:auto; font-size:15px;"></div>
-            <button class="btn-ui btn-gray" style="width:100%" onclick="closeLeaderboard()">GERİ DÖN</button>
+    <div id="menu-screen" class="overlay">
+        <h1 class="hub-title">HOŞ GELDİN, <span id="welcome-user"></span></h1>
+        <div class="game-card" onclick="startSnake()">
+            <h3>🐍 KLASİK YILAN</h3>
+            <p>Elmaları topla, en uzun sen ol!</p>
         </div>
+        <div class="game-card" onclick="startBird()">
+            <h3>🐦 NEON BIRD</h3>
+            <p>Engellere takılmadan en uzağa uç!</p>
+        </div>
+        <button class="btn-ui btn-gray" onclick="clearMyAccount()">HESABI SİL</button>
     </div>
 
-    <div id="game-container">
-        <div style="font-size:22px; font-weight:bold; color:#00ff96; margin-bottom:15px;"><span id="user-display"></span>: <span id="skor-val">0</span></div>
-        <canvas id="snakeBoard" width="400" height="400"></canvas>
+    <div id="snake-container" class="game-container">
+        <div style="margin-bottom:10px; font-size:20px;">Yılan Skoru: <span id="snake-score">0</span></div>
+        <canvas id="snakeCanvas" width="400" height="400"></canvas>
         <div class="controls">
-            <div class="btn-game" id="up">↑</div>
-            <div class="btn-game" id="left">←</div>
-            <div class="btn-game" id="down">↓</div>
-            <div class="btn-game" id="right">→</div>
+            <div class="btn-dir" id="s-up" style="grid-column:2">↑</div>
+            <div class="btn-dir" id="s-left" style="grid-row:2; grid-column:1">←</div>
+            <div class="btn-dir" id="s-down" style="grid-row:2; grid-column:2">↓</div>
+            <div class="btn-dir" id="s-right" style="grid-row:2; grid-column:3">→</div>
         </div>
+        <button class="btn-ui btn-gray" onclick="backToMenu()">MENÜYE DÖN</button>
+    </div>
+
+    <div id="bird-container" class="game-container">
+        <div style="margin-bottom:10px; font-size:20px;">Bird Skoru: <span id="bird-score">0</span></div>
+        <canvas id="birdCanvas" width="320" height="480"></canvas>
+        <p style="color:#666; margin-top:10px;">Zıplamak için tıkla veya Boşluk tuşuna bas!</p>
+        <button class="btn-ui btn-gray" onclick="backToMenu()">MENÜYE DÖN</button>
     </div>
 
     <script>
-        // SİSTEM DEĞİŞKENLERİ
-        const canvas = document.getElementById("snakeBoard");
-        const ctx = canvas.getContext("2d");
-        const grid = 20;
-        let score = 0, snake = [], apple = {}, d = "RIGHT", nextD = "RIGHT", currentSpeed = 200;
-        let playerName = "", gameRunning = false, loopTimeout;
+        let playerName = "";
+        const getScores = (key) => JSON.parse(localStorage.getItem(key) || "[]");
+        const getMyAcc = () => localStorage.getItem("hubAccount");
 
-        // VERİ YÖNETİMİ
-        const getGlobalScores = () => JSON.parse(localStorage.getItem("furkanSnakeGlobal") || "[]");
-        const getMyAccount = () => localStorage.getItem("furkanSnakeAccount");
-
-        // GİRİŞ KONTROLÜ (Otomatik)
+        // GİRİŞ MANTIĞI
         window.onload = () => {
-            const saved = getMyAccount();
-            if(saved) {
-                document.getElementById("username").value = saved;
-                document.getElementById("username").disabled = true;
-                document.getElementById("error-msg").innerText = "Kayıtlı hesap aktif.";
-                document.getElementById("error-msg").style.color = "#00f2ea";
+            if(getMyAcc()) {
+                playerName = getMyAcc();
+                showMenu();
             }
         };
 
-        // BUTON FONKSİYONLARI (Hata Veren Kısım Burasıydı)
         function handleLogin() {
             const input = document.getElementById("username").value.trim();
-            const error = document.getElementById("error-msg");
-            const mySaved = getMyAccount();
-
-            if(!input) { error.innerText = "Bir isim yazmalısın!"; return; }
-            if(mySaved && input !== mySaved) { error.innerText = "Bu cihaz " + mySaved + " adına kayıtlı!"; return; }
-            
-            const scores = getGlobalScores();
-            if(!mySaved && scores.some(s => s.name.toLowerCase() === input.toLowerCase())) {
-                error.innerText = "Bu isim zaten alınmış!";
+            if(!input) return;
+            // Benzersiz cihaz ve isim kontrolü (Yılan oyunundaki mantık)
+            const globalUsers = [...getScores("snakeHigh"), ...getScores("birdHigh")];
+            if(globalUsers.some(s => s.name.toLowerCase() === input.toLowerCase() && input !== getMyAcc())) {
+                document.getElementById("error-msg").innerText = "Bu isim başkasına ait!";
                 return;
             }
-
             playerName = input;
-            localStorage.setItem("furkanSnakeAccount", playerName);
-            document.getElementById("login-screen").style.display = "none";
-            document.getElementById("game-container").style.display = "flex";
-            document.getElementById("user-display").innerText = playerName;
-            resetGame();
+            localStorage.setItem("hubAccount", playerName);
+            showMenu();
+        }
+
+        function showMenu() {
+            document.querySelectorAll('.overlay, .game-container').forEach(el => el.style.display = 'none');
+            document.getElementById("menu-screen").style.display = "flex";
+            document.getElementById("welcome-user").innerText = playerName.toUpperCase();
+        }
+
+        function backToMenu() {
+            gameRunning = false;
+            birdRunning = false;
+            showMenu();
         }
 
         function clearMyAccount() {
-            if(confirm("Hesabını silmek istiyor musun?")) {
-                localStorage.removeItem("furkanSnakeAccount");
+            if(confirm("Tüm kayıtların silinecek?")) {
+                localStorage.removeItem("hubAccount");
                 location.reload();
             }
         }
 
-        function openLeaderboard() {
-            const s = getGlobalScores().sort((a,b) => b.score - a.score);
-            document.getElementById("full-score-list").innerHTML = s.slice(0,10).map((x,i) => 
-                `<div style="display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid #222;">
-                    <span>${i+1}. ${x.name}</span>
-                    <span style="color:#00ff96; font-weight:bold;">${x.score}</span>
-                </div>`).join("") || "Henüz rekor yok!";
-            document.getElementById("leaderboard-modal").style.display = "flex";
-        }
+        // --- YILAN MOTORU ---
+        const sCanvas = document.getElementById("snakeCanvas"), sCtx = sCanvas.getContext("2d");
+        let snake, apple, sDir, sNextDir, sScore, gameRunning = false, sLoop;
 
-        function closeLeaderboard() { document.getElementById("leaderboard-modal").style.display = "none"; }
-
-        // OYUN MOTORU
-        function resetGame() {
-            score = 0; currentSpeed = 200; d = "RIGHT"; nextD = "RIGHT";
-            snake = [{x: 200, y: 200}, {x: 180, y: 200}];
-            apple = { x: 100, y: 100 };
-            document.getElementById("skor-val").innerText = "0";
-            document.getElementById("game-over-screen").style.display = "none";
+        function startSnake() {
+            document.getElementById("menu-screen").style.display = "none";
+            document.getElementById("snake-container").style.display = "flex";
+            sScore = 0; sDir = "RIGHT"; sNextDir = "RIGHT";
+            snake = [{x:200, y:200}, {x:180, y:200}];
+            apple = {x: 100, y:100};
             gameRunning = true;
-            clearTimeout(loopTimeout);
-            gameLoop();
+            snakeLoop();
         }
 
-        function saveScore() {
-            let s = getGlobalScores();
-            let idx = s.findIndex(x => x.name === playerName);
-            if(idx > -1) { if(score > s[idx].score) s[idx].score = score; } 
-            else { s.push({name: playerName, score: score}); }
-            localStorage.setItem("furkanSnakeGlobal", JSON.stringify(s));
-        }
-
-        function gameLoop() {
+        function snakeLoop() {
             if(!gameRunning) return;
-            d = nextD;
-            ctx.fillStyle = "black"; ctx.fillRect(0, 0, 400, 400);
+            sDir = sNextDir;
+            sCtx.fillStyle = "black"; sCtx.fillRect(0,0,400,400);
+            sCtx.fillStyle = "red"; sCtx.fillRect(apple.x, apple.y, 18, 18);
+            snake.forEach((p, i) => { sCtx.fillStyle = i===0 ? "#00ff96" : "#00a1ff"; sCtx.fillRect(p.x, p.y, 18, 18); });
             
-            // Elma
-            ctx.fillStyle = "#ff0050"; ctx.fillRect(apple.x, apple.y, 18, 18);
-
-            // Yılan
-            snake.forEach((p, i) => {
-                ctx.fillStyle = i === 0 ? "#00ff96" : "#00a1ff";
-                ctx.fillRect(p.x, p.y, 18, 18);
-            });
-
-            let headX = snake[0].x, headY = snake[0].y;
-            if(d === "UP") headY -= 20; if(d === "DOWN") headY += 20;
-            if(d === "LEFT") headX -= 20; if(d === "RIGHT") headX += 20;
-
-            if(headX === apple.x && headY === apple.y) {
-                score += 10;
-                if(currentSpeed > 60) currentSpeed -= 8;
-                document.getElementById("skor-val").innerText = score;
-                apple = { x: Math.floor(Math.random()*19)*20, y: Math.floor(Math.random()*19)*20 };
+            let hX = snake[0].x, hY = snake[0].y;
+            if(sDir==="UP") hY-=20; if(sDir==="DOWN") hY+=20; if(sDir==="LEFT") hX-=20; if(sDir==="RIGHT") hX+=20;
+            
+            if(hX===apple.x && hY===apple.y) {
+                sScore+=10; document.getElementById("snake-score").innerText = sScore;
+                apple = {x: Math.floor(Math.random()*19)*20, y: Math.floor(Math.random()*19)*20};
             } else { snake.pop(); }
 
-            let nH = {x: headX, y: headY};
-            if(headX < 0 || headX >= 400 || headY < 0 || headY >= 400 || snake.some(p => p.x === nH.x && p.y === nH.y)) {
-                gameRunning = false;
-                saveScore();
-                document.getElementById("final-score-text").innerText = "Skorun: " + score;
-                document.getElementById("game-over-screen").style.display = "flex";
+            let nH = {x:hX, y:hY};
+            if(hX<0 || hX>=400 || hY<0 || hY>=400 || snake.some(p => p.x===nH.x && p.y===nH.y)) {
+                alert("Yılan Yandı! Skor: " + sScore);
+                saveHigh("snakeHigh", sScore);
+                startSnake();
             } else {
                 snake.unshift(nH);
-                loopTimeout = setTimeout(gameLoop, currentSpeed);
+                setTimeout(snakeLoop, 150);
             }
         }
 
-        // KONTROLLER
-        function changeDir(v) {
-            if(v === "UP" && d !== "DOWN") nextD = "UP";
-            if(v === "DOWN" && d !== "UP") nextD = "DOWN";
-            if(v === "LEFT" && d !== "RIGHT") nextD = "LEFT";
-            if(v === "RIGHT" && d !== "LEFT") nextD = "RIGHT";
+        // --- NEON BIRD MOTORU ---
+        const bCanvas = document.getElementById("birdCanvas"), bCtx = bCanvas.getContext("2d");
+        let birdY, birdV, pipes, bScore, birdRunning = false;
+
+        function startBird() {
+            document.getElementById("menu-screen").style.display = "none";
+            document.getElementById("bird-container").style.display = "flex";
+            birdY = 200; birdV = 0; pipes = []; bScore = 0; birdRunning = true;
+            birdLoop();
         }
 
-        document.addEventListener("keydown", e => {
-            if(e.key.includes("Arrow")) changeDir(e.key.replace("Arrow","").toUpperCase());
-        });
+        function birdLoop() {
+            if(!birdRunning) return;
+            bCtx.fillStyle = "#050505"; bCtx.fillRect(0,0,320,480);
+            
+            birdV += 0.6; birdY += birdV; // Yerçekimi
+            bCtx.fillStyle = "yellow"; bCtx.beginPath(); bCtx.arc(50, birdY, 12, 0, Math.PI*2); bCtx.fill();
 
-        ["up","down","left","right"].forEach(id => {
-            const btn = document.getElementById(id);
-            btn.addEventListener("touchstart", e => { e.preventDefault(); changeDir(id.toUpperCase()); });
-            btn.addEventListener("mousedown", () => changeDir(id.toUpperCase()));
-        });
+            if(Date.now() % 100 < 20) pipes.push({x: 320, h: Math.random()*200 + 100, w: 50});
+            
+            pipes.forEach((p, i) => {
+                p.x -= 3;
+                bCtx.fillStyle = "#00f2ea";
+                bCtx.fillRect(p.x, 0, p.w, p.h); // Üst boru
+                bCtx.fillRect(p.x, p.h + 120, p.w, 480); // Alt boru
+                
+                // Çarpışma
+                if(50 > p.x && 50 < p.x + p.w && (birdY < p.h || birdY > p.h + 120)) birdGameOver();
+                if(p.x === 50) { bScore++; document.getElementById("bird-score").innerText = bScore; }
+            });
+            
+            pipes = pipes.filter(p => p.x > -50);
+            if(birdY > 480 || birdY < 0) birdGameOver();
+            requestAnimationFrame(birdLoop);
+        }
+
+        function birdGameOver() {
+            birdRunning = false;
+            alert("Bird Düştü! Skor: " + bScore);
+            saveHigh("birdHigh", bScore);
+            startBird();
+        }
+
+        function saveHigh(key, val) {
+            let s = getScores(key);
+            let i = s.findIndex(x => x.name === playerName);
+            if(i > -1) { if(val > s[i].score) s[i].score = val; }
+            else s.push({name: playerName, score: val});
+            localStorage.setItem(key, JSON.stringify(s));
+        }
+
+        // KONTROLLER
+        window.onkeydown = (e) => {
+            if(gameRunning) {
+                if(e.key==="ArrowUp" && sDir!=="DOWN") sNextDir="UP";
+                if(e.key==="ArrowDown" && sDir!=="UP") sNextDir="DOWN";
+                if(e.key==="ArrowLeft" && sDir!=="RIGHT") sNextDir="LEFT";
+                if(e.key==="ArrowRight" && sDir!=="LEFT") sNextDir="RIGHT";
+            }
+            if(birdRunning && e.key===" ") birdV = -8;
+        };
+        bCanvas.onclick = () => { if(birdRunning) birdV = -8; };
+
+        // Mobil Yılan Butonları
+        document.getElementById("s-up").onclick = () => { if(sDir!=="DOWN") sNextDir="UP"; };
+        document.getElementById("s-down").onclick = () => { if(sDir!=="UP") sNextDir="DOWN"; };
+        document.getElementById("s-left").onclick = () => { if(sDir!=="RIGHT") sNextDir="LEFT"; };
+        document.getElementById("s-right").onclick = () => { if(sDir!=="LEFT") sNextDir="RIGHT"; };
     </script>
 </body>
 </html>
