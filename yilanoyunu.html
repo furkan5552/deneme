@@ -3,9 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Yılan Oyunu - Canlı Tema</title>
+    <title>Yılan Oyunu - Pro</title>
     <style>
-        /* CANLI VE HAREKETLİ ARKA PLAN (Siberpunk Gradyan) */
         @keyframes gradientBG {
             0% { background-position: 0% 50%; }
             50% { background-position: 100% 50%; }
@@ -13,93 +12,67 @@
         }
 
         body { 
-            /* Canlı renk geçişi (Mavi-Mor-Siyah) */
-            background: linear-gradient(-45deg, #0a0a12, #1a0f2e, #0a1622, #101015);
+            background: linear-gradient(-45deg, #0a0a12, #1a0f2e, #0a1622);
             background-size: 400% 400%;
-            animation: gradientBG 15s ease infinite; /* Yavaşça akan renkler */
-            
-            margin: 0; 
-            display: flex; 
-            flex-direction: column; 
-            align-items: center; 
-            justify-content: center;
-            color: white; 
-            font-family: 'Segoe UI', Roboto, sans-serif; 
-            overflow: hidden; 
-            touch-action: none; 
-            height: 100vh;
+            animation: gradientBG 15s ease infinite;
+            margin: 0; display: flex; flex-direction: column; align-items: center; 
+            justify-content: center; color: white; font-family: 'Segoe UI', sans-serif; 
+            overflow: hidden; touch-action: none; height: 100vh;
         }
 
-        /* BİLGİ PANELİ (Neon Efekti) */
-        #info-container {
-            background: rgba(0, 0, 0, 0.6);
-            border: 2px solid #00ff96;
-            border-radius: 10px;
-            padding: 8px 20px;
-            margin-bottom: 15px;
-            text-align: center;
-            box-shadow: 0 0 15px rgba(0, 255, 150, 0.4);
+        /* GİRİŞ EKRANI */
+        #login-screen {
+            position: absolute; width: 100%; height: 100%; background: rgba(0,0,0,0.9);
+            display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 10;
+        }
+        input { padding: 12px; border-radius: 8px; border: 2px solid #00ff96; background: #111; color: white; margin-bottom: 15px; width: 200px; text-align: center; }
+        .start-btn { padding: 10px 25px; background: #00ff96; color: black; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; }
+
+        /* SKOR TABLOSU (SAĞ ÜST) */
+        #leaderboard {
+            position: absolute; top: 10px; right: 10px; background: rgba(0,0,0,0.7);
+            border: 1px solid #00f2ea; padding: 10px; border-radius: 8px; font-size: 12px;
+            max-width: 120px;
         }
 
-        #skor { font-size: 26px; font-weight: bold; color: #00ff96; text-shadow: 0 0 10px #00ff96; }
-        #hiz-hint { font-size: 14px; color: #00f2ea; }
+        #game-container { display: none; flex-direction: column; align-items: center; }
 
-        /* OYUN TAHTASI (Yarı Saydam ve Parlayan Kenar) */
-        canvas { 
-            background: rgba(0, 0, 0, 0.8); /* Arka planı hafif gösterir */
-            border: 3px solid #00f2ea; 
-            border-radius: 12px; 
-            box-shadow: 0 0 25px rgba(0, 242, 234, 0.5);
-            max-width: 90vw; max-height: 45vh;
-        }
+        #skor-panel { font-size: 24px; font-weight: bold; color: #00ff96; margin-bottom: 10px; }
 
-        /* KONTROL BUTONLARI (Neon Siber Tasarım) */
-        .controls { display: grid; grid-template-columns: repeat(3, 75px); grid-template-rows: repeat(2, 75px); gap: 12px; margin-top: 20px; }
-        .btn { 
-            background: rgba(17, 17, 25, 0.8); 
-            color: #00f2ea; 
-            border: 2px solid #00f2ea; 
-            border-radius: 18px; 
-            font-size: 32px; display: flex; align-items: center; 
-            justify-content: center; user-select: none;
-            box-shadow: 0 0 10px rgba(0, 242, 234, 0.3);
-            transition: 0.1s;
-            -webkit-tap-highlight-color: transparent;
-        }
-        .btn:active { 
-            background: #00f2ea; 
-            color: #000; 
-            box-shadow: 0 0 20px #00f2ea;
-            transform: scale(0.92);
-        }
-        
-        #up { grid-column: 2; border-color: #00ff96; color: #00ff96; box-shadow: 0 0 10px rgba(0, 255, 150, 0.3); }
-        #up:active { background: #00ff96; box-shadow: 0 0 20px #00ff96; }
-        
+        canvas { border: 3px solid #00f2ea; border-radius: 12px; box-shadow: 0 0 20px rgba(0, 242, 234, 0.4); max-width: 90vw; max-height: 40vh; }
+
+        .controls { display: grid; grid-template-columns: repeat(3, 70px); grid-template-rows: repeat(2, 70px); gap: 10px; margin-top: 15px; }
+        .btn { background: rgba(255,255,255,0.1); color: #00f2ea; border: 2px solid #00f2ea; border-radius: 15px; font-size: 28px; display: flex; align-items: center; justify-content: center; user-select: none; }
+        .btn:active { background: #00f2ea; color: black; }
+        #up { grid-column: 2; }
         #left { grid-column: 1; grid-row: 2; }
         #down { grid-column: 2; grid-row: 2; }
         #right { grid-column: 3; grid-row: 2; }
-
-        .hint { margin-top: 15px; font-size: 13px; color: #666; }
     </style>
 </head>
 <body>
 
-    <div id="info-container">
-        <div id="skor">SKOR: 0</div>
-        <div id="hiz-hint">Hız artıyor! Elmayı ye!</div>
+    <div id="login-screen">
+        <h1 style="color: #00ff96;">YILAN PRO</h1>
+        <input type="text" id="username" placeholder="Kullanıcı Adı Gir" maxlength="10">
+        <button class="start-btn" onclick="startGame()">BAŞLA</button>
     </div>
 
-    <canvas id="snakeBoard" width="400" height="400"></canvas>
-    
-    <div class="controls">
-        <div class="btn" id="up">↑</div>
-        <div class="btn" id="left">←</div>
-        <div class="btn" id="down">↓</div>
-        <div class="btn" id="right">→</div>
+    <div id="leaderboard">
+        <strong style="color: #00f2ea;">TOP SKORLAR</strong>
+        <div id="score-list"></div>
     </div>
 
-    <div class="hint">PC: Yön Tuşları | Mobil: Butonlar</div>
+    <div id="game-container">
+        <div id="skor-panel"><span id="user-display"></span>: <span id="skor">0</span></div>
+        <canvas id="snakeBoard" width="400" height="400"></canvas>
+        <div class="controls">
+            <div class="btn" id="up">↑</div>
+            <div class="btn" id="left">←</div>
+            <div class="btn" id="down">↓</div>
+            <div class="btn" id="right">→</div>
+        </div>
+    </div>
 
     <script>
         const canvas = document.getElementById("snakeBoard");
@@ -108,11 +81,33 @@
         let score = 0;
         let snake = [{x: 200, y: 200}, {x: 180, y: 200}];
         let apple = {x: 100, y: 100};
-        let d = "RIGHT";
-        let nextD = "RIGHT";
-        let currentSpeed = 200; // Başlangıç hızı
-        const minSpeed = 50;    // Max hız
-        const speedStep = 5;   // Elma başına hız artışı
+        let d = "RIGHT", nextD = "RIGHT", currentSpeed = 200;
+        let playerName = "Anonim";
+
+        // SKORLARI YÜKLE
+        function updateLeaderboard() {
+            let scores = JSON.parse(localStorage.getItem("snakeScores") || "[]");
+            scores.sort((a, b) => b.score - a.score);
+            scores = scores.slice(0, 5); // İlk 5 kişi
+            document.getElementById("score-list").innerHTML = scores.map(s => `<div>${s.name}: ${s.score}</div>`).join("");
+        }
+
+        function saveScore() {
+            let scores = JSON.parse(localStorage.getItem("snakeScores") || "[]");
+            scores.push({name: playerName, score: score});
+            localStorage.setItem("snakeScores", JSON.stringify(scores));
+            updateLeaderboard();
+        }
+
+        function startGame() {
+            const input = document.getElementById("username").value;
+            if(input) playerName = input;
+            document.getElementById("user-display").innerText = playerName;
+            document.getElementById("login-screen").style.display = "none";
+            document.getElementById("game-container").style.display = "flex";
+            updateLeaderboard();
+            gameLoop();
+        }
 
         function changeDir(newDir) {
             if (newDir == "LEFT" && d != "RIGHT") nextD = "LEFT";
@@ -121,81 +116,57 @@
             if (newDir == "DOWN" && d != "UP") nextD = "DOWN";
         }
 
-        // PC KONTROLÜ
+        // KONTROLLER
         document.addEventListener("keydown", (e) => {
-            const key = e.key;
-            if (key === "ArrowUp") changeDir("UP");
-            if (key === "ArrowDown") changeDir("DOWN");
-            if (key === "ArrowLeft") changeDir("LEFT");
-            if (key === "ArrowRight") changeDir("RIGHT");
+            if (e.key === "ArrowUp") changeDir("UP");
+            if (e.key === "ArrowDown") changeDir("DOWN");
+            if (e.key === "ArrowLeft") changeDir("LEFT");
+            if (e.key === "ArrowRight") changeDir("RIGHT");
         });
 
-        // MOBİL KONTROLÜ
-        const buttons = ["up", "down", "left", "right"];
-        buttons.forEach(id => {
+        ["up", "down", "left", "right"].forEach(id => {
             const el = document.getElementById(id);
-            const handlePress = (e) => {
-                e.preventDefault();
-                changeDir(id.toUpperCase());
-            };
-            el.addEventListener("touchstart", handlePress);
-            el.addEventListener("mousedown", handlePress);
+            el.addEventListener("touchstart", (e) => { e.preventDefault(); changeDir(id.toUpperCase()); });
+            el.addEventListener("mousedown", () => changeDir(id.toUpperCase()));
         });
 
         function gameLoop() {
             d = nextD;
-            ctx.fillStyle = "black";
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = "black"; ctx.fillRect(0, 0, canvas.width, canvas.height);
             
-            // Elma (Parlayan Neon Kırmızı)
-            ctx.fillStyle = "#ff0050";
-            ctx.shadowBlur = 15;
-            ctx.shadowColor = "#ff0050";
-            ctx.fillRect(apple.x, apple.y, grid-2, grid-2);
-            ctx.shadowBlur = 0; // İzleri temizle
+            // Elma
+            ctx.fillStyle = "#ff0050"; ctx.shadowBlur = 15; ctx.shadowColor = "#ff0050";
+            ctx.fillRect(apple.x, apple.y, grid-2, grid-2); ctx.shadowBlur = 0;
 
-            // Yılan (Neon Yeşil)
+            // Yılan
             snake.forEach((part, index) => {
-                ctx.fillStyle = (index === 0) ? "#00ff96" : "#00a1ff"; // Kafa Yeşil, Gövde Mavi
+                ctx.fillStyle = (index === 0) ? "#00ff96" : "#00a1ff";
                 ctx.fillRect(part.x, part.y, grid-2, grid-2);
             });
 
-            let headX = snake[0].x;
-            let headY = snake[0].y;
-            if(d == "LEFT") headX -= grid;
-            if(d == "UP") headY -= grid;
-            if(d == "RIGHT") headX += grid;
-            if(d == "DOWN") headY += grid;
+            let headX = snake[0].x; let headY = snake[0].y;
+            if(d == "LEFT") headX -= grid; if(d == "UP") headY -= grid;
+            if(d == "RIGHT") headX += grid; if(d == "DOWN") headY += grid;
 
-            // Elma yeme
             if(headX == apple.x && headY == apple.y) {
                 score += 10;
-                if (currentSpeed > minSpeed) {
-                    currentSpeed -= speedStep;
-                }
-                document.getElementById("skor").innerHTML = "SKOR: " + score;
-                // Elmayı rastgele yeni bir yere koy
-                apple = { 
-                    x: Math.floor(Math.random() * (canvas.width/grid)) * grid, 
-                    y: Math.floor(Math.random() * (canvas.height/grid)) * grid 
-                };
+                if (currentSpeed > 50) currentSpeed -= 10;
+                document.getElementById("skor").innerText = score;
+                apple = { x: Math.floor(Math.random() * 19) * grid, y: Math.floor(Math.random() * 19) * grid };
             } else { snake.pop(); }
 
             let newHead = { x: headX, y: headY };
 
-            // Çarpışma Kontrolü (Duvarlar ve Kendi)
             if(headX < 0 || headX >= canvas.width || headY < 0 || headY >= canvas.height || snake.some(p => p.x === newHead.x && p.y === newHead.y)) {
-                // Kaybettin - Sıfırlama
-                snake = [{x: 200, y: 200}, {x: 180, y: 200}]; 
-                nextD = "RIGHT"; 
-                score = 0; 
-                currentSpeed = 200;
-                document.getElementById("skor").innerHTML = "SKOR: 0";
-            } else { snake.unshift(newHead); }
-
-            setTimeout(gameLoop, currentSpeed);
+                saveScore();
+                alert("Oyun Bitti! Skorun: " + score);
+                location.reload(); // Yeniden başlat
+            } else {
+                snake.unshift(newHead);
+                setTimeout(gameLoop, currentSpeed);
+            }
         }
-        gameLoop();
+        updateLeaderboard();
     </script>
 </body>
 </html>
