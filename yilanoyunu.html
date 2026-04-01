@@ -4,108 +4,62 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <style>
-        body { background: #111; margin: 0; display: flex; flex-direction: column; align-items: center; color: white; font-family: sans-serif; overflow: hidden; touch-action: none; }
-        #skor { font-size: 24px; font-weight: bold; color: #ff0050; margin: 10px; text-shadow: 0 0 10px rgba(255,0,80,0.5); }
-        canvas { background: #000; border: 3px solid #333; border-radius: 12px; box-shadow: 0 0 20px rgba(0,0,0,0.5); }
-        .controls { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 20px; }
-        .btn { 
-            background: #222; color: #fff; border: 2px solid #ff0050; 
-            width: 75px; height: 75px; border-radius: 15px; 
-            font-size: 30px; display: flex; align-items: center; 
-            justify-content: center; user-select: none;
-            -webkit-tap-highlight-color: transparent; /* Mobil tıklama gölgesini kaldırır */
+        /* CANLI ARKA PLAN */
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
         }
-        .btn:active { background: #ff0050; transform: scale(0.9); }
-        #up { grid-column: 2; }
-        #left { grid-column: 1; }
-        #right { grid-column: 3; }
-        #down { grid-column: 2; }
-    </style>
+
+        body { 
+            background: linear-gradient(-45deg, #050505, #121225, #050505);
+            background-size: 400% 400%;
+            animation: gradientBG 12s ease infinite;
+            margin: 0; display: flex; flex-direction: column; align-items: center; 
+            color: white; font-family: sans-serif; overflow: hidden; touch-action: none; height: 100vh;
+        }
+
+        #info-container {
+            background: rgba(0, 0, 0, 0.7);
+            border: 2px solid #00ff96;
+            border-radius: 12px;
+            padding: 10px 25px;
+            margin: 10px;
+            text-align: center;
+            box-shadow: 0 0 15px rgba(0, 255, 150, 0.3);
+        }
+
+        #skor { font-size: 22px; font-weight: bold; color: #00ff96; text-shadow: 0 0 10px #00ff96; }
+        #hiz-ms { font-size: 14px; color: #00f2ea; margin-top: 4px; }
+
+        canvas { 
+            background: rgba(0, 0, 0, 0.9);
+            border: 3px solid #00f2ea; 
+            border-radius: 12px; 
+            box-shadow: 0 0 25px rgba(0, 242, 234, 0.3);
+        }
+
+        .controls { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 15px; }
+        .btn { 
+            background: rgba(20, 20, 30, 0.9); 
+            color: #00f2ea; 
+            border: 2px solid #00f2ea; 
+            width: 70px; height: 70px; border-radius: 20px; 
+            font-size: 32px; display: flex; align-items: center; 
+            justify-content: center; user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .btn:active { background: #00f2ea; color: #000; transform: scale(0.9); }
+        #up { grid-column: 2; border-color: #00ff96; color: #00ff96; }
+        #up:active { background: #00ff96; }
+    </script>
 </head>
 <body>
-    <div id="skor">SKOR: 0</div>
-    <canvas id="snakeBoard" width="300" height="300"></canvas>
-    <div class="controls">
-        <div class="btn" id="up">↑</div>
-        <div class="btn" id="left">←</div>
-        <div class="btn" id="down">↓</div>
-        <div class="btn" id="right">→</div>
+    <div id="info-container">
+        <div id="skor">SKOR: 0</div>
+        <div id="hiz-ms">GECİKME: 200ms (Yavaş)</div>
     </div>
 
-    <script>
-        const canvas = document.getElementById("snakeBoard");
-        const ctx = canvas.getContext("2d");
-        const grid = 20;
-        let score = 0;
-        let snake = [{x: 160, y: 160}, {x: 140, y: 160}];
-        let apple = {x: 60, y: 60};
-        let d = "RIGHT";
-        let nextD = "RIGHT"; // Hızlı basışlarda çakışmayı önlemek için
-
-        function changeDir(newDir) {
-            if (newDir == "LEFT" && d != "RIGHT") nextD = "LEFT";
-            if (newDir == "UP" && d != "DOWN") nextD = "UP";
-            if (newDir == "RIGHT" && d != "LEFT") nextD = "RIGHT";
-            if (newDir == "DOWN" && d != "UP") nextD = "DOWN";
-        }
-
-        // Dokunmatik Gecikmesini Önleme (Hızlı Tepki)
-        const buttons = ["up", "down", "left", "right"];
-        buttons.forEach(id => {
-            const el = document.getElementById(id);
-            el.addEventListener("touchstart", (e) => {
-                e.preventDefault();
-                changeDir(id.toUpperCase());
-            });
-            el.addEventListener("mousedown", () => changeDir(id.toUpperCase()));
-        });
-
-        document.addEventListener("keydown", e => {
-            if(e.keyCode == 37) changeDir("LEFT");
-            if(e.keyCode == 38) changeDir("UP");
-            if(e.keyCode == 39) changeDir("RIGHT");
-            if(e.keyCode == 40) changeDir("DOWN");
-        });
-
-        function draw() {
-            d = nextD;
-            ctx.fillStyle = "black";
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-            
-            // Elma (Parlak)
-            ctx.fillStyle = "#ff0050";
-            ctx.shadowBlur = 10;
-            ctx.shadowColor = "#ff0050";
-            ctx.fillRect(apple.x, apple.y, grid-2, grid-2);
-            ctx.shadowBlur = 0;
-
-            // Yılan
-            snake.forEach((part, index) => {
-                ctx.fillStyle = (index === 0) ? "#00ff96" : "#008e54";
-                ctx.fillRect(part.x, part.y, grid-2, grid-2);
-            });
-
-            let headX = snake[0].x;
-            let headY = snake[0].y;
-            if(d == "LEFT") headX -= grid;
-            if(d == "UP") headY -= grid;
-            if(d == "RIGHT") headX += grid;
-            if(d == "DOWN") headY += grid;
-
-            if(headX == apple.x && headY == apple.y) {
-                score += 10;
-                document.getElementById("skor").innerHTML = "SKOR: " + score;
-                apple = { x: Math.floor(Math.random() * 14) * grid, y: Math.floor(Math.random() * 14) * grid };
-            } else { snake.pop(); }
-
-            let newHead = { x: headX, y: headY };
-            if(headX < 0 || headX >= canvas.width || headY < 0 || headY >= canvas.height || snake.some(p => p.x === newHead.x && p.y === newHead.y)) {
-                snake = [{x: 160, y: 160}, {x: 140, y: 160}]; nextD = "RIGHT"; score = 0; document.getElementById("skor").innerHTML = "SKOR: 0";
-            } else { snake.unshift(newHead); }
-        }
-
-        // HIZ AYARI: 100ms (Daha akıcı)
-        setInterval(draw, 100);
-    </script>
-</body>
-</html>
+    <canvas id="snakeBoard" width="300" height="300"></canvas>
+    
+    <div class="controls">
