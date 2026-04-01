@@ -1,49 +1,59 @@
 <!DOCTYPE html>
-<html>
+<html lang="tr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Yılan Oyunu - Hibrit</title>
     <style>
         body { 
-            background: #000; margin: 0; display: flex; flex-direction: column; 
-            align-items: center; color: white; font-family: sans-serif; 
-            overflow: hidden; touch-action: none; height: 100vh; 
+            background: #0a0a0a; margin: 0; display: flex; flex-direction: column; 
+            align-items: center; justify-content: center; color: white; 
+            font-family: sans-serif; overflow: hidden; touch-action: none; height: 100vh; 
         }
-        #skor { font-size: 24px; font-weight: bold; color: #00ff96; margin: 15px; text-shadow: 0 0 10px #00ff96; }
         
-        /* OYUN ALANI */
-        canvas { background: #050505; border: 3px solid #333; border-radius: 15px; }
+        #skor { font-size: 28px; font-weight: bold; color: #00ff96; margin-bottom: 10px; text-shadow: 0 0 10px #00ff96; }
+        
+        /* OYUN ALANI - Responsive ayarlandı */
+        canvas { 
+            background: #000; border: 3px solid #333; border-radius: 15px; 
+            box-shadow: 0 0 20px rgba(0,255,150,0.2);
+            max-width: 90vw; max-height: 45vh; 
+        }
 
-        /* BUTON DÜZENLEME (BURASI KRİTİK) */
+        /* MOBİL KONTROLLER (Sadece dokunmatik ekranlarda mantıklı, ama her zaman erişilebilir) */
         .controls { 
             display: grid; 
-            grid-template-columns: 80px 80px 80px; /* 3 sütun */
-            grid-template-rows: 80px 80px;       /* 2 satır */
-            gap: 15px; 
-            margin-top: 25px; 
+            grid-template-columns: repeat(3, 75px); 
+            grid-template-rows: repeat(2, 75px); 
+            gap: 12px; 
+            margin-top: 20px; 
         }
         
         .btn { 
-            background: #222; color: #fff; border: 2px solid #00ff96; 
-            border-radius: 15px; font-size: 35px; display: flex; 
+            background: #1a1a1a; color: #fff; border: 2px solid #00ff96; 
+            border-radius: 15px; font-size: 30px; display: flex; 
             align-items: center; justify-content: center; user-select: none;
             box-shadow: 0 4px 0 #008e54;
+            -webkit-tap-highlight-color: transparent;
         }
+        
         .btn:active { 
             background: #00ff96; color: #000; 
             transform: translateY(4px); box-shadow: none; 
         }
 
-        /* DÜĞME KONUMLARI */
-        #up { grid-column: 2; grid-row: 1; }    /* Üst orta */
-        #left { grid-column: 1; grid-row: 2; }  /* Alt sol */
-        #down { grid-column: 2; grid-row: 2; }  /* Alt orta */
-        #right { grid-column: 3; grid-row: 2; } /* Alt sağ */
+        #up { grid-column: 2; grid-row: 1; }
+        #left { grid-column: 1; grid-row: 2; }
+        #down { grid-column: 2; grid-row: 2; }
+        #right { grid-column: 3; grid-row: 2; }
+
+        .hint { margin-top: 15px; font-size: 13px; color: #666; }
     </style>
 </head>
 <body>
+
     <div id="skor">SKOR: 0</div>
-    <canvas id="snakeBoard" width="300" height="300"></canvas>
+    <canvas id="snakeBoard" width="400" height="400"></canvas>
     
     <div class="controls">
         <div class="btn" id="up">↑</div>
@@ -51,6 +61,8 @@
         <div class="btn" id="down">↓</div>
         <div class="btn" id="right">→</div>
     </div>
+
+    <div class="hint">PC: Yön Tuşlarını Kullan | Mobil: Butonlara Dokun</div>
 
     <script>
         const canvas = document.getElementById("snakeBoard");
@@ -63,6 +75,7 @@
         let nextD = "RIGHT";
         let currentSpeed = 200;
 
+        // Yön Değiştirme Fonksiyonu
         function changeDir(newDir) {
             if (newDir == "LEFT" && d != "RIGHT") nextD = "LEFT";
             if (newDir == "UP" && d != "DOWN") nextD = "UP";
@@ -70,38 +83,81 @@
             if (newDir == "DOWN" && d != "UP") nextD = "DOWN";
         }
 
+        // 1. PC KONTROLÜ (Klavye)
+        document.addEventListener("keydown", (e) => {
+            const key = e.key;
+            if (key === "ArrowUp") changeDir("UP");
+            if (key === "ArrowDown") changeDir("DOWN");
+            if (key === "ArrowLeft") changeDir("LEFT");
+            if (key === "ArrowRight") changeDir("RIGHT");
+        });
+
+        // 2. MOBİL KONTROLÜ (Dokunmatik/Mouse)
         const buttons = ["up", "down", "left", "right"];
         buttons.forEach(id => {
             const el = document.getElementById(id);
-            el.addEventListener("touchstart", (e) => { e.preventDefault(); changeDir(id.toUpperCase()); });
-            el.addEventListener("mousedown", () => changeDir(id.toUpperCase()));
+            // Hem dokunmatik hem tıklama desteği (Gecikmesiz)
+            const handlePress = (e) => {
+                e.preventDefault();
+                changeDir(id.toUpperCase());
+            };
+            el.addEventListener("touchstart", handlePress);
+            el.addEventListener("mousedown", handlePress);
         });
 
         function gameLoop() {
             d = nextD;
             ctx.fillStyle = "black";
             ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // Elma
             ctx.fillStyle = "#ff0050";
             ctx.fillRect(apple.x, apple.y, grid-2, grid-2);
+
+            // Yılan
             snake.forEach((part, index) => {
                 ctx.fillStyle = (index === 0) ? "#00ff96" : "#008e54";
                 ctx.fillRect(part.x, part.y, grid-2, grid-2);
             });
-            let headX = snake[0].x; let headY = snake[0].y;
-            if(d == "LEFT") headX -= grid; if(d == "UP") headY -= grid; if(d == "RIGHT") headX += grid; if(d == "DOWN") headY += grid;
+
+            let headX = snake[0].x;
+            let headY = snake[0].y;
+
+            if(d == "LEFT") headX -= grid;
+            if(d == "UP") headY -= grid;
+            if(d == "RIGHT") headX += grid;
+            if(d == "DOWN") headY += grid;
+
+            // Elma yeme
             if(headX == apple.x && headY == apple.y) {
                 score += 10;
-                if (currentSpeed > 40) currentSpeed -= 10;
+                if (currentSpeed > 50) currentSpeed -= 7;
                 document.getElementById("skor").innerHTML = "SKOR: " + score;
-                apple = { x: Math.floor(Math.random() * 14) * grid, y: Math.floor(Math.random() * 14) * grid };
-            } else { snake.pop(); }
+                apple = { 
+                    x: Math.floor(Math.random() * (canvas.width/grid)) * grid, 
+                    y: Math.floor(Math.random() * (canvas.height/grid)) * grid 
+                };
+            } else {
+                snake.pop();
+            }
+
             let newHead = { x: headX, y: headY };
-            if(headX < 0 || headX >= 300 || headY < 0 || headY >= 300 || snake.some(p => p.x === newHead.x && p.y === newHead.y)) {
-                snake = [{x: 160, y: 160}]; nextD = "RIGHT"; score = 0; currentSpeed = 200;
+
+            // Çarpışma Kontrolü
+            if(headX < 0 || headX >= canvas.width || headY < 0 || headY >= canvas.height || snake.some(p => p.x === newHead.x && p.y === newHead.y)) {
+                // Kaybettin
+                snake = [{x: 160, y: 160}, {x: 140, y: 160}];
+                nextD = "RIGHT";
+                score = 0;
+                currentSpeed = 200;
                 document.getElementById("skor").innerHTML = "SKOR: 0";
-            } else { snake.unshift(newHead); }
+            } else {
+                snake.unshift(newHead);
+            }
+
             setTimeout(gameLoop, currentSpeed);
         }
+
         gameLoop();
     </script>
 </body>
