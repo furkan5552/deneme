@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Yılan Pro - Rekabet Modu</title>
+    <title>Yılan Pro - VIP Rekabet</title>
     <style>
         @keyframes gradientBG {
             0% { background-position: 0% 50%; }
@@ -12,7 +12,7 @@
         }
 
         body { 
-            background: linear-gradient(-45deg, #0a0a12, #1a0f2e, #0a1622);
+            background: linear-gradient(-45deg, #0a101e, #1a0f2e, #050505);
             background-size: 400% 400%;
             animation: gradientBG 15s ease infinite;
             margin: 0; display: flex; flex-direction: column; align-items: center; 
@@ -20,44 +20,43 @@
             overflow: hidden; touch-action: none; height: 100vh;
         }
 
-        /* EKRANLAR (OVERLAYS) */
         .overlay {
-            position: absolute; width: 100%; height: 100%; background: rgba(0,0,0,0.95);
+            position: absolute; width: 100%; height: 100%; background: rgba(0,0,0,0.96);
             display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 100;
         }
         
         #game-over-screen, #leaderboard-modal { display: none; }
 
-        input { padding: 12px; border-radius: 8px; border: 2px solid #00ff96; background: #111; color: white; margin-bottom: 15px; width: 220px; text-align: center; font-size: 16px; }
-        
+        .form-group { display: flex; flex-direction: column; align-items: center; }
+        input { padding: 14px; border-radius: 10px; border: 2px solid #00ff96; background: #111; color: white; margin-bottom: 10px; width: 240px; text-align: center; font-size: 17px; outline: none; }
+        #error-msg { color: #ff0050; font-size: 14px; margin-bottom: 10px; height: 20px; font-weight: bold; }
+
         .btn-ui { 
-            padding: 12px 30px; border: none; border-radius: 8px; font-weight: bold; 
-            cursor: pointer; font-size: 16px; width: 220px; margin: 5px 0; transition: 0.2s;
+            padding: 14px; border: none; border-radius: 10px; font-weight: bold; 
+            cursor: pointer; font-size: 16px; width: 240px; margin: 6px 0; transition: 0.3s;
         }
-        .btn-green { background: #00ff96; color: black; }
+        .btn-green { background: #00ff96; color: black; box-shadow: 0 4px 15px rgba(0, 255, 150, 0.3); }
         .btn-blue { background: #00f2ea; color: black; }
-        .btn-gray { background: #444; color: white; }
+        .btn-gray { background: #333; color: white; }
         .btn-ui:active { transform: scale(0.95); }
 
-        /* SKOR TABLOSU MODAL (ORTA EKRAN) */
-        #leaderboard-modal { z-index: 110; background: rgba(10, 10, 20, 0.98); }
+        /* MODAL */
         .modal-content { 
-            width: 80%; max-width: 300px; background: #111; border: 2px solid #00f2ea; 
-            padding: 20px; border-radius: 15px; box-shadow: 0 0 30px rgba(0, 242, 234, 0.3);
+            width: 85%; max-width: 320px; background: #0a0a0a; border: 2px solid #00f2ea; 
+            padding: 25px; border-radius: 20px; box-shadow: 0 0 40px rgba(0, 242, 234, 0.2);
         }
-        .modal-content h2 { color: #00f2ea; text-align: center; margin-top: 0; }
-        .score-list-full { margin: 15px 0; max-height: 250px; overflow-y: auto; }
-        .full-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #222; }
+        .modal-content h2 { color: #00f2ea; text-align: center; margin-top: 0; font-size: 22px; }
+        .score-list-full { margin: 15px 0; max-height: 200px; overflow-y: auto; padding-right: 5px; }
+        .full-row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #1a1a1a; }
         .full-row span:last-child { color: #00ff96; font-weight: bold; }
 
-        /* OYUN ALANI */
+        /* OYUN */
         #game-container { display: none; flex-direction: column; align-items: center; }
-        #skor-panel { font-size: 26px; font-weight: bold; color: #00ff96; margin-bottom: 10px; }
-        canvas { border: 3px solid #333; border-radius: 12px; background: #000; max-width: 85vw; max-height: 38vh; }
+        #skor-panel { font-size: 26px; font-weight: bold; color: #00ff96; margin-bottom: 15px; }
+        canvas { border: 4px solid #1a1a1a; border-radius: 15px; background: #000; max-width: 90vw; max-height: 40vh; }
 
-        /* KONTROLLER */
-        .controls { display: grid; grid-template-columns: repeat(3, 75px); grid-template-rows: repeat(2, 75px); gap: 10px; margin-top: 20px; }
-        .btn-game { background: #222; color: #00f2ea; border: 2px solid #00f2ea; border-radius: 15px; font-size: 30px; display: flex; align-items: center; justify-content: center; }
+        .controls { display: grid; grid-template-columns: repeat(3, 75px); grid-template-rows: repeat(2, 75px); gap: 12px; margin-top: 25px; }
+        .btn-game { background: #111; color: #00f2ea; border: 2px solid #00f2ea; border-radius: 20px; font-size: 32px; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 0 #008e54; }
         #up { grid-column: 2; }
         #left { grid-column: 1; grid-row: 2; }
         #down { grid-column: 2; grid-row: 2; }
@@ -67,25 +66,30 @@
 <body>
 
     <div id="login-screen" class="overlay">
-        <h1 style="color: #00ff96; text-shadow: 0 0 10px #00ff96;">YILAN PRO</h1>
-        <input type="text" id="username" placeholder="Oyuncu Adı..." maxlength="10">
-        <button class="btn-ui btn-green" onclick="startGame()">OYUNA BAŞLA</button>
+        <h1 style="color: #00ff96; margin-bottom: 5px;">🐍 YILAN PRO</h1>
+        <p style="color: #666; font-size: 13px; margin-bottom: 20px;">Benzersiz ismini seç ve yarış!</p>
+        
+        <div class="form-group">
+            <input type="text" id="username" placeholder="Kullanıcı Adı" maxlength="10">
+            <div id="error-msg"></div>
+            <button class="btn-ui btn-green" onclick="handleLogin()">OYUNA BAŞLA</button>
+        </div>
     </div>
 
     <div id="game-over-screen" class="overlay">
-        <h1 style="color: #ff0050;">OYUN BİTTİ!</h1>
-        <p id="final-score-text" style="font-size: 22px; margin-bottom: 20px;"></p>
+        <h1 style="color: #ff0050; margin-bottom: 5px;">EYVAH!</h1>
+        <p id="final-score-text" style="font-size: 20px; margin-bottom: 25px;"></p>
         
-        <button class="btn-ui btn-green" onclick="resetGame()">TEKRAR DENE</button>
-        <button class="btn-ui btn-gray" onclick="location.reload()">İSİM DEĞİŞTİR</button>
-        <button class="btn-ui btn-blue" onclick="openLeaderboard()">SKOR TABLOSU</button>
+        <button class="btn-ui btn-green" onclick="resetGame()">HEMEN TEKRAR OYNA</button>
+        <button class="btn-ui btn-blue" onclick="openLeaderboard()">DİĞER SKORLARA BAK</button>
+        <button class="btn-ui btn-gray" onclick="clearMyAccount()">HESABI SİL / YENİ İSİM</button>
     </div>
 
     <div id="leaderboard-modal" class="overlay">
         <div class="modal-content">
-            <h2>🏆 TOP 10 REKOR</h2>
+            <h2>🏆 SIRALAMA</h2>
             <div id="full-score-list" class="score-list-full"></div>
-            <button class="btn-ui btn-gray" style="width: 100%;" onclick="closeLeaderboard()">KAPAT</button>
+            <button class="btn-ui btn-gray" style="width: 100%;" onclick="closeLeaderboard()">GERİ DÖN</button>
         </div>
     </div>
 
@@ -105,43 +109,84 @@
         const ctx = canvas.getContext("2d");
         const grid = 20;
         let score = 0, snake = [], apple = {}, d = "RIGHT", nextD = "RIGHT", currentSpeed = 200;
-        let playerName = "Oyuncu", gameRunning = false, loopTimeout;
+        let playerName = "", gameRunning = false, loopTimeout;
 
-        // SKORLARI GETİR
-        function getScores() {
-            return JSON.parse(localStorage.getItem("furkanSnakeV4") || "[]");
-        }
+        // VERİ TABANI SİMÜLASYONU (Local Storage)
+        function getGlobalScores() { return JSON.parse(localStorage.getItem("furkanSnakeGlobal") || "[]"); }
+        function getMyAccount() { return localStorage.getItem("furkanSnakeAccount"); }
 
-        // SKOR KAYDET
-        function saveScore() {
-            let scores = getScores();
-            scores.push({ name: playerName, score: score });
-            scores.sort((a, b) => b.score - a.score);
-            localStorage.setItem("furkanSnakeV4", JSON.stringify(scores));
-        }
+        // GİRİŞ KONTROLÜ
+        window.onload = () => {
+            const savedName = getMyAccount();
+            if(savedName) {
+                document.getElementById("username").value = savedName;
+                document.getElementById("username").disabled = true;
+                document.getElementById("error-msg").innerText = "Kayıtlı hesabınla giriş yapıldı.";
+                document.getElementById("error-msg").style.color = "#00f2ea";
+            }
+        };
 
-        // SKOR TABLOSUNU DOLDUR
-        function openLeaderboard() {
-            let scores = getScores();
-            scores.sort((a, b) => b.score - a.score);
-            document.getElementById("full-score-list").innerHTML = scores.slice(0, 10).map((s, i) => 
-                `<div class="full-row"><span>${i+1}. ${s.name}</span><span>${s.score}</span></div>`
-            ).join("") || "<div style='text-align:center'>Henüz rekor yok!</div>";
-            document.getElementById("leaderboard-modal").style.display = "flex";
-        }
-
-        function closeLeaderboard() {
-            document.getElementById("leaderboard-modal").style.display = "none";
-        }
-
-        function startGame() {
+        function handleLogin() {
             const input = document.getElementById("username").value.trim();
-            if(input) playerName = input;
+            const error = document.getElementById("error-msg");
+            const globalScores = getGlobalScores();
+            const mySavedName = getMyAccount();
+
+            if(!input) { error.innerText = "Bir isim yazmalısın!"; return; }
+
+            // Kural 1: Zaten bir hesabın varsa başka isim alamazsın
+            if(mySavedName && input !== mySavedName) {
+                error.innerText = "Bu cihaz " + mySavedName + " adına kayıtlı!";
+                return;
+            }
+
+            // Kural 2: Bu isim başkası tarafından alınmış mı?
+            const isTaken = globalScores.some(s => s.name.toLowerCase() === input.toLowerCase());
+            if(!mySavedName && isTaken) {
+                error.innerText = "Bu isim zaten alınmış!";
+                return;
+            }
+
+            // Her şey tamamsa kaydet ve başla
+            playerName = input;
+            localStorage.setItem("furkanSnakeAccount", playerName);
             document.getElementById("login-screen").style.display = "none";
             document.getElementById("game-container").style.display = "flex";
             document.getElementById("user-display").innerText = playerName;
             resetGame();
         }
+
+        function clearMyAccount() {
+            if(confirm("Hesabını silersen ismin boşa çıkar ve tüm skorların gider. Emin misin?")) {
+                localStorage.removeItem("furkanSnakeAccount");
+                location.reload();
+            }
+        }
+
+        function saveScore() {
+            let scores = getGlobalScores();
+            // Eğer bu isimle daha önce skor varsa ve yeni skor eskisinden büyükse güncelle
+            let userScoreIndex = scores.findIndex(s => s.name === playerName);
+            if(userScoreIndex > -1) {
+                if(score > scores[userScoreIndex].score) {
+                    scores[userScoreIndex].score = score;
+                }
+            } else {
+                scores.push({ name: playerName, score: score });
+            }
+            localStorage.setItem("furkanSnakeGlobal", JSON.stringify(scores));
+        }
+
+        function openLeaderboard() {
+            let scores = getGlobalScores();
+            scores.sort((a, b) => b.score - a.score);
+            document.getElementById("full-score-list").innerHTML = scores.slice(0, 10).map((s, i) => 
+                `<div class="full-row"><span>${i+1}. ${s.name}</span><span>${s.score}</span></div>`
+            ).join("") || "Henüz rekor yok!";
+            document.getElementById("leaderboard-modal").style.display = "flex";
+        }
+
+        function closeLeaderboard() { document.getElementById("leaderboard-modal").style.display = "none"; }
 
         function resetGame() {
             score = 0; currentSpeed = 200; d = "RIGHT"; nextD = "RIGHT";
@@ -159,52 +204,4 @@
             d = nextD;
             ctx.fillStyle = "black"; ctx.fillRect(0, 0, canvas.width, canvas.height);
             ctx.fillStyle = "#ff0050"; ctx.fillRect(apple.x, apple.y, grid-2, grid-2);
-            snake.forEach((part, index) => {
-                ctx.fillStyle = (index === 0) ? "#00ff96" : "#00a1ff";
-                ctx.fillRect(part.x, part.y, grid-2, grid-2);
-            });
-
-            let headX = snake[0].x; let headY = snake[0].y;
-            if(d == "LEFT") headX -= grid; if(d == "UP") headY -= grid;
-            if(d == "RIGHT") headX += grid; if(d == "DOWN") headY += grid;
-
-            if(headX == apple.x && headY == apple.y) {
-                score += 10;
-                if(currentSpeed > 60) currentSpeed -= 7;
-                document.getElementById("skor-val").innerText = score;
-                apple = { x: Math.floor(Math.random() * 19) * grid, y: Math.floor(Math.random() * 19) * grid };
-            } else { snake.pop(); }
-
-            let newHead = { x: headX, y: headY };
-            if(headX < 0 || headX >= canvas.width || headY < 0 || headY >= canvas.height || snake.some(p => p.x === newHead.x && p.y === newHead.y)) {
-                gameOver();
-            } else {
-                snake.unshift(newHead);
-                loopTimeout = setTimeout(gameLoop, currentSpeed);
-            }
-        }
-
-        function gameOver() {
-            gameRunning = false;
-            saveScore();
-            document.getElementById("final-score-text").innerText = "Skorun: " + score;
-            document.getElementById("game-over-screen").style.display = "flex";
-        }
-
-        function changeDir(v) {
-            if(v=="UP" && d!="DOWN") nextD="UP"; if(v=="DOWN" && d!="UP") nextD="DOWN";
-            if(v=="LEFT" && d!="RIGHT") nextD="LEFT"; if(v=="RIGHT" && d!="LEFT") nextD="RIGHT";
-        }
-
-        document.addEventListener("keydown", (e) => {
-            if(e.key.includes("Arrow")) changeDir(e.key.replace("Arrow","").toUpperCase());
-        });
-
-        ["up","down","left","right"].forEach(id => {
-            const btn = document.getElementById(id);
-            btn.addEventListener("touchstart", (e) => { e.preventDefault(); changeDir(id.toUpperCase()); });
-            btn.addEventListener("mousedown", () => changeDir(id.toUpperCase()));
-        });
-    </script>
-</body>
-</html>
+            snake.forEach
