@@ -6,42 +6,46 @@
     <title>Yılan Pro - VIP</title>
     <style>
         body { background: #0a101e; margin: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; color: white; font-family: sans-serif; overflow: hidden; touch-action: none; height: 100vh; }
-        .overlay { position: absolute; width: 100%; height: 100%; background: rgba(0,0,0,0.9); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 100; }
+        .overlay { position: absolute; width: 100%; height: 100%; background: rgba(0,0,0,0.95); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 100; }
         #game-over-screen, #leaderboard-modal, #game-container { display: none; }
-        input { padding: 12px; border-radius: 8px; border: 2px solid #00ff96; background: #111; color: white; margin-bottom: 10px; width: 200px; text-align: center; }
-        .btn-ui { padding: 12px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; width: 220px; margin: 5px 0; }
+        input { padding: 12px; border-radius: 8px; border: 2px solid #00ff96; background: #111; color: white; margin-bottom: 10px; width: 200px; text-align: center; font-size: 16px; }
+        .btn-ui { padding: 12px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; width: 220px; margin: 5px 0; font-size: 15px; }
         .btn-green { background: #00ff96; color: black; }
         .btn-blue { background: #00f2ea; color: black; }
         .btn-gray { background: #444; color: white; }
-        canvas { border: 3px solid #333; border-radius: 10px; background: #000; max-width: 90vw; max-height: 45vh; }
-        .controls { display: grid; grid-template-columns: repeat(3, 70px); grid-template-rows: repeat(2, 70px); gap: 10px; margin-top: 15px; }
-        .btn-game { background: #111; color: #00f2ea; border: 2px solid #00f2ea; border-radius: 15px; font-size: 25px; display: flex; align-items: center; justify-content: center; }
+        canvas { border: 3px solid #1a1a1a; border-radius: 12px; background: #000; max-width: 90vw; max-height: 45vh; box-shadow: 0 0 20px rgba(0,255,150,0.1); }
+        .controls { display: grid; grid-template-columns: repeat(3, 75px); grid-template-rows: repeat(2, 75px); gap: 10px; margin-top: 20px; }
+        .btn-game { background: #111; color: #00f2ea; border: 2px solid #00f2ea; border-radius: 18px; font-size: 28px; display: flex; align-items: center; justify-content: center; user-select: none; -webkit-tap-highlight-color: transparent; }
         #up { grid-column: 2; } #left { grid-column: 1; grid-row: 2; } #down { grid-column: 2; grid-row: 2; } #right { grid-column: 3; grid-row: 2; }
     </style>
 </head>
 <body>
+
     <div id="login-screen" class="overlay">
-        <h1>🐍 YILAN PRO</h1>
-        <input type="text" id="username" placeholder="İsim Yaz" maxlength="10">
-        <div id="error-msg" style="color:red; font-size:12px; margin-bottom:10px;"></div>
-        <button class="btn-ui btn-green" onclick="handleLogin()">BAŞLA</button>
+        <h1 style="color: #00ff96; letter-spacing: 2px;">🐍 YILAN PRO</h1>
+        <input type="text" id="username" placeholder="İsmini Yaz..." maxlength="10">
+        <div id="error-msg" style="color:#ff0050; font-size:13px; margin-bottom:10px; font-weight:bold; height:20px;"></div>
+        <button class="btn-ui btn-green" onclick="handleLogin()">OYUNA BAŞLA</button>
     </div>
+
     <div id="game-over-screen" class="overlay">
-        <h1 style="color:#ff0050">BİTTİ!</h1>
-        <p id="final-score-text"></p>
-        <button class="btn-ui btn-green" onclick="resetGame()">TEKRAR</button>
-        <button class="btn-ui btn-blue" onclick="openLeaderboard()">SKORLAR</button>
-        <button class="btn-ui btn-gray" onclick="clearMyAccount()">HESABI SİL</button>
+        <h1 style="color:#ff0050; margin:0;">EYVAH!</h1>
+        <p id="final-score-text" style="font-size:20px; margin:15px 0;"></p>
+        <button class="btn-ui btn-green" onclick="resetGame()">TEKRAR OYNA</button>
+        <button class="btn-ui btn-blue" onclick="openLeaderboard()">SKOR TABLOSU</button>
+        <button class="btn-ui btn-gray" onclick="clearMyAccount()">HESABI SİL / YENİ İSİM</button>
     </div>
+
     <div id="leaderboard-modal" class="overlay">
-        <div style="background:#111; padding:20px; border-radius:15px; border:1px solid #00f2ea; width:250px;">
-            <h2 style="text-align:center; color:#00f2ea">SIRALAMA</h2>
-            <div id="full-score-list" style="margin:10px 0; max-height:150px; overflow-y:auto;"></div>
-            <button class="btn-ui btn-gray" style="width:100%" onclick="closeLeaderboard()">KAPAT</button>
+        <div style="background:#0a0a0a; padding:25px; border-radius:20px; border:2px solid #00f2ea; width:280px; box-shadow: 0 0 30px rgba(0,242,234,0.2);">
+            <h2 style="text-align:center; color:#00f2ea; margin-top:0;">🏆 SIRALAMA</h2>
+            <div id="full-score-list" style="margin:15px 0; max-height:180px; overflow-y:auto; font-size:15px;"></div>
+            <button class="btn-ui btn-gray" style="width:100%" onclick="closeLeaderboard()">GERİ DÖN</button>
         </div>
     </div>
+
     <div id="game-container">
-        <div style="font-size:20px; color:#00ff96; margin-bottom:10px;"><span id="user-display"></span>: <span id="skor-val">0</span></div>
+        <div style="font-size:22px; font-weight:bold; color:#00ff96; margin-bottom:15px;"><span id="user-display"></span>: <span id="skor-val">0</span></div>
         <canvas id="snakeBoard" width="400" height="400"></canvas>
         <div class="controls">
             <div class="btn-game" id="up">↑</div>
@@ -50,61 +54,145 @@
             <div class="btn-game" id="right">→</div>
         </div>
     </div>
+
     <script>
-        const canvas = document.getElementById("snakeBoard"), ctx = canvas.getContext("2d"), grid = 20;
-        let score = 0, snake = [], apple = {}, d = "RIGHT", nextD = "RIGHT", currentSpeed = 200, playerName = "", gameRunning = false, loopTimeout;
+        // SİSTEM DEĞİŞKENLERİ
+        const canvas = document.getElementById("snakeBoard");
+        const ctx = canvas.getContext("2d");
+        const grid = 20;
+        let score = 0, snake = [], apple = {}, d = "RIGHT", nextD = "RIGHT", currentSpeed = 200;
+        let playerName = "", gameRunning = false, loopTimeout;
+
+        // VERİ YÖNETİMİ
         const getGlobalScores = () => JSON.parse(localStorage.getItem("furkanSnakeGlobal") || "[]");
         const getMyAccount = () => localStorage.getItem("furkanSnakeAccount");
-        window.onload = () => { if(getMyAccount()) { document.getElementById("username").value = getMyAccount(); document.getElementById("username").disabled = true; } };
+
+        // GİRİŞ KONTROLÜ (Otomatik)
+        window.onload = () => {
+            const saved = getMyAccount();
+            if(saved) {
+                document.getElementById("username").value = saved;
+                document.getElementById("username").disabled = true;
+                document.getElementById("error-msg").innerText = "Kayıtlı hesap aktif.";
+                document.getElementById("error-msg").style.color = "#00f2ea";
+            }
+        };
+
+        // BUTON FONKSİYONLARI (Hata Veren Kısım Burasıydı)
         function handleLogin() {
             const input = document.getElementById("username").value.trim();
+            const error = document.getElementById("error-msg");
             const mySaved = getMyAccount();
-            if(!input) return;
-            if(mySaved && input !== mySaved) { document.getElementById("error-msg").innerText = "Bu cihaz " + mySaved + " adına kayıtlı!"; return; }
-            if(!mySaved && getGlobalScores().some(s => s.name.toLowerCase() === input.toLowerCase())) { document.getElementById("error-msg").innerText = "İsim alınmış!"; return; }
-            playerName = input; localStorage.setItem("furkanSnakeAccount", playerName);
+
+            if(!input) { error.innerText = "Bir isim yazmalısın!"; return; }
+            if(mySaved && input !== mySaved) { error.innerText = "Bu cihaz " + mySaved + " adına kayıtlı!"; return; }
+            
+            const scores = getGlobalScores();
+            if(!mySaved && scores.some(s => s.name.toLowerCase() === input.toLowerCase())) {
+                error.innerText = "Bu isim zaten alınmış!";
+                return;
+            }
+
+            playerName = input;
+            localStorage.setItem("furkanSnakeAccount", playerName);
             document.getElementById("login-screen").style.display = "none";
             document.getElementById("game-container").style.display = "flex";
             document.getElementById("user-display").innerText = playerName;
             resetGame();
         }
-        function clearMyAccount() { if(confirm("Silinsin mi?")) { localStorage.removeItem("furkanSnakeAccount"); location.reload(); } }
-        function saveScore() {
-            let s = getGlobalScores(), i = s.findIndex(x => x.name === playerName);
-            if(i > -1) { if(score > s[i].score) s[i].score = score; } else s.push({name: playerName, score: score});
-            localStorage.setItem("furkanSnakeGlobal", JSON.stringify(s));
+
+        function clearMyAccount() {
+            if(confirm("Hesabını silmek istiyor musun?")) {
+                localStorage.removeItem("furkanSnakeAccount");
+                location.reload();
+            }
         }
+
         function openLeaderboard() {
-            let s = getGlobalScores().sort((a,b) => b.score - a.score);
-            document.getElementById("full-score-list").innerHTML = s.slice(0,10).map((x,i) => `<div style="display:flex; justify-content:space-between; padding:5px 0; border-bottom:1px solid #222;"><span>${i+1}. ${x.name}</span><span style="color:#00ff96">${x.score}</span></div>`).join("") || "Yok";
+            const s = getGlobalScores().sort((a,b) => b.score - a.score);
+            document.getElementById("full-score-list").innerHTML = s.slice(0,10).map((x,i) => 
+                `<div style="display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid #222;">
+                    <span>${i+1}. ${x.name}</span>
+                    <span style="color:#00ff96; font-weight:bold;">${x.score}</span>
+                </div>`).join("") || "Henüz rekor yok!";
             document.getElementById("leaderboard-modal").style.display = "flex";
         }
+
         function closeLeaderboard() { document.getElementById("leaderboard-modal").style.display = "none"; }
+
+        // OYUN MOTORU
         function resetGame() {
             score = 0; currentSpeed = 200; d = "RIGHT"; nextD = "RIGHT";
-            snake = [{x: 200, y: 200}, {x: 180, y: 200}]; apple = { x: 100, y: 100 };
+            snake = [{x: 200, y: 200}, {x: 180, y: 200}];
+            apple = { x: 100, y: 100 };
             document.getElementById("skor-val").innerText = "0";
             document.getElementById("game-over-screen").style.display = "none";
-            gameRunning = true; clearTimeout(loopTimeout); gameLoop();
+            gameRunning = true;
+            clearTimeout(loopTimeout);
+            gameLoop();
         }
+
+        function saveScore() {
+            let s = getGlobalScores();
+            let idx = s.findIndex(x => x.name === playerName);
+            if(idx > -1) { if(score > s[idx].score) s[idx].score = score; } 
+            else { s.push({name: playerName, score: score}); }
+            localStorage.setItem("furkanSnakeGlobal", JSON.stringify(s));
+        }
+
         function gameLoop() {
             if(!gameRunning) return;
-            d = nextD; ctx.fillStyle = "black"; ctx.fillRect(0,0,400,400);
+            d = nextD;
+            ctx.fillStyle = "black"; ctx.fillRect(0, 0, 400, 400);
+            
+            // Elma
             ctx.fillStyle = "#ff0050"; ctx.fillRect(apple.x, apple.y, 18, 18);
-            snake.forEach((p, i) => { ctx.fillStyle = i===0 ? "#00ff96" : "#00a1ff"; ctx.fillRect(p.x, p.y, 18, 18); });
-            let hX = snake[0].x, hY = snake[0].y;
-            if(d==="UP") hY-=20; if(d==="DOWN") hY+=20; if(d==="LEFT") hX-=20; if(d==="RIGHT") hX+=20;
-            if(hX===apple.x && hY===apple.y) { score+=10; if(currentSpeed>60) currentSpeed-=8; document.getElementById("skor-val").innerText = score; apple = { x: Math.floor(Math.random()*19)*20, y: Math.floor(Math.random()*19)*20 }; }
-            else snake.pop();
-            let nH = {x:hX, y:hY};
-            if(hX<0 || hX>=400 || hY<0 || hY>=400 || snake.some(p => p.x===nH.x && p.y===nH.y)) { gameRunning=false; saveScore(); document.getElementById("final-score-text").innerText = "Skor: "+score; document.getElementById("game-over-screen").style.display="flex"; }
-            else { snake.unshift(nH); loopTimeout = setTimeout(gameLoop, currentSpeed); }
+
+            // Yılan
+            snake.forEach((p, i) => {
+                ctx.fillStyle = i === 0 ? "#00ff96" : "#00a1ff";
+                ctx.fillRect(p.x, p.y, 18, 18);
+            });
+
+            let headX = snake[0].x, headY = snake[0].y;
+            if(d === "UP") headY -= 20; if(d === "DOWN") headY += 20;
+            if(d === "LEFT") headX -= 20; if(d === "RIGHT") headX += 20;
+
+            if(headX === apple.x && headY === apple.y) {
+                score += 10;
+                if(currentSpeed > 60) currentSpeed -= 8;
+                document.getElementById("skor-val").innerText = score;
+                apple = { x: Math.floor(Math.random()*19)*20, y: Math.floor(Math.random()*19)*20 };
+            } else { snake.pop(); }
+
+            let nH = {x: headX, y: headY};
+            if(headX < 0 || headX >= 400 || headY < 0 || headY >= 400 || snake.some(p => p.x === nH.x && p.y === nH.y)) {
+                gameRunning = false;
+                saveScore();
+                document.getElementById("final-score-text").innerText = "Skorun: " + score;
+                document.getElementById("game-over-screen").style.display = "flex";
+            } else {
+                snake.unshift(nH);
+                loopTimeout = setTimeout(gameLoop, currentSpeed);
+            }
         }
-        function changeDir(v) { if(v==="UP"&&d!=="DOWN") nextD="UP"; if(v==="DOWN"&&d!=="UP") nextD="DOWN"; if(v==="LEFT"&&d!=="RIGHT") nextD="LEFT"; if(v==="RIGHT"&&d!=="LEFT") nextD="RIGHT"; }
-        document.addEventListener("keydown", e => { if(e.key.includes("Arrow")) changeDir(e.key.replace("Arrow","").toUpperCase()); });
-        ["up","down","left","right"].forEach(id => { 
-            document.getElementById(id).addEventListener("touchstart", e => { e.preventDefault(); changeDir(id.toUpperCase()); });
-            document.getElementById(id).addEventListener("mousedown", () => changeDir(id.toUpperCase()));
+
+        // KONTROLLER
+        function changeDir(v) {
+            if(v === "UP" && d !== "DOWN") nextD = "UP";
+            if(v === "DOWN" && d !== "UP") nextD = "DOWN";
+            if(v === "LEFT" && d !== "RIGHT") nextD = "LEFT";
+            if(v === "RIGHT" && d !== "LEFT") nextD = "RIGHT";
+        }
+
+        document.addEventListener("keydown", e => {
+            if(e.key.includes("Arrow")) changeDir(e.key.replace("Arrow","").toUpperCase());
+        });
+
+        ["up","down","left","right"].forEach(id => {
+            const btn = document.getElementById(id);
+            btn.addEventListener("touchstart", e => { e.preventDefault(); changeDir(id.toUpperCase()); });
+            btn.addEventListener("mousedown", () => changeDir(id.toUpperCase()));
         });
     </script>
 </body>
