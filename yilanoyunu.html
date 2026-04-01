@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Yılan Oyunu Pro - Skor Tablolu</title>
+    <title>Yılan Pro - Rekabet Modu</title>
     <style>
         @keyframes gradientBG {
             0% { background-position: 0% 50%; }
@@ -20,35 +20,36 @@
             overflow: hidden; touch-action: none; height: 100vh;
         }
 
-        /* GİRİŞ EKRANI */
-        #login-screen {
-            position: absolute; width: 100%; height: 100%; background: rgba(0,0,0,0.95);
+        /* GİRİŞ VE OYUN BİTTİ EKRANLARI */
+        .overlay {
+            position: absolute; width: 100%; height: 100%; background: rgba(0,0,0,0.9);
             display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 100;
         }
-        #login-screen h1 { color: #00ff96; text-shadow: 0 0 15px #00ff96; margin-bottom: 20px; }
-        input { padding: 15px; border-radius: 10px; border: 2px solid #00ff96; background: #111; color: white; margin-bottom: 15px; width: 220px; text-align: center; font-size: 18px; }
-        .start-btn { padding: 12px 35px; background: #00ff96; color: black; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; font-size: 18px; transition: 0.3s; }
-        .start-btn:hover { transform: scale(1.1); box-shadow: 0 0 20px #00ff96; }
+        
+        #game-over-screen { display: none; background: rgba(20, 0, 0, 0.85); }
 
-        /* SKOR TABLOSU (SAĞ ÜST) */
+        input { padding: 12px; border-radius: 8px; border: 2px solid #00ff96; background: #111; color: white; margin-bottom: 15px; width: 200px; text-align: center; }
+        .btn-ui { padding: 12px 30px; background: #00ff96; color: black; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 16px; }
+
+        /* SKOR TABLOSU */
         #leaderboard {
-            position: absolute; top: 15px; right: 15px; background: rgba(0,0,0,0.8);
-            border: 2px solid #00f2ea; padding: 12px; border-radius: 12px; font-size: 13px;
-            min-width: 130px; box-shadow: 0 0 15px rgba(0, 242, 234, 0.3);
+            position: absolute; top: 10px; right: 10px; background: rgba(0,0,0,0.7);
+            border: 2px solid #00f2ea; padding: 10px; border-radius: 8px; font-size: 13px;
+            min-width: 140px; z-index: 50;
         }
-        #leaderboard h3 { margin: 0 0 8px 0; color: #00f2ea; text-align: center; border-bottom: 1px solid #00f2ea; padding-bottom: 5px; }
-        .score-entry { display: flex; justify-content: space-between; margin-bottom: 4px; }
-        .score-entry span:last-child { font-weight: bold; color: #00ff96; }
+        #leaderboard h3 { margin: 0 0 5px 0; color: #00f2ea; font-size: 14px; text-align: center; border-bottom: 1px solid #00f2ea; }
+        .score-row { display: flex; justify-content: space-between; margin: 3px 0; }
+        .score-row span:last-child { color: #00ff96; font-weight: bold; }
 
         #game-container { display: none; flex-direction: column; align-items: center; }
-        #skor-panel { font-size: 26px; font-weight: bold; color: #00ff96; margin-bottom: 10px; text-shadow: 0 0 10px #00ff96; }
+        #skor-panel { font-size: 24px; font-weight: bold; color: #00ff96; margin-bottom: 10px; }
 
-        canvas { border: 3px solid #333; border-radius: 15px; background: rgba(0,0,0,0.9); max-width: 90vw; max-height: 40vh; }
+        canvas { border: 3px solid #333; border-radius: 12px; background: #000; max-width: 85vw; max-height: 40vh; }
 
         /* KONTROLLER */
-        .controls { display: grid; grid-template-columns: repeat(3, 75px); grid-template-rows: repeat(2, 75px); gap: 12px; margin-top: 20px; }
-        .btn { background: #1a1a1a; color: #00f2ea; border: 2px solid #00f2ea; border-radius: 18px; font-size: 32px; display: flex; align-items: center; justify-content: center; user-select: none; box-shadow: 0 4px 0 #008e54; }
-        .btn:active { background: #00f2ea; color: black; transform: translateY(4px); box-shadow: none; }
+        .controls { display: grid; grid-template-columns: repeat(3, 75px); grid-template-rows: repeat(2, 75px); gap: 10px; margin-top: 20px; }
+        .btn-game { background: #222; color: #00f2ea; border: 2px solid #00f2ea; border-radius: 15px; font-size: 30px; display: flex; align-items: center; justify-content: center; }
+        .btn-game:active { background: #00f2ea; color: black; }
         #up { grid-column: 2; }
         #left { grid-column: 1; grid-row: 2; }
         #down { grid-column: 2; grid-row: 2; }
@@ -57,25 +58,32 @@
 </head>
 <body>
 
-    <div id="login-screen">
-        <h1>🐍 YILAN PRO</h1>
-        <input type="text" id="username" placeholder="İsmini Yaz..." maxlength="10">
-        <button class="start-btn" onclick="startGame()">OYUNA BAŞLA</button>
+    <div id="login-screen" class="overlay">
+        <h1 style="color: #00ff96;">YILAN PRO</h1>
+        <input type="text" id="username" placeholder="Adını Yaz..." maxlength="10">
+        <button class="btn-ui" onclick="startGame()">BAŞLA</button>
+    </div>
+
+    <div id="game-over-screen" class="overlay">
+        <h1 style="color: #ff0050;">OYUN BİTTİ!</h1>
+        <p id="final-score-text" style="font-size: 20px;"></p>
+        <button class="btn-ui" onclick="resetGame()">TEKRAR DENE</button>
+        <button class="btn-ui" onclick="location.reload()" style="margin-top:10px; background:#555; color:white;">İSİM DEĞİŞTİR</button>
     </div>
 
     <div id="leaderboard">
-        <h3>🏆 TOP 5</h3>
+        <h3>🏆 EN İYİLER</h3>
         <div id="score-list"></div>
     </div>
 
     <div id="game-container">
-        <div id="skor-panel"><span id="user-display"></span>: <span id="skor">0</span></div>
+        <div id="skor-panel"><span id="user-display"></span>: <span id="skor-val">0</span></div>
         <canvas id="snakeBoard" width="400" height="400"></canvas>
         <div class="controls">
-            <div class="btn" id="up">↑</div>
-            <div class="btn" id="left">←</div>
-            <div class="btn" id="down">↓</div>
-            <div class="btn" id="right">→</div>
+            <div class="btn-game" id="up">↑</div>
+            <div class="btn-game" id="left">←</div>
+            <div class="btn-game" id="down">↓</div>
+            <div class="btn-game" id="right">→</div>
         </div>
     </div>
 
@@ -83,78 +91,54 @@
         const canvas = document.getElementById("snakeBoard");
         const ctx = canvas.getContext("2d");
         const grid = 20;
-        let score = 0;
-        let snake = [{x: 200, y: 200}, {x: 180, y: 200}];
-        let apple = {x: 100, y: 100};
-        let d = "RIGHT", nextD = "RIGHT", currentSpeed = 200;
-        let playerName = "Oyuncu";
+        let score = 0, snake = [], apple = {}, d = "RIGHT", nextD = "RIGHT", currentSpeed = 200;
+        let playerName = "Oyuncu", gameRunning = false, loopTimeout;
 
-        // LİDERLİK TABLOSUNU GÜNCELLE
-        function showLeaderboard() {
-            let scores = JSON.parse(localStorage.getItem("furkanSnakeScores") || "[]");
+        function updateLeaderboard() {
+            let scores = JSON.parse(localStorage.getItem("furkanSnakeV3") || "[]");
             scores.sort((a, b) => b.score - a.score);
-            scores = scores.slice(0, 5); // Sadece ilk 5
-            const list = document.getElementById("score-list");
-            list.innerHTML = scores.map(s => `
-                <div class="score-entry">
-                    <span>${s.name}</span>
-                    <span>${s.score}</span>
-                </div>
-            `).join("");
+            document.getElementById("score-list").innerHTML = scores.slice(0, 5).map(s => 
+                `<div class="score-row"><span>${s.name}</span><span>${s.score}</span></div>`
+            ).join("");
         }
 
-        // SKORU KAYDET
-        function saveFinalScore() {
-            let scores = JSON.parse(localStorage.getItem("furkanSnakeScores") || "[]");
+        function saveScore() {
+            let scores = JSON.parse(localStorage.getItem("furkanSnakeV3") || "[]");
             scores.push({ name: playerName, score: score });
-            localStorage.setItem("furkanSnakeScores", JSON.stringify(scores));
-            showLeaderboard();
+            localStorage.setItem("furkanSnakeV3", JSON.stringify(scores));
+            updateLeaderboard();
         }
 
-        // OYUNU BAŞLAT
         function startGame() {
-            const inputName = document.getElementById("username").value.trim();
-            if (inputName) playerName = inputName;
-            document.getElementById("user-display").innerText = playerName;
+            const input = document.getElementById("username").value.trim();
+            if(input) playerName = input;
             document.getElementById("login-screen").style.display = "none";
             document.getElementById("game-container").style.display = "flex";
-            showLeaderboard();
+            document.getElementById("user-display").innerText = playerName;
+            resetGame();
+        }
+
+        function resetGame() {
+            score = 0;
+            currentSpeed = 200;
+            d = "RIGHT"; nextD = "RIGHT";
+            snake = [{x: 200, y: 200}, {x: 180, y: 200}];
+            apple = { x: 100, y: 100 };
+            document.getElementById("skor-val").innerText = "0";
+            document.getElementById("game-over-screen").style.display = "none";
+            gameRunning = true;
+            updateLeaderboard();
+            clearTimeout(loopTimeout);
             gameLoop();
         }
 
-        // YÖN DEĞİŞTİRME
-        function changeDir(newDir) {
-            if (newDir == "LEFT" && d != "RIGHT") nextD = "LEFT";
-            if (newDir == "UP" && d != "DOWN") nextD = "UP";
-            if (newDir == "RIGHT" && d != "LEFT") nextD = "RIGHT";
-            if (newDir == "DOWN" && d != "UP") nextD = "DOWN";
-        }
-
-        // KONTROLLER (PC + MOBİL)
-        document.addEventListener("keydown", (e) => {
-            if (e.key === "ArrowUp") changeDir("UP");
-            if (e.key === "ArrowDown") changeDir("DOWN");
-            if (e.key === "ArrowLeft") changeDir("LEFT");
-            if (e.key === "ArrowRight") changeDir("RIGHT");
-        });
-
-        ["up", "down", "left", "right"].forEach(id => {
-            const el = document.getElementById(id);
-            const handleAction = (e) => { e.preventDefault(); changeDir(id.toUpperCase()); };
-            el.addEventListener("touchstart", handleAction);
-            el.addEventListener("mousedown", handleAction);
-        });
-
         function gameLoop() {
+            if(!gameRunning) return;
             d = nextD;
-            ctx.fillStyle = "black";
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = "black"; ctx.fillRect(0, 0, canvas.width, canvas.height);
             
             // Elma
-            ctx.fillStyle = "#ff0050";
-            ctx.shadowBlur = 15; ctx.shadowColor = "#ff0050";
-            ctx.fillRect(apple.x, apple.y, grid-2, grid-2);
-            ctx.shadowBlur = 0;
+            ctx.fillStyle = "#ff0050"; ctx.fillRect(apple.x, apple.y, grid-2, grid-2);
 
             // Yılan
             snake.forEach((part, index) => {
@@ -162,42 +146,50 @@
                 ctx.fillRect(part.x, part.y, grid-2, grid-2);
             });
 
-            let headX = snake[0].x;
-            let headY = snake[0].y;
-            if(d == "LEFT") headX -= grid;
-            if(d == "UP") headY -= grid;
-            if(d == "RIGHT") headX += grid;
-            if(d == "DOWN") headY += grid;
+            let headX = snake[0].x; let headY = snake[0].y;
+            if(d == "LEFT") headX -= grid; if(d == "UP") headY -= grid;
+            if(d == "RIGHT") headX += grid; if(d == "DOWN") headY += grid;
 
-            // ELMA YEME
             if(headX == apple.x && headY == apple.y) {
                 score += 10;
-                if (currentSpeed > 50) currentSpeed -= 8;
-                document.getElementById("skor").innerText = score;
-                apple = { 
-                    x: Math.floor(Math.random() * (canvas.width/grid)) * grid, 
-                    y: Math.floor(Math.random() * (canvas.height/grid)) * grid 
-                };
-            } else {
-                snake.pop();
-            }
+                if(currentSpeed > 60) currentSpeed -= 7;
+                document.getElementById("skor-val").innerText = score;
+                apple = { x: Math.floor(Math.random() * 19) * grid, y: Math.floor(Math.random() * 19) * grid };
+            } else { snake.pop(); }
 
             let newHead = { x: headX, y: headY };
 
-            // ÖLME KONTROLÜ
             if(headX < 0 || headX >= canvas.width || headY < 0 || headY >= canvas.height || snake.some(p => p.x === newHead.x && p.y === newHead.y)) {
-                saveFinalScore();
-                alert("OYUN BİTTİ!\nSkorun: " + score);
-                location.reload(); // Sayfayı yenileyerek başa dön
-                return;
+                gameOver();
+            } else {
+                snake.unshift(newHead);
+                loopTimeout = setTimeout(gameLoop, currentSpeed);
             }
-
-            snake.unshift(newHead);
-            setTimeout(gameLoop, currentSpeed);
         }
 
-        // Sayfa yüklendiğinde tabloyu göster
-        showLeaderboard();
+        function gameOver() {
+            gameRunning = false;
+            saveScore();
+            document.getElementById("final-score-text").innerText = playerName + ", Skorun: " + score;
+            document.getElementById("game-over-screen").style.display = "flex";
+        }
+
+        function changeDir(v) {
+            if(v=="UP" && d!="DOWN") nextD="UP"; if(v=="DOWN" && d!="UP") nextD="DOWN";
+            if(v=="LEFT" && d!="RIGHT") nextD="LEFT"; if(v=="RIGHT" && d!="LEFT") nextD="RIGHT";
+        }
+
+        document.addEventListener("keydown", (e) => {
+            if(e.key.includes("Arrow")) changeDir(e.key.replace("Arrow","").toUpperCase());
+        });
+
+        ["up","down","left","right"].forEach(id => {
+            const btn = document.getElementById(id);
+            btn.addEventListener("touchstart", (e) => { e.preventDefault(); changeDir(id.toUpperCase()); });
+            btn.addEventListener("mousedown", () => changeDir(id.toUpperCase()));
+        });
+
+        updateLeaderboard();
     </script>
 </body>
 </html>
