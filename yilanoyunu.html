@@ -20,36 +20,44 @@
             overflow: hidden; touch-action: none; height: 100vh;
         }
 
-        /* GİRİŞ VE OYUN BİTTİ EKRANLARI */
+        /* EKRANLAR (OVERLAYS) */
         .overlay {
-            position: absolute; width: 100%; height: 100%; background: rgba(0,0,0,0.9);
+            position: absolute; width: 100%; height: 100%; background: rgba(0,0,0,0.95);
             display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 100;
         }
         
-        #game-over-screen { display: none; background: rgba(20, 0, 0, 0.85); }
+        #game-over-screen, #leaderboard-modal { display: none; }
 
-        input { padding: 12px; border-radius: 8px; border: 2px solid #00ff96; background: #111; color: white; margin-bottom: 15px; width: 200px; text-align: center; }
-        .btn-ui { padding: 12px 30px; background: #00ff96; color: black; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 16px; }
-
-        /* SKOR TABLOSU */
-        #leaderboard {
-            position: absolute; top: 10px; right: 10px; background: rgba(0,0,0,0.7);
-            border: 2px solid #00f2ea; padding: 10px; border-radius: 8px; font-size: 13px;
-            min-width: 140px; z-index: 50;
+        input { padding: 12px; border-radius: 8px; border: 2px solid #00ff96; background: #111; color: white; margin-bottom: 15px; width: 220px; text-align: center; font-size: 16px; }
+        
+        .btn-ui { 
+            padding: 12px 30px; border: none; border-radius: 8px; font-weight: bold; 
+            cursor: pointer; font-size: 16px; width: 220px; margin: 5px 0; transition: 0.2s;
         }
-        #leaderboard h3 { margin: 0 0 5px 0; color: #00f2ea; font-size: 14px; text-align: center; border-bottom: 1px solid #00f2ea; }
-        .score-row { display: flex; justify-content: space-between; margin: 3px 0; }
-        .score-row span:last-child { color: #00ff96; font-weight: bold; }
+        .btn-green { background: #00ff96; color: black; }
+        .btn-blue { background: #00f2ea; color: black; }
+        .btn-gray { background: #444; color: white; }
+        .btn-ui:active { transform: scale(0.95); }
 
+        /* SKOR TABLOSU MODAL (ORTA EKRAN) */
+        #leaderboard-modal { z-index: 110; background: rgba(10, 10, 20, 0.98); }
+        .modal-content { 
+            width: 80%; max-width: 300px; background: #111; border: 2px solid #00f2ea; 
+            padding: 20px; border-radius: 15px; box-shadow: 0 0 30px rgba(0, 242, 234, 0.3);
+        }
+        .modal-content h2 { color: #00f2ea; text-align: center; margin-top: 0; }
+        .score-list-full { margin: 15px 0; max-height: 250px; overflow-y: auto; }
+        .full-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #222; }
+        .full-row span:last-child { color: #00ff96; font-weight: bold; }
+
+        /* OYUN ALANI */
         #game-container { display: none; flex-direction: column; align-items: center; }
-        #skor-panel { font-size: 24px; font-weight: bold; color: #00ff96; margin-bottom: 10px; }
-
-        canvas { border: 3px solid #333; border-radius: 12px; background: #000; max-width: 85vw; max-height: 40vh; }
+        #skor-panel { font-size: 26px; font-weight: bold; color: #00ff96; margin-bottom: 10px; }
+        canvas { border: 3px solid #333; border-radius: 12px; background: #000; max-width: 85vw; max-height: 38vh; }
 
         /* KONTROLLER */
         .controls { display: grid; grid-template-columns: repeat(3, 75px); grid-template-rows: repeat(2, 75px); gap: 10px; margin-top: 20px; }
         .btn-game { background: #222; color: #00f2ea; border: 2px solid #00f2ea; border-radius: 15px; font-size: 30px; display: flex; align-items: center; justify-content: center; }
-        .btn-game:active { background: #00f2ea; color: black; }
         #up { grid-column: 2; }
         #left { grid-column: 1; grid-row: 2; }
         #down { grid-column: 2; grid-row: 2; }
@@ -59,21 +67,26 @@
 <body>
 
     <div id="login-screen" class="overlay">
-        <h1 style="color: #00ff96;">YILAN PRO</h1>
-        <input type="text" id="username" placeholder="Adını Yaz..." maxlength="10">
-        <button class="btn-ui" onclick="startGame()">BAŞLA</button>
+        <h1 style="color: #00ff96; text-shadow: 0 0 10px #00ff96;">YILAN PRO</h1>
+        <input type="text" id="username" placeholder="Oyuncu Adı..." maxlength="10">
+        <button class="btn-ui btn-green" onclick="startGame()">OYUNA BAŞLA</button>
     </div>
 
     <div id="game-over-screen" class="overlay">
         <h1 style="color: #ff0050;">OYUN BİTTİ!</h1>
-        <p id="final-score-text" style="font-size: 20px;"></p>
-        <button class="btn-ui" onclick="resetGame()">TEKRAR DENE</button>
-        <button class="btn-ui" onclick="location.reload()" style="margin-top:10px; background:#555; color:white;">İSİM DEĞİŞTİR</button>
+        <p id="final-score-text" style="font-size: 22px; margin-bottom: 20px;"></p>
+        
+        <button class="btn-ui btn-green" onclick="resetGame()">TEKRAR DENE</button>
+        <button class="btn-ui btn-gray" onclick="location.reload()">İSİM DEĞİŞTİR</button>
+        <button class="btn-ui btn-blue" onclick="openLeaderboard()">SKOR TABLOSU</button>
     </div>
 
-    <div id="leaderboard">
-        <h3>🏆 EN İYİLER</h3>
-        <div id="score-list"></div>
+    <div id="leaderboard-modal" class="overlay">
+        <div class="modal-content">
+            <h2>🏆 TOP 10 REKOR</h2>
+            <div id="full-score-list" class="score-list-full"></div>
+            <button class="btn-ui btn-gray" style="width: 100%;" onclick="closeLeaderboard()">KAPAT</button>
+        </div>
     </div>
 
     <div id="game-container">
@@ -94,19 +107,31 @@
         let score = 0, snake = [], apple = {}, d = "RIGHT", nextD = "RIGHT", currentSpeed = 200;
         let playerName = "Oyuncu", gameRunning = false, loopTimeout;
 
-        function updateLeaderboard() {
-            let scores = JSON.parse(localStorage.getItem("furkanSnakeV3") || "[]");
-            scores.sort((a, b) => b.score - a.score);
-            document.getElementById("score-list").innerHTML = scores.slice(0, 5).map(s => 
-                `<div class="score-row"><span>${s.name}</span><span>${s.score}</span></div>`
-            ).join("");
+        // SKORLARI GETİR
+        function getScores() {
+            return JSON.parse(localStorage.getItem("furkanSnakeV4") || "[]");
         }
 
+        // SKOR KAYDET
         function saveScore() {
-            let scores = JSON.parse(localStorage.getItem("furkanSnakeV3") || "[]");
+            let scores = getScores();
             scores.push({ name: playerName, score: score });
-            localStorage.setItem("furkanSnakeV3", JSON.stringify(scores));
-            updateLeaderboard();
+            scores.sort((a, b) => b.score - a.score);
+            localStorage.setItem("furkanSnakeV4", JSON.stringify(scores));
+        }
+
+        // SKOR TABLOSUNU DOLDUR
+        function openLeaderboard() {
+            let scores = getScores();
+            scores.sort((a, b) => b.score - a.score);
+            document.getElementById("full-score-list").innerHTML = scores.slice(0, 10).map((s, i) => 
+                `<div class="full-row"><span>${i+1}. ${s.name}</span><span>${s.score}</span></div>`
+            ).join("") || "<div style='text-align:center'>Henüz rekor yok!</div>";
+            document.getElementById("leaderboard-modal").style.display = "flex";
+        }
+
+        function closeLeaderboard() {
+            document.getElementById("leaderboard-modal").style.display = "none";
         }
 
         function startGame() {
@@ -119,15 +144,12 @@
         }
 
         function resetGame() {
-            score = 0;
-            currentSpeed = 200;
-            d = "RIGHT"; nextD = "RIGHT";
+            score = 0; currentSpeed = 200; d = "RIGHT"; nextD = "RIGHT";
             snake = [{x: 200, y: 200}, {x: 180, y: 200}];
             apple = { x: 100, y: 100 };
             document.getElementById("skor-val").innerText = "0";
             document.getElementById("game-over-screen").style.display = "none";
             gameRunning = true;
-            updateLeaderboard();
             clearTimeout(loopTimeout);
             gameLoop();
         }
@@ -136,11 +158,7 @@
             if(!gameRunning) return;
             d = nextD;
             ctx.fillStyle = "black"; ctx.fillRect(0, 0, canvas.width, canvas.height);
-            
-            // Elma
             ctx.fillStyle = "#ff0050"; ctx.fillRect(apple.x, apple.y, grid-2, grid-2);
-
-            // Yılan
             snake.forEach((part, index) => {
                 ctx.fillStyle = (index === 0) ? "#00ff96" : "#00a1ff";
                 ctx.fillRect(part.x, part.y, grid-2, grid-2);
@@ -158,7 +176,6 @@
             } else { snake.pop(); }
 
             let newHead = { x: headX, y: headY };
-
             if(headX < 0 || headX >= canvas.width || headY < 0 || headY >= canvas.height || snake.some(p => p.x === newHead.x && p.y === newHead.y)) {
                 gameOver();
             } else {
@@ -170,7 +187,7 @@
         function gameOver() {
             gameRunning = false;
             saveScore();
-            document.getElementById("final-score-text").innerText = playerName + ", Skorun: " + score;
+            document.getElementById("final-score-text").innerText = "Skorun: " + score;
             document.getElementById("game-over-screen").style.display = "flex";
         }
 
@@ -188,8 +205,6 @@
             btn.addEventListener("touchstart", (e) => { e.preventDefault(); changeDir(id.toUpperCase()); });
             btn.addEventListener("mousedown", () => changeDir(id.toUpperCase()));
         });
-
-        updateLeaderboard();
     </script>
 </body>
 </html>
