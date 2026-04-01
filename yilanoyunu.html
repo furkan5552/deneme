@@ -10,7 +10,6 @@
             50% { background-position: 100% 50%; }
             100% { background-position: 0% 50%; }
         }
-
         body { 
             background: linear-gradient(-45deg, #0a101e, #1a0f2e, #050505);
             background-size: 400% 400%;
@@ -19,44 +18,27 @@
             justify-content: center; color: white; font-family: 'Segoe UI', sans-serif; 
             overflow: hidden; touch-action: none; height: 100vh;
         }
-
         .overlay {
             position: absolute; width: 100%; height: 100%; background: rgba(0,0,0,0.96);
             display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 100;
         }
-        
-        #game-over-screen, #leaderboard-modal { display: none; }
-
+        #game-over-screen, #leaderboard-modal, #game-container { display: none; }
         .form-group { display: flex; flex-direction: column; align-items: center; }
         input { padding: 14px; border-radius: 10px; border: 2px solid #00ff96; background: #111; color: white; margin-bottom: 10px; width: 240px; text-align: center; font-size: 17px; outline: none; }
         #error-msg { color: #ff0050; font-size: 14px; margin-bottom: 10px; height: 20px; font-weight: bold; }
-
-        .btn-ui { 
-            padding: 14px; border: none; border-radius: 10px; font-weight: bold; 
-            cursor: pointer; font-size: 16px; width: 240px; margin: 6px 0; transition: 0.3s;
-        }
+        .btn-ui { padding: 14px; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; font-size: 16px; width: 240px; margin: 6px 0; transition: 0.3s; }
         .btn-green { background: #00ff96; color: black; box-shadow: 0 4px 15px rgba(0, 255, 150, 0.3); }
         .btn-blue { background: #00f2ea; color: black; }
         .btn-gray { background: #333; color: white; }
-        .btn-ui:active { transform: scale(0.95); }
-
-        /* MODAL */
-        .modal-content { 
-            width: 85%; max-width: 320px; background: #0a0a0a; border: 2px solid #00f2ea; 
-            padding: 25px; border-radius: 20px; box-shadow: 0 0 40px rgba(0, 242, 234, 0.2);
-        }
+        .modal-content { width: 85%; max-width: 320px; background: #0a0a0a; border: 2px solid #00f2ea; padding: 25px; border-radius: 20px; box-shadow: 0 0 40px rgba(0, 242, 234, 0.2); }
         .modal-content h2 { color: #00f2ea; text-align: center; margin-top: 0; font-size: 22px; }
         .score-list-full { margin: 15px 0; max-height: 200px; overflow-y: auto; padding-right: 5px; }
         .full-row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #1a1a1a; }
         .full-row span:last-child { color: #00ff96; font-weight: bold; }
-
-        /* OYUN */
-        #game-container { display: none; flex-direction: column; align-items: center; }
         #skor-panel { font-size: 26px; font-weight: bold; color: #00ff96; margin-bottom: 15px; }
         canvas { border: 4px solid #1a1a1a; border-radius: 15px; background: #000; max-width: 90vw; max-height: 40vh; }
-
         .controls { display: grid; grid-template-columns: repeat(3, 75px); grid-template-rows: repeat(2, 75px); gap: 12px; margin-top: 25px; }
-        .btn-game { background: #111; color: #00f2ea; border: 2px solid #00f2ea; border-radius: 20px; font-size: 32px; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 0 #008e54; }
+        .btn-game { background: #111; color: #00f2ea; border: 2px solid #00f2ea; border-radius: 20px; font-size: 32px; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 0 #008e54; -webkit-tap-highlight-color: transparent; }
         #up { grid-column: 2; }
         #left { grid-column: 1; grid-row: 2; }
         #down { grid-column: 2; grid-row: 2; }
@@ -68,7 +50,6 @@
     <div id="login-screen" class="overlay">
         <h1 style="color: #00ff96; margin-bottom: 5px;">🐍 YILAN PRO</h1>
         <p style="color: #666; font-size: 13px; margin-bottom: 20px;">Benzersiz ismini seç ve yarış!</p>
-        
         <div class="form-group">
             <input type="text" id="username" placeholder="Kullanıcı Adı" maxlength="10">
             <div id="error-msg"></div>
@@ -79,7 +60,6 @@
     <div id="game-over-screen" class="overlay">
         <h1 style="color: #ff0050; margin-bottom: 5px;">EYVAH!</h1>
         <p id="final-score-text" style="font-size: 20px; margin-bottom: 25px;"></p>
-        
         <button class="btn-ui btn-green" onclick="resetGame()">HEMEN TEKRAR OYNA</button>
         <button class="btn-ui btn-blue" onclick="openLeaderboard()">DİĞER SKORLARA BAK</button>
         <button class="btn-ui btn-gray" onclick="clearMyAccount()">HESABI SİL / YENİ İSİM</button>
@@ -111,11 +91,9 @@
         let score = 0, snake = [], apple = {}, d = "RIGHT", nextD = "RIGHT", currentSpeed = 200;
         let playerName = "", gameRunning = false, loopTimeout;
 
-        // VERİ TABANI SİMÜLASYONU (Local Storage)
         function getGlobalScores() { return JSON.parse(localStorage.getItem("furkanSnakeGlobal") || "[]"); }
         function getMyAccount() { return localStorage.getItem("furkanSnakeAccount"); }
 
-        // GİRİŞ KONTROLÜ
         window.onload = () => {
             const savedName = getMyAccount();
             if(savedName) {
@@ -133,21 +111,16 @@
             const mySavedName = getMyAccount();
 
             if(!input) { error.innerText = "Bir isim yazmalısın!"; return; }
-
-            // Kural 1: Zaten bir hesabın varsa başka isim alamazsın
             if(mySavedName && input !== mySavedName) {
                 error.innerText = "Bu cihaz " + mySavedName + " adına kayıtlı!";
                 return;
             }
-
-            // Kural 2: Bu isim başkası tarafından alınmış mı?
             const isTaken = globalScores.some(s => s.name.toLowerCase() === input.toLowerCase());
             if(!mySavedName && isTaken) {
                 error.innerText = "Bu isim zaten alınmış!";
                 return;
             }
 
-            // Her şey tamamsa kaydet ve başla
             playerName = input;
             localStorage.setItem("furkanSnakeAccount", playerName);
             document.getElementById("login-screen").style.display = "none";
@@ -157,7 +130,7 @@
         }
 
         function clearMyAccount() {
-            if(confirm("Hesabını silersen ismin boşa çıkar ve tüm skorların gider. Emin misin?")) {
+            if(confirm("Hesabını silersen ismin boşa çıkar. Emin misin?")) {
                 localStorage.removeItem("furkanSnakeAccount");
                 location.reload();
             }
@@ -165,7 +138,6 @@
 
         function saveScore() {
             let scores = getGlobalScores();
-            // Eğer bu isimle daha önce skor varsa ve yeni skor eskisinden büyükse güncelle
             let userScoreIndex = scores.findIndex(s => s.name === playerName);
             if(userScoreIndex > -1) {
                 if(score > scores[userScoreIndex].score) {
@@ -192,16 +164,3 @@
             score = 0; currentSpeed = 200; d = "RIGHT"; nextD = "RIGHT";
             snake = [{x: 200, y: 200}, {x: 180, y: 200}];
             apple = { x: 100, y: 100 };
-            document.getElementById("skor-val").innerText = "0";
-            document.getElementById("game-over-screen").style.display = "none";
-            gameRunning = true;
-            clearTimeout(loopTimeout);
-            gameLoop();
-        }
-
-        function gameLoop() {
-            if(!gameRunning) return;
-            d = nextD;
-            ctx.fillStyle = "black"; ctx.fillRect(0, 0, canvas.width, canvas.height);
-            ctx.fillStyle = "#ff0050"; ctx.fillRect(apple.x, apple.y, grid-2, grid-2);
-            snake.forEach
