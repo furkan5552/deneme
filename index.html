@@ -3,39 +3,36 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Furkan Hub v29 - Grid Snake</title>
+    <title>Furkan Hub v30 - Universal</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.3/chess.min.js"></script>
     <style>
         :root { --neon: #00ff96; --rose: #ff0050; --cyber: #00f2ea; --gold: #ffd700; }
         * { box-sizing: border-box; touch-action: manipulation; user-select: none; outline: none; }
         body { background: #000; margin: 0; font-family: 'Segoe UI', sans-serif; color: white; overflow: hidden; height: 100vh; display: flex; align-items: center; justify-content: center; }
-        .screen { position: fixed; inset: 0; background: #000; display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 10; padding: 20px; }
+        
+        .screen { position: fixed; inset: 0; background: #000; display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 10; padding: 15px; }
         .hidden { display: none !important; }
-        .panel { background: #111; padding: 25px; border-radius: 25px; border: 3px solid var(--neon); text-align: center; width: 100%; max-width: 340px; box-shadow: 0 0 30px rgba(0,255,150,0.2); }
-        .title { font-size: 32px; font-weight: 900; color: var(--neon); text-shadow: 0 0 15px var(--neon); margin-bottom: 20px; }
-        .btn { padding: 15px; background: var(--neon); color: #000; border: none; border-radius: 12px; font-weight: bold; cursor: pointer; width: 100%; font-size: 16px; margin: 8px 0; transition: 0.2s; text-decoration: none; display: block; text-align: center; }
+        
+        .panel { background: #111; padding: 20px; border-radius: 25px; border: 3px solid var(--neon); text-align: center; width: 100%; max-width: 340px; box-shadow: 0 0 30px rgba(0,255,150,0.2); }
+        .title { font-size: 28px; font-weight: 900; color: var(--neon); text-shadow: 0 0 15px var(--neon); margin-bottom: 15px; }
+        
+        .btn { padding: 14px; background: var(--neon); color: #000; border: none; border-radius: 12px; font-weight: bold; cursor: pointer; width: 100%; font-size: 16px; margin: 6px 0; transition: 0.2s; text-decoration: none; display: block; text-align: center; }
         .btn:active { transform: scale(0.95); }
-        .social-container { display: flex; gap: 10px; margin-top: 20px; }
-        .s-link { flex: 1; padding: 12px; border-radius: 10px; text-decoration: none; font-weight: bold; font-size: 11px; color: white; text-align: center; }
+
+        .social-container { display: flex; gap: 8px; margin-top: 15px; }
+        .s-link { flex: 1; padding: 10px; border-radius: 10px; text-decoration: none; font-weight: bold; font-size: 11px; color: white; text-align: center; }
         .insta-btn { background: linear-gradient(45deg, #f09433, #dc2743, #bc1888); }
         .tiktok-btn { background: #222; border: 1px solid #fff; }
-        
-        /* OYUN ALANI VE KENARLAR */
-        #gameCanvas { 
-            border: 4px solid var(--cyber); /* Parlayan Kenarlar */
-            background: #050505; 
-            border-radius: 10px; 
-            box-shadow: 0 0 20px rgba(0, 242, 234, 0.3);
-            max-width: 95vw;
-        }
 
-        #chess-board { display: grid; grid-template-columns: repeat(8, 1fr); width: 320px; height: 320px; border: 4px solid #444; margin: 10px auto; background: #222; }
-        .cell { width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; font-size: 28px; cursor: pointer; position: relative; }
-        .w-c { background: #eeeed2; color: #000; } .b-c { background: #769656; color: #000; }
-        .sel { background: rgba(255, 255, 0, 0.6) !important; }
+        canvas { border: 3px solid var(--cyber); background: #050505; border-radius: 12px; max-width: 90vw; max-height: 50vh; display: block; margin: 0 auto; box-shadow: 0 0 20px rgba(0,242,234,0.2); }
         
+        #chess-board { display: grid; grid-template-columns: repeat(8, 1fr); width: 320px; height: 320px; border: 4px solid #444; margin: 5px auto; }
+        .cell { width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; font-size: 26px; cursor: pointer; }
+        .w-c { background: #eeeed2; } .b-c { background: #769656; }
+        .sel { background: rgba(255, 255, 0, 0.6) !important; }
+
         .joy { display: grid; grid-template-areas: ". up ." "left down right"; gap: 10px; margin-top: 15px; width: 210px; }
-        .j-btn { background: #151515; border: 2px solid var(--cyber); border-radius: 12px; height: 55px; width: 60px; display: flex; align-items: center; justify-content: center; font-size: 24px; color: var(--cyber); }
+        .j-btn { background: #151515; border: 2px solid var(--cyber); border-radius: 12px; height: 55px; width: 60px; display: flex; align-items: center; justify-content: center; font-size: 24px; color: var(--cyber); cursor: pointer; }
         #up { grid-area: up; margin: 0 auto; } #left { grid-area: left; } #down { grid-area: down; } #right { grid-area: right; }
     </style>
 </head>
@@ -55,7 +52,7 @@
     </div>
 
     <div id="scr-game" class="screen hidden">
-        <div id="score-text" style="font-size:20px; color:var(--neon); margin-bottom:5px;">SKOR: 0</div>
+        <div id="score-text" style="font-size:20px; color:var(--neon); margin-bottom:10px;">SKOR: 0</div>
         <canvas id="gameCanvas" class="hidden"></canvas>
         <div id="chess-board" class="hidden"></div>
         <div id="snake-ui" class="joy hidden">
@@ -67,8 +64,9 @@
 
     <script>
         const hub = {
-            game: null, selectedSq: null,
+            game: null, selectedSq: null, mode: '', score: 0,
             start(m) {
+                this.mode = m;
                 document.getElementById("scr-lobby").classList.add("hidden");
                 document.getElementById("scr-game").classList.remove("hidden");
                 if(m === 'snake') { document.getElementById("gameCanvas").classList.remove("hidden"); document.getElementById("snake-ui").classList.remove("hidden"); this.playSnake(); }
@@ -77,32 +75,29 @@
             },
             playSnake() {
                 const cv = document.getElementById("gameCanvas"); cv.width = 320; cv.height = 320; const cx = cv.getContext("2d");
-                let sn = [{x:160,y:160}], ap = {x:40,y:40}, d = "RIGHT", nD = "RIGHT", score=0;
+                let sn = [{x:160,y:160}], ap = {x:40,y:40}, d = "RIGHT", nD = "RIGHT";
                 
-                document.getElementById("up").onclick=()=> {if(d!="DOWN") nD="UP"};
-                document.getElementById("down").onclick=()=> {if(d!="UP") nD="DOWN"};
-                document.getElementById("left").onclick=()=> {if(d!="RIGHT") nD="LEFT"};
-                document.getElementById("right").onclick=()=> {if(d!="LEFT") nD="RIGHT"};
-                
+                const handleInput = (key) => {
+                    if((key=="UP" || key=="ArrowUp" || key=="w") && d!="DOWN") nD="UP";
+                    if((key=="DOWN" || key=="ArrowDown" || key=="s") && d!="UP") nD="DOWN";
+                    if((key=="LEFT" || key=="ArrowLeft" || key=="a") && d!="RIGHT") nD="LEFT";
+                    if((key=="RIGHT" || key=="ArrowRight" || key=="d") && d!="LEFT") nD="RIGHT";
+                };
+
+                window.onkeydown = (e) => handleInput(e.key);
+                document.getElementById("up").onclick = () => handleInput("UP");
+                document.getElementById("down").onclick = () => handleInput("DOWN");
+                document.getElementById("left").onclick = () => handleInput("LEFT");
+                document.getElementById("right").onclick = () => handleInput("RIGHT");
+
                 const loop = setInterval(() => {
-                    d = nD;
-                    // Arka Plan Çizimi
-                    cx.fillStyle = "#000"; cx.fillRect(0,0,320,320);
+                    d = nD; cx.fillStyle = "#000"; cx.fillRect(0,0,320,320);
+                    cx.strokeStyle = "#111"; // Grid
+                    for(let i=0; i<320; i+=20) { cx.strokeRect(i,0,i,320); cx.strokeRect(0,i,320,i); }
                     
-                    // Izgara (Grid) Çizimi - Kenarları görmeni sağlar
-                    cx.strokeStyle = "#111";
-                    for(let i=0; i<320; i+=20) {
-                        cx.beginPath(); cx.moveTo(i,0); cx.lineTo(i,320); cx.stroke();
-                        cx.beginPath(); cx.moveTo(0,i); cx.lineTo(320,i); cx.stroke();
-                    }
+                    cx.fillStyle = "#ff0050"; cx.shadowBlur=10; cx.shadowColor="#ff0050";
+                    cx.fillRect(ap.x+2, ap.y+2, 16, 16); cx.shadowBlur=0;
 
-                    // Elma (Parlayan Kırmızı)
-                    cx.fillStyle = "#ff0050";
-                    cx.shadowBlur = 10; cx.shadowColor = "#ff0050";
-                    cx.fillRect(ap.x+2, ap.y+2, 16, 16);
-                    cx.shadowBlur = 0;
-
-                    // Yılan (Neon Yeşil)
                     sn.forEach((p, i) => {
                         cx.fillStyle = i==0 ? "#00ff96" : "#00a1ff";
                         cx.fillRect(p.x+1, p.y+1, 18, 18);
@@ -112,35 +107,34 @@
                     if(d=="UP") hY-=20; if(d=="DOWN") hY+=20; if(d=="LEFT") hX-=20; if(d=="RIGHT") hX+=20;
 
                     if(hX==ap.x && hY==ap.y) {
-                        score+=10;
-                        ap={x:Math.floor(Math.random()*15)*20, y:Math.floor(Math.random()*15)*20};
+                        this.score+=10; ap={x:Math.floor(Math.random()*15)*20, y:Math.floor(Math.random()*15)*20};
                     } else { sn.pop(); }
 
                     let nH = {x:hX, y:hY};
                     if(hX<0||hX>=320||hY<0||hY>=320||sn.some(p=>p.x==nH.x&&p.y==nH.y)) {
-                        clearInterval(loop);
-                        document.getElementById("score-text").innerText = "EYVAH! SKOR: " + score;
-                        setTimeout(()=>location.reload(), 2000);
+                        clearInterval(loop); location.reload();
                     } else {
                         sn.unshift(nH);
-                        document.getElementById("score-text").innerText = "SKOR: " + score;
+                        document.getElementById("score-text").innerText = "SKOR: " + this.score;
                     }
                 }, 140);
             },
             playBird() {
                 const cv = document.getElementById("gameCanvas"); cv.width = 320; cv.height = 420; const cx = cv.getContext("2d");
-                let bY = 200, bV = 0, pipes = [], score=0, active=true;
-                window.onmousedown = () => { bV = -4.5; };
+                let bY = 200, bV = 0, pipes = [], active=true;
+                const jump = () => { if(active) bV = -4.5; };
+                window.onmousedown = jump; window.onkeydown = (e) => { if(e.code=="Space" || e.key=="ArrowUp") jump(); };
+                
                 const loop = () => {
                     if(!active) return; cx.fillStyle = "#050505"; cx.fillRect(0,0,320,420); bV += 0.22; bY += bV;
                     cx.fillStyle = "#ffd700"; cx.beginPath(); cx.arc(50, bY, 12, 0, Math.PI*2); cx.fill();
                     if(pipes.length==0 || pipes[pipes.length-1].x < 160) pipes.push({x:320, h:Math.random()*150+50, g:150, ok:false});
                     pipes.forEach((p, i) => { p.x -= 2.2; cx.fillStyle = "#00f2ea"; cx.fillRect(p.x, 0, 50, p.h); cx.fillRect(p.x, p.h+p.g, 50, 420);
                         if(50+10 > p.x && 50-10 < p.x+50 && (bY-10 < p.h || bY+10 > p.h+p.g)) { active=false; location.reload(); }
-                        if(p.x < 50 && !p.ok) { p.ok=true; score++; }
+                        if(p.x < 50 && !p.ok) { p.ok=true; this.score++; }
                     });
                     if(bY > 420 || bY < 0) { active=false; location.reload(); }
-                    document.getElementById("score-text").innerText = "SKOR: " + score; requestAnimationFrame(loop);
+                    document.getElementById("score-text").innerText = "SKOR: " + this.score; requestAnimationFrame(loop);
                 }; loop();
             },
             playChess() {
@@ -148,38 +142,29 @@
                 this.game = new Chess();
                 const icons = { p:'♟', r:'♜', n:'♞', b:'♝', q:'♛', k:'♚', P:'♙', R:'♖', N:'♘', B:'♗', Q:'♕', K:'♔' };
                 const draw = () => {
-                    boardDiv.innerHTML = "";
-                    const boardState = this.game.board();
-                    for(let r=0; r<8; r++) {
-                        for(let c=0; c<8; c++) {
-                            const sq = String.fromCharCode(97+c) + (8-r);
-                            const cell = document.createElement("div");
-                            cell.className = `cell ${(r+c)%2===0?'w-c':'b-c'}`;
-                            const piece = boardState[r][c];
-                            if(piece) cell.innerHTML = icons[piece.color === 'w' ? piece.type.toUpperCase() : piece.type.toLowerCase()];
-                            if(this.selectedSq === sq) cell.classList.add("sel");
-                            cell.onclick = () => {
-                                if(this.selectedSq) {
-                                    const move = this.game.move({ from: this.selectedSq, to: sq, promotion: 'q' });
-                                    if(move) { this.selectedSq = null; draw(); if(!this.game.game_over()) setTimeout(botMove, 600); } 
-                                    else { const p = this.game.get(sq); if(p && p.color === 'w') { this.selectedSq = sq; draw(); } else { this.selectedSq = null; draw(); } }
-                                } else { const p = this.game.get(sq); if(p && p.color === 'w') { this.selectedSq = sq; draw(); } }
-                            };
-                            boardDiv.appendChild(cell);
-                        }
+                    boardDiv.innerHTML = ""; const boardState = this.game.board();
+                    for(let r=0; r<8; r++) for(let c=0; c<8; c++) {
+                        const sq = String.fromCharCode(97+c) + (8-r);
+                        const cell = document.createElement("div"); cell.className = `cell ${(r+c)%2===0?'w-c':'b-c'}`;
+                        const piece = boardState[r][c]; if(piece) cell.innerHTML = icons[piece.color==='w'?piece.type.toUpperCase():piece.type.toLowerCase()];
+                        if(this.selectedSq === sq) cell.classList.add("sel");
+                        cell.onclick = () => {
+                            if(this.selectedSq) {
+                                const move = this.game.move({ from: this.selectedSq, to: sq, promotion: 'q' });
+                                if(move) { this.selectedSq = null; draw(); if(!this.game.game_over()) setTimeout(botMove, 600); }
+                                else { const p=this.game.get(sq); if(p && p.color==='w'){this.selectedSq=sq; draw();} else {this.selectedSq=null; draw();} }
+                            } else { const p=this.game.get(sq); if(p && p.color==='w'){this.selectedSq=sq; draw();} }
+                        }; boardDiv.appendChild(cell);
                     }
-                    if(this.game.in_checkmate()) document.getElementById("score-text").innerText = "MAT!";
-                    else document.getElementById("score-text").innerText = "SIRAN (BEYAZ)";
+                    document.getElementById("score-text").innerText = this.game.in_check() ? "ŞAH!" : "SENİN SIRAN";
                 };
                 const botMove = () => {
-                    const moves = this.game.moves();
-                    if(moves.length > 0) {
-                        const captureMoves = moves.filter(m => m.includes('x'));
-                        const selectedMove = captureMoves.length > 0 ? captureMoves[Math.floor(Math.random() * captureMoves.length)] : moves[Math.floor(Math.random() * moves.length)];
-                        this.game.move(selectedMove); draw();
+                    const moves = this.game.moves(); if(moves.length > 0) {
+                        const cap = moves.filter(m => m.includes('x'));
+                        this.game.move(cap.length > 0 ? cap[Math.floor(Math.random()*cap.length)] : moves[Math.floor(Math.random()*moves.length)]);
+                        draw();
                     }
-                };
-                draw();
+                }; draw();
             }
         };
     </script>
