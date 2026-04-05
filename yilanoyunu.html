@@ -3,41 +3,40 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Furkan Hub v18 - Socials Linked</title>
+    <title>Furkan Hub v19</title>
     <style>
         :root { --neon: #00ff96; --rose: #ff0050; --cyber: #00f2ea; --gold: #ffd700; }
         * { box-sizing: border-box; touch-action: manipulation; user-select: none; outline: none; }
         body { background: #000; margin: 0; font-family: 'Segoe UI', sans-serif; color: white; overflow: hidden; height: 100vh; display: flex; align-items: center; justify-content: center; }
-        .screen { position: fixed; inset: 0; background: #000; display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 10; }
+        .screen { position: fixed; inset: 0; background: #000; display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 10; padding: 20px; }
         .hidden { display: none !important; }
-        .panel { background: #111; padding: 25px; border-radius: 25px; border: 3px solid var(--neon); text-align: center; width: 330px; box-shadow: 0 0 30px rgba(0,255,150,0.2); }
-        .title { font-size: 30px; font-weight: 900; color: var(--neon); text-shadow: 0 0 15px var(--neon); margin-bottom: 20px; }
+        .panel { background: #111; padding: 25px; border-radius: 25px; border: 3px solid var(--neon); text-align: center; width: 100%; max-width: 340px; box-shadow: 0 0 30px rgba(0,255,150,0.2); }
+        .title { font-size: 28px; font-weight: 900; color: var(--neon); text-shadow: 0 0 15px var(--neon); margin-bottom: 20px; }
         .btn { padding: 15px; background: var(--neon); color: #000; border: none; border-radius: 12px; font-weight: bold; cursor: pointer; width: 100%; font-size: 16px; margin: 6px 0; transition: 0.2s; }
         .btn:active { transform: scale(0.96); }
         .btn-gray { background: #222; color: #888; border: 1px solid #444; }
-        
-        /* SOSYAL MEDYA BUTONLARI */
-        .social-bar { display: flex; gap: 10px; margin-top: 15px; }
-        .s-btn { flex: 1; padding: 12px; border-radius: 12px; border: none; font-weight: bold; font-size: 11px; cursor: pointer; text-decoration: none; display: flex; align-items: center; justify-content: center; transition: 0.3s; }
-        .insta { background: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888); color: white; box-shadow: 0 4px 15px rgba(220, 39, 67, 0.4); }
-        .ttok { background: #000; color: white; border: 1px solid #fff; box-shadow: 0 4px 15px rgba(255, 255, 255, 0.1); }
-        .s-btn:active { transform: translateY(2px); }
+
+        /* SOSYAL MEDYA BUTONLARI - HER YERDE GÖREBİLMEN İÇİN */
+        .social-bar { display: flex; gap: 10px; margin-top: 20px; width: 100%; }
+        .s-btn { flex: 1; padding: 12px; border-radius: 12px; border: none; font-weight: bold; font-size: 11px; cursor: pointer; text-decoration: none; display: flex; align-items: center; justify-content: center; color: white; transition: 0.3s; }
+        .insta { background: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888); }
+        .ttok { background: #000; border: 1px solid #fff; }
 
         #chess-board { display: grid; grid-template-columns: repeat(8, 1fr); width: 320px; height: 320px; border: 4px solid #333; margin: 10px 0; }
         .cell { width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; font-size: 28px; cursor: pointer; }
         .w-c { background: #eee; color: #222; } .b-c { background: #444; color: #fff; }
         .sel { background: var(--rose) !important; color: white !important; }
-        canvas { border: 2px solid #333; background: #000; border-radius: 20px; max-width: 92vw; }
+        canvas { border: 2px solid #333; background: #000; border-radius: 20px; max-width: 100%; }
         .live-info { font-size: 22px; color: var(--neon); margin-bottom: 10px; font-weight: bold; }
-        .joy { display: grid; grid-template-columns: repeat(3, 75px); gap: 12px; margin-top: 20px; }
-        .j-btn { background: #151515; border: 2px solid var(--cyber); border-radius: 18px; height: 65px; display: flex; align-items: center; justify-content: center; font-size: 32px; color: var(--cyber); }
+        .joy { display: grid; grid-template-columns: repeat(3, 75px); gap: 12px; margin-top: 15px; }
+        .j-btn { background: #151515; border: 2px solid var(--cyber); border-radius: 18px; height: 60px; display: flex; align-items: center; justify-content: center; font-size: 32px; color: var(--cyber); }
     </style>
 </head>
 <body>
 
     <div id="scr-lobby" class="screen">
         <div class="panel" style="border-color: var(--cyber);">
-            <div class="title" style="color:var(--cyber)">FURKAN HUB</div>
+            <div class="title" style="color:var(--cyber)">OYUN SEÇ</div>
             <button class="btn" onclick="hub.start('snake')">🐍 NEON SNAKE</button>
             <button class="btn" onclick="hub.start('bird')">🐦 NEON BIRD</button>
             <button class="btn" onclick="hub.showChessMenu()" style="background:var(--gold)">♟️ CHESS vs AI</button>
@@ -47,7 +46,7 @@
                 <a href="https://www.tiktok.com/@furkan_52cc" target="_blank" class="s-btn ttok">TIKTOK</a>
             </div>
 
-            <button class="btn btn-gray" style="margin-top:15px; font-size:11px;" onclick="hub.clear()">VERİLERİ SIFIRLA</button>
+            <button class="btn btn-gray" style="margin-top:20px; font-size:11px;" onclick="hub.clear()">HAFIZAYI SIFIRLA</button>
         </div>
     </div>
 
@@ -65,11 +64,17 @@
         <div id="info-text" class="live-info">SKOR: 0</div>
         <canvas id="gameCanvas" class="hidden"></canvas>
         <div id="chess-board" class="hidden"></div>
+        
         <div id="snake-ui" class="joy hidden">
             <div class="j-btn" id="up">↑</div><div class="j-btn" id="left">←</div>
             <div class="j-btn" id="down">↓</div><div class="j-btn" id="right">→</div>
         </div>
-        <button class="btn btn-gray" style="width:120px; margin-top:20px;" onclick="location.reload()">MENÜ</button>
+        
+        <div class="social-bar" style="max-width:300px">
+            <a href="https://www.instagram.com/furk4nn_c" target="_blank" class="s-btn insta">INSTA</a>
+            <a href="https://www.tiktok.com/@furkan_52cc" target="_blank" class="s-btn ttok">TIKTOK</a>
+            <button class="s-btn" style="background:#444" onclick="location.reload()">MENÜ</button>
+        </div>
     </div>
 
     <script>
@@ -116,7 +121,7 @@
                 const bL=()=>{
                     if(!this.active)return; cx.fillStyle="#050505"; cx.fillRect(0,0,320,480);
                     bV+=0.22; bY+=bV; cx.fillStyle="#ffd700"; cx.beginPath(); cx.arc(60,bY,12,0,Math.PI*2); cx.fill();
-                    if(pipes.length==0||pipes[pipes.length-1].x<170) pipes.push({x:320,h:Math.random()*20+60,g:160,ok:false});
+                    if(pipes.length==0||pipes[pipes.length-1].x<170) pipes.push({x:320,h:Math.random()*200+60,g:160,ok:false});
                     for(let i=pipes.length-1;i>=0;i--){
                         let p=pipes[i]; p.x-=2.4; cx.fillStyle="#00f2ea"; cx.fillRect(p.x,0,50,p.h); cx.fillRect(p.x,p.h+p.g,50,480);
                         if(60+10>p.x && 60-10<p.x+50 && (bY-10<p.h || bY+10>p.h+p.g)) this.active=false;
@@ -134,39 +139,11 @@
                     ['','','','','','','',''],['','','','','','','',''],['','','','','','','',''],['','','','','','','',''],
                     ['P','P','P','P','P','P','P','P'],['R','N','B','Q','K','B','N','R']
                 ];
-                let selected = null; const icons = {'r':'♜','n':'♞','b':'♝','q':'♛','k':'♚','p':'♟','R':'♖','N':'♘','B':'♗','Q':'♕','K':'♔','P':'♙'};
+                let sel = null; const icons = {'r':'♜','n':'♞','b':'♝','q':'♛','k':'♚','p':'♟','R':'♖','N':'♘','B':'♗','Q':'♕','K':'♔','P':'♙'};
                 const getVal = (p) => { const v = {p:10,n:30,b:30,r:50,q:90,k:900}; return p === p.toUpperCase() ? v[p.toLowerCase()] : -v[p.toLowerCase()]; };
                 const botAct = () => {
                     let moves = [];
                     for(let r=0;r<8;r++) for(let c=0;c<8;c++) {
                         if(state[r][c] && state[r][c] === state[r][c].toLowerCase()) {
                             for(let tr=0;tr<8;tr++) for(let tc=0;tc<8;tc++) {
-                                if(!state[tr][tc] || state[tr][tc] === state[tr][tc].toUpperCase()) {
-                                    let s = state[tr][tc] ? Math.abs(getVal(state[tr][tc])) : 0;
-                                    if(this.diff > 0) s += (7 - tr); moves.push({fr:r,fc:c,tr:tr,tc:tc,s:s});
-                                }
-                            }
-                        }
-                    }
-                    moves.sort((a,b)=>b.s-a.s); let m = this.diff === 0 ? moves[Math.floor(Math.random()*moves.length)] : moves[0];
-                    if(m){state[m.tr][m.tc]=state[m.fr][m.fc]; state[m.fr][m.fc]='';} draw();
-                };
-                const draw = () => {
-                    board.innerHTML="";
-                    for(let r=0;r<8;r++) for(let c=0;c<8;c++){
-                        const cell = document.createElement("div"); cell.className = `cell ${(r+c)%2==0?'w-c':'b-c'}`;
-                        cell.innerHTML = icons[state[r][c]] || "";
-                        if(selected && selected.r==r && selected.c==c) cell.classList.add("sel");
-                        cell.onclick = () => {
-                            if(selected) { state[r][c]=state[selected.r][selected.c]; state[selected.r][selected.c]=''; selected=null; draw(); setTimeout(botAct, 600); }
-                            else if(state[r][c] && state[r][c] === state[r][c].toUpperCase()){ selected={r,c}; draw(); }
-                        };
-                        board.appendChild(cell);
-                    }
-                }; draw();
-            }
-        };
-        hub.showLobby();
-    </script>
-</body>
-</html>
+                                if(!state[tr][tc] || state[tr][tc] === state[tr
