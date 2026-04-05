@@ -3,35 +3,37 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Furkan Hub v21</title>
+    <title>Furkan Hub v22 - Full Game Suite</title>
     <style>
         :root { --neon: #00ff96; --rose: #ff0050; --cyber: #00f2ea; --gold: #ffd700; }
-        * { box-sizing: border-box; touch-action: manipulation; user-select: none; outline: none; }
+        * { box-sizing: border-box; touch-action: manipulation; user-select: none; }
         body { background: #000; margin: 0; font-family: 'Segoe UI', sans-serif; color: white; overflow: hidden; height: 100vh; display: flex; align-items: center; justify-content: center; }
         .screen { position: fixed; inset: 0; background: #000; display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 10; padding: 20px; }
         .hidden { display: none !important; }
         .panel { background: #111; padding: 25px; border-radius: 25px; border: 3px solid var(--neon); text-align: center; width: 100%; max-width: 340px; box-shadow: 0 0 30px rgba(0,255,150,0.2); }
-        .title { font-size: 32px; font-weight: 900; color: var(--neon); text-shadow: 0 0 15px var(--neon); margin-bottom: 25px; }
+        .title { font-size: 32px; font-weight: 900; color: var(--neon); text-shadow: 0 0 15px var(--neon); margin-bottom: 20px; }
         
         .btn { padding: 15px; background: var(--neon); color: #000; border: none; border-radius: 12px; font-weight: bold; cursor: pointer; width: 100%; font-size: 16px; margin: 8px 0; transition: 0.2s; text-decoration: none; display: block; text-align: center; }
         .btn:active { transform: scale(0.95); }
 
-        /* SOSYAL MEDYA BUTONLARI */
-        .social-container { display: flex; gap: 10px; margin-top: 20px; width: 100%; }
-        .s-link { 
-            flex: 1; padding: 12px; border-radius: 12px; text-decoration: none; 
-            font-weight: bold; font-size: 12px; color: white; text-align: center;
-            display: flex; align-items: center; justify-content: center; transition: 0.3s;
-        }
-        .insta-btn { background: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888); box-shadow: 0 4px 15px rgba(220, 39, 67, 0.3); }
-        .tiktok-btn { background: #000; border: 1px solid #fff; box-shadow: 0 4px 15px rgba(255, 255, 255, 0.1); }
-        
-        .s-link:hover { opacity: 0.8; transform: translateY(-2px); }
+        /* SOSYAL MEDYA */
+        .social-container { display: flex; gap: 10px; margin-top: 20px; }
+        .s-link { flex: 1; padding: 12px; border-radius: 12px; text-decoration: none; font-weight: bold; font-size: 12px; color: white; text-align: center; }
+        .insta-btn { background: linear-gradient(45deg, #f09433, #dc2743, #bc1888); }
+        .tiktok-btn { background: #222; border: 1px solid #fff; }
 
         /* OYUN ARAÇLARI */
-        #gameCanvas { border: 2px solid #333; background: #000; border-radius: 20px; max-width: 100%; }
-        .joy { display: grid; grid-template-columns: repeat(3, 75px); gap: 12px; margin-top: 20px; }
+        canvas { border: 2px solid #333; background: #000; border-radius: 20px; max-width: 100%; }
+        #chess-board { display: grid; grid-template-columns: repeat(8, 1fr); width: 320px; height: 320px; border: 3px solid #444; margin: 10px auto; }
+        .cell { width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; font-size: 24px; cursor: pointer; }
+        .w-c { background: #eee; color: #222; } .b-c { background: #444; color: #fff; }
+        .sel { background: var(--rose) !important; color: white !important; }
+        
+        .joy { display: grid; grid-template-columns: repeat(3, 75px); gap: 12px; margin-top: 15px; }
         .j-btn { background: #151515; border: 2px solid var(--cyber); border-radius: 18px; height: 65px; display: flex; align-items: center; justify-content: center; font-size: 32px; color: var(--cyber); }
+        
+        /* OYUN BİTTİ PANELİ */
+        #game-over { position: absolute; background: rgba(0,0,0,0.9); inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 20; }
     </style>
 </head>
 <body>
@@ -39,66 +41,116 @@
     <div id="scr-lobby" class="screen">
         <div class="panel" style="border-color: var(--cyber);">
             <div class="title" style="color:var(--cyber)">FURKAN HUB</div>
-            
             <button class="btn" onclick="hub.start('snake')">🐍 NEON SNAKE</button>
-            <button class="btn" onclick="alert('Pek Yakında!')">🐦 NEON BIRD</button>
-            <button class="btn" onclick="alert('Pek Yakında!')" style="background:var(--gold)">♟️ CHESS vs AI</button>
+            <button class="btn" onclick="hub.start('bird')">🐦 NEON BIRD</button>
+            <button class="btn" onclick="hub.start('chess')" style="background:var(--gold)">♟️ CHESS vs AI</button>
             
             <div class="social-container">
                 <a href="https://www.instagram.com/furk4nn_c/" target="_blank" class="s-link insta-btn">INSTAGRAM</a>
                 <a href="https://www.tiktok.com/@furkan_52cc" target="_blank" class="s-link tiktok-btn">TIKTOK</a>
             </div>
-
-            <p style="font-size: 10px; color: #555; margin-top: 15px;">v21 - Social Fixed</p>
         </div>
     </div>
 
     <div id="scr-game" class="screen hidden">
         <div id="score-text" style="font-size:24px; color:var(--neon); margin-bottom:10px;">SKOR: 0</div>
-        <canvas id="gameCanvas"></canvas>
+        <canvas id="gameCanvas" class="hidden"></canvas>
+        <div id="chess-board" class="hidden"></div>
+        
         <div id="snake-ui" class="joy hidden">
             <div class="j-btn" id="up">↑</div><div class="j-btn" id="left">←</div>
             <div class="j-btn" id="down">↓</div><div class="j-btn" id="right">→</div>
         </div>
-        <button class="btn" style="background:#333; color:#fff; width:120px; margin-top:20px;" onclick="location.reload()">MENÜ</button>
+
+        <button id="back-btn" class="btn" style="background:#333; color:#fff; width:120px; margin-top:10px;" onclick="location.reload()">MENÜ</button>
+
+        <div id="game-over" class="hidden">
+            <h1 style="color:var(--rose); font-size:40px;">OYUN BİTTİ</h1>
+            <h2 id="final-score" style="color:white;">SKOR: 0</h2>
+            <button class="btn" style="width:200px" onclick="location.reload()">TEKRAR DENE</button>
+        </div>
     </div>
 
     <script>
         const hub = {
-            active: false, score: 0,
+            active: false, score: 0, mode: '',
             start(m) {
-                if(m === 'snake') {
-                    this.active = true; this.score = 0;
-                    document.getElementById("scr-lobby").classList.add("hidden");
-                    document.getElementById("scr-game").classList.remove("hidden");
-                    this.playSnake();
-                }
+                this.mode = m; this.active = true; this.score = 0;
+                document.getElementById("scr-lobby").classList.add("hidden");
+                document.getElementById("scr-game").classList.remove("hidden");
+                document.getElementById("gameCanvas").classList.add("hidden");
+                document.getElementById("chess-board").classList.add("hidden");
+                
+                if(m === 'snake') { document.getElementById("gameCanvas").classList.remove("hidden"); document.getElementById("snake-ui").classList.remove("hidden"); this.playSnake(); }
+                if(m === 'bird') { document.getElementById("gameCanvas").classList.remove("hidden"); this.playBird(); }
+                if(m === 'chess') { document.getElementById("chess-board").classList.remove("hidden"); this.playChess(); }
             },
+
+            endGame() {
+                this.active = false;
+                document.getElementById("game-over").classList.remove("hidden");
+                document.getElementById("final-score").innerText = "SKOR: " + this.score;
+            },
+
             playSnake() {
                 const cv = document.getElementById("gameCanvas"); cv.width = 360; cv.height = 360; const cx = cv.getContext("2d");
-                document.getElementById("snake-ui").classList.remove("hidden");
                 let sn = [{x:180,y:180}], ap = {x:80,y:80}, d = "RIGHT", nD = "RIGHT";
-                
                 document.getElementById("up").onclick=()=> {if(d!="DOWN") nD="UP"};
                 document.getElementById("down").onclick=()=> {if(d!="UP") nD="DOWN"};
                 document.getElementById("left").onclick=()=> {if(d!="RIGHT") nD="LEFT"};
                 document.getElementById("right").onclick=()=> {if(d!="LEFT") nD="RIGHT"};
-                
-                const gameLoop = setInterval(() => {
-                    if(!this.active) { clearInterval(gameLoop); return; }
+                const loop = setInterval(() => {
+                    if(!this.active) { clearInterval(loop); return; }
                     d = nD; cx.fillStyle = "#000"; cx.fillRect(0,0,360,360);
-                    cx.fillStyle = "#ff0050"; cx.fillRect(ap.x, ap.y, 18, 18);
+                    cx.fillStyle = var(--rose); cx.fillRect(ap.x, ap.y, 18, 18);
                     sn.forEach((p, i) => { cx.fillStyle = i==0 ? "#00ff96" : "#00a1ff"; cx.fillRect(p.x, p.y, 18, 18); });
                     let hX = sn[0].x, hY = sn[0].y;
                     if(d=="UP") hY-=20; if(d=="DOWN") hY+=20; if(d=="LEFT") hX-=20; if(d=="RIGHT") hX+=20;
                     if(hX==ap.x && hY==ap.y) { this.score+=10; ap={x:Math.floor(Math.random()*17)*20, y:Math.floor(Math.random()*17)*20}; } else { sn.pop(); }
                     let nH = {x:hX, y:hY};
-                    if(hX<0||hX>=360||hY<0||hY>=360||sn.some(p=>p.x==nH.x&&p.y==nH.y)) { 
-                        this.active=false; alert("SKOR: "+this.score); location.reload(); 
-                    }
-                    else { sn.unshift(nH); }
-                    document.getElementById("score-text").innerText = "SKOR: " + this.score;
+                    if(hX<0||hX>=360||hY<0||hY>=360||sn.some(p=>p.x==nH.x&&p.y==nH.y)) this.endGame();
+                    else { sn.unshift(nH); document.getElementById("score-text").innerText = "SKOR: " + this.score; }
                 }, 120);
+            },
+
+            playBird() {
+                const cv = document.getElementById("gameCanvas"); cv.width = 320; cv.height = 480; const cx = cv.getContext("2d");
+                let bY = 240, bV = 0, pipes = [];
+                window.onmousedown = () => { if(this.active) bV = -6; };
+                const loop = () => {
+                    if(!this.active) return;
+                    cx.fillStyle = "#050505"; cx.fillRect(0,0,320,480);
+                    bV += 0.3; bY += bV; cx.fillStyle = var(--gold); cx.beginPath(); cx.arc(60, bY, 12, 0, Math.PI*2); cx.fill();
+                    if(pipes.length==0 || pipes[pipes.length-1].x < 150) pipes.push({x:320, h:Math.random()*200+50, g:150, ok:false});
+                    for(let i=pipes.length-1; i>=0; i--) {
+                        let p = pipes[i]; p.x -= 3; cx.fillStyle = var(--cyber); cx.fillRect(p.x, 0, 50, p.h); cx.fillRect(p.x, p.h+p.g, 50, 480);
+                        if(60+10 > p.x && 60-10 < p.x+50 && (bY-10 < p.h || bY+10 > p.h+p.g)) this.endGame();
+                        if(p.x < 60 && !p.ok) { p.ok=true; this.score++; }
+                    }
+                    if(bY > 480 || bY < 0) this.endGame();
+                    document.getElementById("score-text").innerText = "SKOR: " + this.score;
+                    requestAnimationFrame(loop);
+                }; loop();
+            },
+
+            playChess() {
+                const board = document.getElementById("chess-board");
+                let st = [['r','n','b','q','k','b','n','r'],['p','p','p','p','p','p','p','p'],['','','','','','','',''],['','','','','','','',''],['','','','','','','',''],['','','','','','','',''],['P','P','P','P','P','P','P','P'],['R','N','B','Q','K','B','N','R']];
+                let sel = null; const ic = {'r':'♜','n':'♞','b':'♝','q':'♛','k':'♚','p':'♟','R':'♖','N':'♘','B':'♗','Q':'♕','K':'♔','P':'♙'};
+                const draw = () => {
+                    board.innerHTML = "";
+                    for(let r=0; r<8; r++) for(let c=0; c<8; c++) {
+                        const cl = document.createElement("div"); cl.className = `cell ${(r+c)%2==0?'w-c':'b-c'}`;
+                        cl.innerHTML = ic[st[r][c]] || "";
+                        if(sel && sel.r==r && sel.c==c) cl.classList.add("sel");
+                        cl.onclick = () => {
+                            if(sel) { st[r][c]=st[sel.r][sel.c]; st[sel.r][sel.c]=''; sel=null; draw(); }
+                            else if(st[r][c] && st[r][c] === st[r][c].toUpperCase()) { sel={r,c}; draw(); }
+                        };
+                        board.appendChild(cl);
+                    }
+                    document.getElementById("score-text").innerText = "SATRANÇ MODU";
+                }; draw();
             }
         };
     </script>
