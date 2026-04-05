@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Furkan Hub v28 - Tactical Chess</title>
+    <title>Furkan Hub v29 - Grid Snake</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.3/chess.min.js"></script>
     <style>
         :root { --neon: #00ff96; --rose: #ff0050; --cyber: #00f2ea; --gold: #ffd700; }
@@ -19,10 +19,21 @@
         .s-link { flex: 1; padding: 12px; border-radius: 10px; text-decoration: none; font-weight: bold; font-size: 11px; color: white; text-align: center; }
         .insta-btn { background: linear-gradient(45deg, #f09433, #dc2743, #bc1888); }
         .tiktok-btn { background: #222; border: 1px solid #fff; }
+        
+        /* OYUN ALANI VE KENARLAR */
+        #gameCanvas { 
+            border: 4px solid var(--cyber); /* Parlayan Kenarlar */
+            background: #050505; 
+            border-radius: 10px; 
+            box-shadow: 0 0 20px rgba(0, 242, 234, 0.3);
+            max-width: 95vw;
+        }
+
         #chess-board { display: grid; grid-template-columns: repeat(8, 1fr); width: 320px; height: 320px; border: 4px solid #444; margin: 10px auto; background: #222; }
         .cell { width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; font-size: 28px; cursor: pointer; position: relative; }
         .w-c { background: #eeeed2; color: #000; } .b-c { background: #769656; color: #000; }
         .sel { background: rgba(255, 255, 0, 0.6) !important; }
+        
         .joy { display: grid; grid-template-areas: ". up ." "left down right"; gap: 10px; margin-top: 15px; width: 210px; }
         .j-btn { background: #151515; border: 2px solid var(--cyber); border-radius: 12px; height: 55px; width: 60px; display: flex; align-items: center; justify-content: center; font-size: 24px; color: var(--cyber); }
         #up { grid-area: up; margin: 0 auto; } #left { grid-area: left; } #down { grid-area: down; } #right { grid-area: right; }
@@ -44,7 +55,7 @@
     </div>
 
     <div id="scr-game" class="screen hidden">
-        <div id="score-text" style="font-size:20px; color:var(--neon); margin-bottom:5px;">STRATEJİ ZAMANI!</div>
+        <div id="score-text" style="font-size:20px; color:var(--neon); margin-bottom:5px;">SKOR: 0</div>
         <canvas id="gameCanvas" class="hidden"></canvas>
         <div id="chess-board" class="hidden"></div>
         <div id="snake-ui" class="joy hidden">
@@ -64,76 +75,56 @@
                 if(m === 'bird') { document.getElementById("gameCanvas").classList.remove("hidden"); this.playBird(); }
                 if(m === 'chess') { document.getElementById("chess-board").classList.remove("hidden"); this.playChess(); }
             },
-            playChess() {
-                const boardDiv = document.getElementById("chess-board");
-                this.game = new Chess();
-                const icons = { p:'♟', r:'♜', n:'♞', b:'♝', q:'♛', k:'♚', P:'♙', R:'♖', N:'♘', B:'♗', Q:'♕', K:'♔' };
-                
-                const draw = () => {
-                    boardDiv.innerHTML = "";
-                    const boardState = this.game.board();
-                    for(let r=0; r<8; r++) {
-                        for(let c=0; c<8; c++) {
-                            const sq = String.fromCharCode(97+c) + (8-r);
-                            const cell = document.createElement("div");
-                            cell.className = `cell ${(r+c)%2===0?'w-c':'b-c'}`;
-                            const piece = boardState[r][c];
-                            if(piece) cell.innerHTML = icons[piece.color === 'w' ? piece.type.toUpperCase() : piece.type.toLowerCase()];
-                            if(this.selectedSq === sq) cell.classList.add("sel");
-                            
-                            cell.onclick = () => {
-                                if(this.selectedSq) {
-                                    // Terfi kuralı eklendi: promotion: 'q' (Her zaman vezir yapar)
-                                    const move = this.game.move({ from: this.selectedSq, to: sq, promotion: 'q' });
-                                    if(move) {
-                                        this.selectedSq = null; draw();
-                                        if(!this.game.game_over()) setTimeout(botMove, 600);
-                                    } else {
-                                        const p = this.game.get(sq);
-                                        if(p && p.color === 'w') { this.selectedSq = sq; draw(); }
-                                        else { this.selectedSq = null; draw(); }
-                                    }
-                                } else {
-                                    const p = this.game.get(sq);
-                                    if(p && p.color === 'w') { this.selectedSq = sq; draw(); }
-                                }
-                            };
-                            boardDiv.appendChild(cell);
-                        }
-                    }
-                    if(this.game.in_checkmate()) document.getElementById("score-text").innerText = "MAT! OYUN BİTTİ.";
-                    else if(this.game.in_check()) document.getElementById("score-text").innerText = "ŞAH!";
-                    else document.getElementById("score-text").innerText = "SIRAN (BEYAZ)";
-                };
-
-                const botMove = () => {
-                    const moves = this.game.moves();
-                    if(moves.length > 0) {
-                        // Basit AI: Eğer bir taş alabiliyorsa onu alır, yoksa rastgele oynar
-                        const captureMoves = moves.filter(m => m.includes('x'));
-                        const selectedMove = captureMoves.length > 0 ? captureMoves[Math.floor(Math.random() * captureMoves.length)] : moves[Math.floor(Math.random() * moves.length)];
-                        this.game.move(selectedMove);
-                        draw();
-                    }
-                };
-                draw();
-            },
             playSnake() {
                 const cv = document.getElementById("gameCanvas"); cv.width = 320; cv.height = 320; const cx = cv.getContext("2d");
                 let sn = [{x:160,y:160}], ap = {x:40,y:40}, d = "RIGHT", nD = "RIGHT", score=0;
+                
                 document.getElementById("up").onclick=()=> {if(d!="DOWN") nD="UP"};
                 document.getElementById("down").onclick=()=> {if(d!="UP") nD="DOWN"};
                 document.getElementById("left").onclick=()=> {if(d!="RIGHT") nD="LEFT"};
                 document.getElementById("right").onclick=()=> {if(d!="LEFT") nD="RIGHT"};
+                
                 const loop = setInterval(() => {
-                    d = nD; cx.fillStyle = "#000"; cx.fillRect(0,0,320,320); cx.fillStyle = "#ff0050"; cx.fillRect(ap.x, ap.y, 18, 18);
-                    sn.forEach((p, i) => { cx.fillStyle = i==0 ? "#00ff96" : "#00a1ff"; cx.fillRect(p.x, p.y, 18, 18); });
+                    d = nD;
+                    // Arka Plan Çizimi
+                    cx.fillStyle = "#000"; cx.fillRect(0,0,320,320);
+                    
+                    // Izgara (Grid) Çizimi - Kenarları görmeni sağlar
+                    cx.strokeStyle = "#111";
+                    for(let i=0; i<320; i+=20) {
+                        cx.beginPath(); cx.moveTo(i,0); cx.lineTo(i,320); cx.stroke();
+                        cx.beginPath(); cx.moveTo(0,i); cx.lineTo(320,i); cx.stroke();
+                    }
+
+                    // Elma (Parlayan Kırmızı)
+                    cx.fillStyle = "#ff0050";
+                    cx.shadowBlur = 10; cx.shadowColor = "#ff0050";
+                    cx.fillRect(ap.x+2, ap.y+2, 16, 16);
+                    cx.shadowBlur = 0;
+
+                    // Yılan (Neon Yeşil)
+                    sn.forEach((p, i) => {
+                        cx.fillStyle = i==0 ? "#00ff96" : "#00a1ff";
+                        cx.fillRect(p.x+1, p.y+1, 18, 18);
+                    });
+
                     let hX = sn[0].x, hY = sn[0].y;
                     if(d=="UP") hY-=20; if(d=="DOWN") hY+=20; if(d=="LEFT") hX-=20; if(d=="RIGHT") hX+=20;
-                    if(hX==ap.x && hY==ap.y) { score+=10; ap={x:Math.floor(Math.random()*15)*20, y:Math.floor(Math.random()*15)*20}; } else { sn.pop(); }
+
+                    if(hX==ap.x && hY==ap.y) {
+                        score+=10;
+                        ap={x:Math.floor(Math.random()*15)*20, y:Math.floor(Math.random()*15)*20};
+                    } else { sn.pop(); }
+
                     let nH = {x:hX, y:hY};
-                    if(hX<0||hX>=320||hY<0||hY>=320||sn.some(p=>p.x==nH.x&&p.y==nH.y)) { clearInterval(loop); location.reload(); }
-                    else { sn.unshift(nH); document.getElementById("score-text").innerText = "SKOR: " + score; }
+                    if(hX<0||hX>=320||hY<0||hY>=320||sn.some(p=>p.x==nH.x&&p.y==nH.y)) {
+                        clearInterval(loop);
+                        document.getElementById("score-text").innerText = "EYVAH! SKOR: " + score;
+                        setTimeout(()=>location.reload(), 2000);
+                    } else {
+                        sn.unshift(nH);
+                        document.getElementById("score-text").innerText = "SKOR: " + score;
+                    }
                 }, 140);
             },
             playBird() {
@@ -151,6 +142,44 @@
                     if(bY > 420 || bY < 0) { active=false; location.reload(); }
                     document.getElementById("score-text").innerText = "SKOR: " + score; requestAnimationFrame(loop);
                 }; loop();
+            },
+            playChess() {
+                const boardDiv = document.getElementById("chess-board");
+                this.game = new Chess();
+                const icons = { p:'♟', r:'♜', n:'♞', b:'♝', q:'♛', k:'♚', P:'♙', R:'♖', N:'♘', B:'♗', Q:'♕', K:'♔' };
+                const draw = () => {
+                    boardDiv.innerHTML = "";
+                    const boardState = this.game.board();
+                    for(let r=0; r<8; r++) {
+                        for(let c=0; c<8; c++) {
+                            const sq = String.fromCharCode(97+c) + (8-r);
+                            const cell = document.createElement("div");
+                            cell.className = `cell ${(r+c)%2===0?'w-c':'b-c'}`;
+                            const piece = boardState[r][c];
+                            if(piece) cell.innerHTML = icons[piece.color === 'w' ? piece.type.toUpperCase() : piece.type.toLowerCase()];
+                            if(this.selectedSq === sq) cell.classList.add("sel");
+                            cell.onclick = () => {
+                                if(this.selectedSq) {
+                                    const move = this.game.move({ from: this.selectedSq, to: sq, promotion: 'q' });
+                                    if(move) { this.selectedSq = null; draw(); if(!this.game.game_over()) setTimeout(botMove, 600); } 
+                                    else { const p = this.game.get(sq); if(p && p.color === 'w') { this.selectedSq = sq; draw(); } else { this.selectedSq = null; draw(); } }
+                                } else { const p = this.game.get(sq); if(p && p.color === 'w') { this.selectedSq = sq; draw(); } }
+                            };
+                            boardDiv.appendChild(cell);
+                        }
+                    }
+                    if(this.game.in_checkmate()) document.getElementById("score-text").innerText = "MAT!";
+                    else document.getElementById("score-text").innerText = "SIRAN (BEYAZ)";
+                };
+                const botMove = () => {
+                    const moves = this.game.moves();
+                    if(moves.length > 0) {
+                        const captureMoves = moves.filter(m => m.includes('x'));
+                        const selectedMove = captureMoves.length > 0 ? captureMoves[Math.floor(Math.random() * captureMoves.length)] : moves[Math.floor(Math.random() * moves.length)];
+                        this.game.move(selectedMove); draw();
+                    }
+                };
+                draw();
             }
         };
     </script>
