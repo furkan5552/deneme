@@ -3,147 +3,127 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Furkan Hub v19</title>
+    <title>Neon Snake - Furkan Hub</title>
     <style>
-        :root { --neon: #00ff96; --rose: #ff0050; --cyber: #00f2ea; --gold: #ffd700; }
-        * { box-sizing: border-box; touch-action: manipulation; user-select: none; outline: none; }
-        body { background: #000; margin: 0; font-family: 'Segoe UI', sans-serif; color: white; overflow: hidden; height: 100vh; display: flex; align-items: center; justify-content: center; }
-        .screen { position: fixed; inset: 0; background: #000; display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 10; padding: 20px; }
-        .hidden { display: none !important; }
-        .panel { background: #111; padding: 25px; border-radius: 25px; border: 3px solid var(--neon); text-align: center; width: 100%; max-width: 340px; box-shadow: 0 0 30px rgba(0,255,150,0.2); }
-        .title { font-size: 28px; font-weight: 900; color: var(--neon); text-shadow: 0 0 15px var(--neon); margin-bottom: 20px; }
-        .btn { padding: 15px; background: var(--neon); color: #000; border: none; border-radius: 12px; font-weight: bold; cursor: pointer; width: 100%; font-size: 16px; margin: 6px 0; transition: 0.2s; }
-        .btn:active { transform: scale(0.96); }
-        .btn-gray { background: #222; color: #888; border: 1px solid #444; }
-
-        /* SOSYAL MEDYA BUTONLARI - HER YERDE GÖREBİLMEN İÇİN */
-        .social-bar { display: flex; gap: 10px; margin-top: 20px; width: 100%; }
-        .s-btn { flex: 1; padding: 12px; border-radius: 12px; border: none; font-weight: bold; font-size: 11px; cursor: pointer; text-decoration: none; display: flex; align-items: center; justify-content: center; color: white; transition: 0.3s; }
-        .insta { background: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888); }
-        .ttok { background: #000; border: 1px solid #fff; }
-
-        #chess-board { display: grid; grid-template-columns: repeat(8, 1fr); width: 320px; height: 320px; border: 4px solid #333; margin: 10px 0; }
-        .cell { width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; font-size: 28px; cursor: pointer; }
-        .w-c { background: #eee; color: #222; } .b-c { background: #444; color: #fff; }
-        .sel { background: var(--rose) !important; color: white !important; }
-        canvas { border: 2px solid #333; background: #000; border-radius: 20px; max-width: 100%; }
-        .live-info { font-size: 22px; color: var(--neon); margin-bottom: 10px; font-weight: bold; }
-        .joy { display: grid; grid-template-columns: repeat(3, 75px); gap: 12px; margin-top: 15px; }
-        .j-btn { background: #151515; border: 2px solid var(--cyber); border-radius: 18px; height: 60px; display: flex; align-items: center; justify-content: center; font-size: 32px; color: var(--cyber); }
+        :root { --neon: #00ff96; --rose: #ff0050; --cyber: #00f2ea; }
+        body { 
+            background: #000; margin: 0; color: white; 
+            font-family: sans-serif; display: flex; flex-direction: column; 
+            align-items: center; justify-content: center; height: 100vh; overflow: hidden;
+        }
+        canvas { 
+            border: 3px solid var(--neon); background: #050505; 
+            box-shadow: 0 0 20px rgba(0, 255, 150, 0.2); border-radius: 15px;
+            max-width: 90vw; max-height: 70vw;
+        }
+        .score { font-size: 32px; font-weight: 900; color: var(--neon); margin-bottom: 10px; }
+        
+        /* MOBİL KONTROLLER */
+        .controls { 
+            display: grid; grid-template-columns: repeat(3, 70px); 
+            gap: 10px; margin-top: 20px; 
+        }
+        .btn { 
+            background: #111; border: 2px solid var(--cyber); color: var(--cyber);
+            height: 70px; border-radius: 15px; display: flex; align-items: center; 
+            justify-content: center; font-size: 30px; cursor: pointer;
+        }
+        .btn:active { background: var(--cyber); color: #000; }
+        #up { grid-column: 2; }
+        #left { grid-column: 1; }
+        #down { grid-column: 2; }
+        #right { grid-column: 3; }
     </style>
 </head>
 <body>
 
-    <div id="scr-lobby" class="screen">
-        <div class="panel" style="border-color: var(--cyber);">
-            <div class="title" style="color:var(--cyber)">OYUN SEÇ</div>
-            <button class="btn" onclick="hub.start('snake')">🐍 NEON SNAKE</button>
-            <button class="btn" onclick="hub.start('bird')">🐦 NEON BIRD</button>
-            <button class="btn" onclick="hub.showChessMenu()" style="background:var(--gold)">♟️ CHESS vs AI</button>
-            
-            <div class="social-bar">
-                <a href="https://www.instagram.com/furk4nn_c" target="_blank" class="s-btn insta">INSTAGRAM</a>
-                <a href="https://www.tiktok.com/@furkan_52cc" target="_blank" class="s-btn ttok">TIKTOK</a>
-            </div>
+    <div class="score">SKOR: <span id="val">0</span></div>
+    <canvas id="snakeCanvas"></canvas>
 
-            <button class="btn btn-gray" style="margin-top:20px; font-size:11px;" onclick="hub.clear()">HAFIZAYI SIFIRLA</button>
-        </div>
-    </div>
-
-    <div id="scr-chess-menu" class="screen hidden">
-        <div class="panel" style="border-color: var(--gold);">
-            <div class="title" style="font-size: 20px; color:var(--gold)">ZORLUK SEÇ</div>
-            <button class="btn" onclick="hub.start('chess', 0)">KOLAY</button>
-            <button class="btn" onclick="hub.start('chess', 1)">ORTA</button>
-            <button class="btn" onclick="hub.start('chess', 2)" style="background:var(--rose); color:white">ZOR</button>
-            <button class="btn btn-gray" onclick="hub.showLobby()">GERİ</button>
-        </div>
-    </div>
-
-    <div id="scr-game" class="screen hidden">
-        <div id="info-text" class="live-info">SKOR: 0</div>
-        <canvas id="gameCanvas" class="hidden"></canvas>
-        <div id="chess-board" class="hidden"></div>
-        
-        <div id="snake-ui" class="joy hidden">
-            <div class="j-btn" id="up">↑</div><div class="j-btn" id="left">←</div>
-            <div class="j-btn" id="down">↓</div><div class="j-btn" id="right">→</div>
-        </div>
-        
-        <div class="social-bar" style="max-width:300px">
-            <a href="https://www.instagram.com/furk4nn_c" target="_blank" class="s-btn insta">INSTA</a>
-            <a href="https://www.tiktok.com/@furkan_52cc" target="_blank" class="s-btn ttok">TIKTOK</a>
-            <button class="s-btn" style="background:#444" onclick="location.reload()">MENÜ</button>
-        </div>
+    <div class="controls">
+        <div class="btn" id="up">↑</div>
+        <div class="btn" id="left">←</div>
+        <div class="btn" id="down">↓</div>
+        <div class="btn" id="right">→</div>
     </div>
 
     <script>
-        const hub = {
-            active: false, mode: '', score: 0, diff: 0,
-            showLobby() { document.querySelectorAll('.screen').forEach(s=>s.classList.add('hidden')); document.getElementById("scr-lobby").classList.remove('hidden'); },
-            showChessMenu() { document.querySelectorAll('.screen').forEach(s=>s.classList.add('hidden')); document.getElementById("scr-chess-menu").classList.remove('hidden'); },
-            clear() { localStorage.clear(); location.reload(); },
+        const canvas = document.getElementById("snakeCanvas");
+        const ctx = canvas.getContext("2d");
+        const scoreEl = document.getElementById("val");
 
-            start(m, d=0) {
-                this.mode = m; this.diff = d; this.score = 0; this.active = true;
-                document.querySelectorAll('.screen').forEach(s=>s.classList.add('hidden'));
-                document.getElementById("scr-game").classList.remove('hidden');
-                document.getElementById("gameCanvas").classList.add("hidden");
-                document.getElementById("chess-board").classList.add("hidden");
-                document.getElementById("snake-ui").classList.add("hidden");
-                if(m==='snake') { document.getElementById("gameCanvas").classList.remove("hidden"); document.getElementById("snake-ui").classList.remove("hidden"); this.playSnake(); }
-                else if(m==='bird') { document.getElementById("gameCanvas").classList.remove("hidden"); this.playBird(); }
-                else if(m==='chess') { document.getElementById("chess-board").classList.remove("hidden"); this.playChess(); }
-            },
+        // Kare boyutu ve hızı
+        const box = 20;
+        canvas.width = 360; 
+        canvas.height = 360;
 
-            playSnake() {
-                const cv=document.getElementById("gameCanvas"); cv.width=400; cv.height=400; const cx=cv.getContext("2d");
-                let sn=[{x:200,y:200}], ap={x:100,y:100}, d="RIGHT", nD="RIGHT";
-                document.getElementById("up").onclick=()=>nD="UP"; document.getElementById("down").onclick=()=>nD="DOWN";
-                document.getElementById("left").onclick=()=>nD="LEFT"; document.getElementById("right").onclick=()=>nD="RIGHT";
-                const sL = setInterval(()=>{
-                    if(!this.active){clearInterval(sL); return;} d=nD;
-                    cx.fillStyle="#0c0c0c"; cx.fillRect(0,0,400,400);
-                    cx.fillStyle="#ff0050"; cx.fillRect(ap.x+2,ap.y+2,16,16);
-                    sn.forEach((p,i)=>{cx.fillStyle=i==0?"#00ff96":"#00a1ff"; cx.fillRect(p.x,p.y,18,18);});
-                    let hX=sn[0].x, hY=sn[0].y;
-                    if(d=="UP")hY-=20; if(d=="DOWN")hY+=20; if(d=="LEFT")hX-=20; if(d=="RIGHT")hX+=20;
-                    if(hX==ap.x && hY==ap.y){this.score+=10; ap={x:Math.floor(Math.random()*19)*20,y:Math.floor(Math.random()*19)*20};}else{sn.pop();}
-                    let nh={x:hX,y:hY};
-                    if(hX<0||hX>=400||hY<0||hY>=400||sn.some(p=>p.x==nh.x&&p.y==nh.y)){this.active=false; alert("SKOR: "+this.score);}else{sn.unshift(nh);}
-                    document.getElementById("info-text").innerText="SKOR: "+this.score;
-                },110);
-            },
+        let score = 0;
+        let snake = [{ x: 180, y: 180 }];
+        let food = { x: 80, y: 80 };
+        let d = "RIGHT";
+        let nextD = "RIGHT";
 
-            playBird() {
-                const cv=document.getElementById("gameCanvas"); cv.width=320; cv.height=480; const cx=cv.getContext("2d");
-                let bY=240, bV=0, pipes=[]; window.onmousedown=()=>{if(this.active)bV=-5;};
-                const bL=()=>{
-                    if(!this.active)return; cx.fillStyle="#050505"; cx.fillRect(0,0,320,480);
-                    bV+=0.22; bY+=bV; cx.fillStyle="#ffd700"; cx.beginPath(); cx.arc(60,bY,12,0,Math.PI*2); cx.fill();
-                    if(pipes.length==0||pipes[pipes.length-1].x<170) pipes.push({x:320,h:Math.random()*200+60,g:160,ok:false});
-                    for(let i=pipes.length-1;i>=0;i--){
-                        let p=pipes[i]; p.x-=2.4; cx.fillStyle="#00f2ea"; cx.fillRect(p.x,0,50,p.h); cx.fillRect(p.x,p.h+p.g,50,480);
-                        if(60+10>p.x && 60-10<p.x+50 && (bY-10<p.h || bY+10>p.h+p.g)) this.active=false;
-                        if(p.x<60 && !p.ok){p.ok=true; this.score++;} if(p.x<-60)pipes.splice(i,1);
-                    }
-                    document.getElementById("info-text").innerText="SKOR: "+this.score;
-                    if(bY>480||bY<0)this.active=false; if(!this.active)alert("SKOR: "+this.score); else requestAnimationFrame(bL);
-                }; bL();
-            },
+        // Yön Kontrolü
+        const setDir = (dir) => {
+            if (dir == "UP" && d != "DOWN") nextD = "UP";
+            if (dir == "DOWN" && d != "UP") nextD = "DOWN";
+            if (dir == "LEFT" && d != "RIGHT") nextD = "LEFT";
+            if (dir == "RIGHT" && d != "LEFT") nextD = "RIGHT";
+        };
 
-            playChess() {
-                const board = document.getElementById("chess-board");
-                let state = [
-                    ['r','n','b','q','k','b','n','r'],['p','p','p','p','p','p','p','p'],
-                    ['','','','','','','',''],['','','','','','','',''],['','','','','','','',''],['','','','','','','',''],
-                    ['P','P','P','P','P','P','P','P'],['R','N','B','Q','K','B','N','R']
-                ];
-                let sel = null; const icons = {'r':'♜','n':'♞','b':'♝','q':'♛','k':'♚','p':'♟','R':'♖','N':'♘','B':'♗','Q':'♕','K':'♔','P':'♙'};
-                const getVal = (p) => { const v = {p:10,n:30,b:30,r:50,q:90,k:900}; return p === p.toUpperCase() ? v[p.toLowerCase()] : -v[p.toLowerCase()]; };
-                const botAct = () => {
-                    let moves = [];
-                    for(let r=0;r<8;r++) for(let c=0;c<8;c++) {
-                        if(state[r][c] && state[r][c] === state[r][c].toLowerCase()) {
-                            for(let tr=0;tr<8;tr++) for(let tc=0;tc<8;tc++) {
-                                if(!state[tr][tc] || state[tr][tc] === state[tr
+        document.getElementById("up").onclick = () => setDir("UP");
+        document.getElementById("down").onclick = () => setDir("DOWN");
+        document.getElementById("left").onclick = () => setDir("LEFT");
+        document.getElementById("right").onclick = () => setDir("RIGHT");
+
+        // Klavye desteği
+        window.onkeydown = (e) => {
+            if(e.key == "ArrowUp") setDir("UP");
+            if(e.key == "ArrowDown") setDir("DOWN");
+            if(e.key == "ArrowLeft") setDir("LEFT");
+            if(e.key == "ArrowRight") setDir("RIGHT");
+        };
+
+        function draw() {
+            d = nextD;
+            ctx.fillStyle = "#0c0c0c";
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Yılanı Çiz
+            for (let i = 0; i < snake.length; i++) {
+                ctx.fillStyle = (i == 0) ? "#00ff96" : "#00a1ff";
+                ctx.fillRect(snake[i].x, snake[i].y, box - 2, box - 2);
+            }
+
+            // Yemi Çiz
+            ctx.fillStyle = "#ff0050";
+            ctx.shadowBlur = 10;
+            ctx.shadowColor = "#ff0050";
+            ctx.fillRect(food.x, food.y, box - 2, box - 2);
+            ctx.shadowBlur = 0;
+
+            // Kafa pozisyonu
+            let snakeX = snake[0].x;
+            let snakeY = snake[0].y;
+
+            if (d == "LEFT") snakeX -= box;
+            if (d == "UP") snakeY -= box;
+            if (d == "RIGHT") snakeX += box;
+            if (d == "DOWN") snakeY += box;
+
+            // Yemek yendi mi?
+            if (snakeX == food.x && snakeY == food.y) {
+                score += 10;
+                scoreEl.innerText = score;
+                food = {
+                    x: Math.floor(Math.random() * 18) * box,
+                    y: Math.floor(Math.random() * 18) * box
+                };
+            } else {
+                snake.pop();
+            }
+
+            let newHead = { x: snakeX, y: snakeY };
+
+            // Çarpışma Kontrolü (Duvarlar veya Kendisi)
+            if (snakeX < 0 || snakeX >= canvas.width ||
