@@ -3,27 +3,41 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Furkan Hub v30 - Hill Climb Pro</title>
+    <title>Furkan Hub v30 - Final</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.3/chess.min.js"></script>
     <style>
         :root { --neon: #00ff96; --rose: #ff0050; --cyber: #00f2ea; --gold: #ffd700; }
         * { box-sizing: border-box; touch-action: manipulation; user-select: none; outline: none; }
         body { background: #000; margin: 0; font-family: 'Segoe UI', sans-serif; color: white; overflow: hidden; height: 100vh; display: flex; align-items: center; justify-content: center; }
+        
         .screen { position: fixed; inset: 0; background: #000; display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 10; padding: 15px; }
         .hidden { display: none !important; }
-        .panel { background: #111; padding: 20px; border-radius: 25px; border: 3px solid var(--neon); text-align: center; width: 100%; max-width: 340px; box-shadow: 0 0 30px rgba(0,255,150,0.2); }
-        .title { font-size: 28px; font-weight: 900; color: var(--neon); text-shadow: 0 0 15px var(--neon); margin-bottom: 10px; }
-        .stats-bar { font-size: 14px; color: var(--gold); margin-bottom: 15px; font-weight: bold; }
-        .btn { padding: 14px; background: var(--neon); color: #000; border: none; border-radius: 12px; font-weight: bold; cursor: pointer; width: 100%; font-size: 16px; margin: 6px 0; transition: 0.2s; text-decoration: none; display: block; text-align: center; }
+        
+        .panel { background: #111; padding: 25px; border-radius: 25px; border: 3px solid var(--neon); text-align: center; width: 100%; max-width: 340px; box-shadow: 0 0 30px rgba(0,255,150,0.2); }
+        .title { font-size: 32px; font-weight: 900; color: var(--neon); text-shadow: 0 0 15px var(--neon); margin-bottom: 10px; }
+        
+        .stats-bar { font-size: 16px; color: var(--gold); margin-bottom: 20px; font-weight: bold; }
+        .btn { padding: 15px; background: var(--neon); color: #000; border: none; border-radius: 12px; font-weight: bold; cursor: pointer; width: 100%; font-size: 16px; margin: 8px 0; transition: 0.2s; text-decoration: none; display: block; text-align: center; }
         .btn:active { transform: scale(0.95); }
-        canvas { border: 3px solid var(--cyber); background: #050505; border-radius: 12px; max-width: 90vw; max-height: 50vh; display: block; margin: 0 auto; }
+
+        .social-container { display: flex; gap: 10px; margin-top: 20px; width: 100%; }
+        .s-link { flex: 1; padding: 12px; border-radius: 12px; text-decoration: none; font-weight: bold; font-size: 12px; color: white; text-align: center; display: flex; align-items: center; justify-content: center; }
+        .insta-btn { background: linear-gradient(45deg, #f09433, #dc2743, #bc1888); }
+        .tiktok-btn { background: #222; border: 1px solid #fff; }
+
+        canvas { border: 3px solid var(--cyber); background: #050505; border-radius: 12px; max-width: 90vw; max-height: 55vh; display: block; margin: 0 auto; box-shadow: 0 0 20px rgba(0,242,234,0.2); }
+        
         #chess-board { display: grid; grid-template-columns: repeat(8, 1fr); width: 320px; height: 320px; border: 4px solid #444; margin: 5px auto; }
         .cell { width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; font-size: 28px; cursor: pointer; }
         .w-c { background: #eeeed2; } .b-c { background: #769656; }
         .sel { background: rgba(255, 255, 0, 0.6) !important; }
-        .p-white { color: #fff; pointer-events: none; } .p-black { color: #000; pointer-events: none; }
+        
+        .p-white { color: #fff; pointer-events: none; }
+        .p-black { color: #000; pointer-events: none; }
+
         .joy { display: grid; grid-template-areas: ". up ." "left down right"; gap: 10px; margin-top: 15px; width: 210px; }
         .j-btn { background: #151515; border: 2px solid var(--cyber); border-radius: 12px; height: 55px; width: 60px; display: flex; align-items: center; justify-content: center; font-size: 24px; color: var(--cyber); cursor: pointer; }
+        #up { grid-area: up; margin: 0 auto; } #left { grid-area: left; } #down { grid-area: down; } #right { grid-area: right; }
     </style>
 </head>
 <body>
@@ -34,18 +48,22 @@
             <div class="stats-bar" id="lobby-gold">ALTIN: 0</div>
             <button class="btn" onclick="hub.start('snake')">🐍 NEON SNAKE</button>
             <button class="btn" onclick="hub.start('bird')">🐦 NEON BIRD</button>
-            <button class="btn" onclick="hub.start('climb')" style="background:var(--rose)">🚗 HILL CLIMB PRO</button>
             <button class="btn" onclick="hub.start('chess')" style="background:var(--gold)">♟️ PRO CHESS AI</button>
-            <div style="margin-top:10px; font-size:10px; opacity:0.6">Instagram: furk4nn_c | TikTok: furkan_52cc</div>
+            
+            <div class="social-container">
+                <a href="https://www.instagram.com/furk4nn_c/" target="_blank" class="s-link insta-btn">Instagram</a>
+                <a href="https://www.tiktok.com/@furkan_52cc" target="_blank" class="s-link tiktok-btn">TikTok</a>
+            </div>
         </div>
     </div>
 
     <div id="scr-game" class="screen hidden">
-        <div id="score-text" style="font-size:16px; color:var(--neon); margin-bottom:10px; font-weight: bold; text-align: center;">SKOR: 0</div>
+        <div id="score-text" style="font-size:18px; color:var(--neon); margin-bottom:10px; font-weight: bold;">SKOR: 0</div>
         <canvas id="gameCanvas" class="hidden"></canvas>
         <div id="chess-board" class="hidden"></div>
         <div id="snake-ui" class="joy hidden">
-            <div class="j-btn" id="up">↑</div><div class="j-btn" id="left">←</div><div class="j-btn" id="down">↓</div><div class="j-btn" id="right">→</div>
+            <div class="j-btn" id="up">↑</div><div class="j-btn" id="left">←</div>
+            <div class="j-btn" id="down">↓</div><div class="j-btn" id="right">→</div>
         </div>
         <button class="btn" style="background:#333; color:#fff; width:120px; margin-top:15px;" onclick="location.reload()">MENÜ</button>
     </div>
@@ -53,130 +71,78 @@
     <script>
         const hub = {
             mode: '', loop: null, totalGold: parseInt(localStorage.getItem('fGold')) || 0,
+            
             start(m) {
+                if(this.loop) clearInterval(this.loop);
                 this.mode = m;
                 document.getElementById("scr-lobby").classList.add("hidden");
                 document.getElementById("scr-game").classList.remove("hidden");
-                const cv = document.getElementById("gameCanvas");
-                const cb = document.getElementById("chess-board");
-                const ui = document.getElementById("snake-ui");
-                cv.classList.add("hidden"); cb.classList.add("hidden"); ui.classList.add("hidden");
-                if(m === 'snake') { cv.classList.remove("hidden"); ui.classList.remove("hidden"); this.playSnake(); }
-                if(m === 'bird') { cv.classList.remove("hidden"); this.playBird(); }
-                if(m === 'chess') { cb.classList.remove("hidden"); this.playChess(); }
-                if(m === 'climb') { cv.classList.remove("hidden"); this.playClimb(); }
+                document.getElementById("gameCanvas").classList.add("hidden");
+                document.getElementById("chess-board").classList.add("hidden");
+                document.getElementById("snake-ui").classList.add("hidden");
+
+                if(m === 'snake') { document.getElementById("gameCanvas").classList.remove("hidden"); document.getElementById("snake-ui").classList.remove("hidden"); this.playSnake(); }
+                if(m === 'bird') { document.getElementById("gameCanvas").classList.remove("hidden"); this.playBird(); }
+                if(m === 'chess') { document.getElementById("chess-board").classList.remove("hidden"); this.playChess(); }
             },
-            playClimb() {
-                const cv = document.getElementById("gameCanvas"); cv.width = 320; cv.height = 320; const cx = cv.getContext("2d");
-                let cY = 150, vY = 0, ang = 0, fuel = 100, dist = 0, gas = false, gold = 0;
-                let ter = []; for(let i=0; i<5000; i++) ter.push(240 + Math.sin(i/15)*40 + Math.cos(i/10)*20);
-                let items = []; for(let i=200; i<4500; i+=250) { items.push({ x: i*5, type: Math.random() > 0.7 ? 'F' : 'G', ok: false }); }
 
-                window.onkeydown = (e) => { if(e.key=="d" || e.key=="ArrowRight") gas = true; };
-                window.onkeyup = () => gas = false;
-                cv.ontouchstart = (e) => { e.preventDefault(); gas = true; };
-                cv.ontouchend = () => gas = false;
-
-                const tick = () => {
-                    if(this.mode !== 'climb') return;
-                    cx.fillStyle = "#000"; cx.fillRect(0,0,320,320);
-                    if(gas && fuel > 0) { dist += 5; fuel -= 0.2; ang = Math.max(ang - 0.05, -0.4); } 
-                    else { dist *= 0.98; ang = Math.min(ang + 0.03, 0.4); }
-                    
-                    let tx = Math.floor(dist / 5);
-                    let gY = ter[tx % 5000];
-                    if(cY < gY - 22) { vY += 0.8; } else { cY = gY - 22; vY = 0; }
-                    cY += vY;
-                    if(cY > gY - 22) cY = gY - 22; // Yolun altına girmeyi engelle (Fix)
-
-                    // Yol Çizimi
-                    cx.strokeStyle = "#00f2ea"; cx.lineWidth = 4; cx.beginPath();
-                    for(let i=0; i<80; i++) cx.lineTo(i*5, ter[(tx+i)%5000]); cx.stroke();
-
-                    // Eşyalar
-                    items.forEach(it => {
-                        if(!it.ok) {
-                            let rx = it.x - dist;
-                            if(rx > -20 && rx < 340) {
-                                let iy = ter[Math.floor(it.x/5)%5000] - 25;
-                                cx.fillStyle = it.type === 'G' ? "#ffd700" : "#ff0050";
-                                cx.beginPath(); cx.arc(rx + 60, iy, 6, 0, 7); cx.fill();
-                                if(Math.abs(rx) < 25 && Math.abs(cY - iy) < 30) {
-                                    it.ok = true;
-                                    if(it.type === 'G') { gold++; this.totalGold++; localStorage.setItem('fGold', this.totalGold); }
-                                    else fuel = Math.min(100, fuel + 40);
-                                }
-                            }
-                        }
-                    });
-
-                    // Araba
-                    cx.save(); cx.translate(60, cY); cx.rotate(ang);
-                    cx.fillStyle = "#ff0050"; cx.beginPath(); cx.roundRect(-20, -10, 40, 12, 5); cx.fill(); // Gövde
-                    cx.fillStyle = "rgba(0,242,234,0.6)"; cx.beginPath(); cx.moveTo(-10, -10); cx.lineTo(0, -18); cx.lineTo(12, -10); cx.fill(); // Cam
-                    cx.fillStyle = "#fff"; cx.beginPath(); cx.arc(-14, 4, 7, 0, 7); cx.fill(); cx.beginPath(); cx.arc(14, 4, 7, 0, 7); cx.fill(); // Teker
-                    cx.restore();
-
-                    document.getElementById("score-text").innerHTML = `YAKIT: %${Math.floor(fuel)} | ALTIN: ${gold}<br>MESAFE: ${Math.floor(dist/10)}m`;
-                    if(fuel <= 0 || cY > 320) { setTimeout(() => location.reload(), 2000); return; }
-                    requestAnimationFrame(tick);
-                }; tick();
+            addGold(amt) {
+                this.totalGold += amt;
+                localStorage.setItem('fGold', this.totalGold);
+                document.getElementById('score-text').innerHTML = `ALTIN: ${this.totalGold}`;
             },
+
             playSnake() {
                 const cv = document.getElementById("gameCanvas"); cv.width = 320; cv.height = 320; const cx = cv.getContext("2d");
                 let sn = [{x:160,y:160}], ap = {x:40,y:40}, d = "RIGHT", nD = "RIGHT";
                 const h = (k) => {
-                    if((k=="UP"||k=="W")&&d!="DOWN") nD="UP"; if((k=="DOWN"||k=="S")&&d!="UP") nD="DOWN";
-                    if((k=="LEFT"||k=="A")&&d!="RIGHT") nD="LEFT"; if((k=="RIGHT"||k=="D")&&d!="LEFT") nD="RIGHT";
+                    if((k=="UP"||k=="W"||k=="ArrowUp")&&d!="DOWN") nD="UP"; 
+                    if((k=="DOWN"||k=="S"||k=="ArrowDown")&&d!="UP") nD="DOWN";
+                    if((k=="LEFT"||k=="A"||k=="ArrowLeft")&&d!="RIGHT") nD="LEFT"; 
+                    if((k=="RIGHT"||k=="D"||k=="ArrowRight")&&d!="LEFT") nD="RIGHT";
                 };
-                window.onkeydown=(e)=>h(e.key.toUpperCase());
-                ['up','down','left','right'].forEach(id=>document.getElementById(id).onclick=()=>h(id.toUpperCase()));
+                window.onkeydown=(e)=>h(e.key);
+                document.getElementById("up").onclick=()=>h("UP"); document.getElementById("down").onclick=()=>h("DOWN");
+                document.getElementById("left").onclick=()=>h("LEFT"); document.getElementById("right").onclick=()=>h("RIGHT");
+                
                 this.loop = setInterval(() => {
-                    d=nD; cx.fillStyle="#000"; cx.fillRect(0,0,320,320); cx.fillStyle="#ff0050"; cx.fillRect(ap.x+2,ap.y+2,16,16);
+                    d=nD; cx.fillStyle="#000"; cx.fillRect(0,0,320,320); 
+                    cx.fillStyle="#ff0050"; cx.fillRect(ap.x+2,ap.y+2,16,16);
                     sn.forEach((p,i)=>{ cx.fillStyle=i==0?"#00ff96":"#00a1ff"; cx.fillRect(p.x+1,p.y+1,18,18); });
                     let hX=sn[0].x, hY=sn[0].y;
                     if(d=="UP") hY-=20; if(d=="DOWN") hY+=20; if(d=="LEFT") hX-=20; if(d=="RIGHT") hX+=20;
-                    if(hX==ap.x && hY==ap.y){ this.totalGold++; ap={x:Math.floor(Math.random()*15)*20, y:Math.floor(Math.random()*15)*20}; } else sn.pop();
+                    if(hX==ap.x && hY==ap.y){ this.addGold(1); ap={x:Math.floor(Math.random()*15)*20, y:Math.floor(Math.random()*15)*20}; } else sn.pop();
                     let nH={x:hX,y:hY}; if(hX<0||hX>=320||hY<0||hY>=320||sn.some(p=>p.x==nH.x&&p.y==nH.y)){ location.reload(); }
                     else { sn.unshift(nH); document.getElementById("score-text").innerText="ALTIN: "+this.totalGold; }
                 }, 140);
             },
+
             playBird() {
                 const cv = document.getElementById("gameCanvas"); cv.width = 320; cv.height = 420; const cx = cv.getContext("2d");
                 let bY=200, bV=0, pipes=[], active=true;
                 window.onmousedown=()=>{ if(active) bV=-4.5; };
+                window.onkeydown=(e)=>{ if(e.code=="Space") bV=-4.5; };
                 const bLoop = () => {
                     if(!active||this.mode!='bird') return; cx.fillStyle="#050505"; cx.fillRect(0,0,320,420); bV+=0.22; bY+=bV;
                     cx.fillStyle="#ffd700"; cx.beginPath(); cx.arc(50,bY,12,0,7); cx.fill();
                     if(pipes.length==0||pipes[pipes.length-1].x<160) pipes.push({x:320,h:Math.random()*150+50,g:150,ok:false});
                     pipes.forEach(p=>{ p.x-=2.2; cx.fillStyle="#00f2ea"; cx.fillRect(p.x,0,50,p.h); cx.fillRect(p.x,p.h+150,50,420);
                         if(50+10>p.x && 50-10<p.x+50 && (bY-10<p.h || bY+10>p.h+150)) active=false;
-                        if(p.x<50 && !p.ok){ p.ok=true; this.totalGold+=5; }
+                        if(p.x<50 && !p.ok){ p.ok=true; this.addGold(5); }
                     });
                     if(bY>420||bY<0) active=false; document.getElementById("score-text").innerText="ALTIN: "+this.totalGold;
                     if(!active) location.reload(); else requestAnimationFrame(bLoop);
                 }; bLoop();
             },
+
             playChess() {
                 const bd = document.getElementById("chess-board"); this.game = new Chess();
                 const dr = () => {
                     bd.innerHTML=""; const st=this.game.board();
+                    document.getElementById("score-text").innerText = this.game.in_check() ? "ŞAH!" : "SENİN SIRAN";
                     for(let r=0; r<8; r++) for(let c=0; c<8; c++) {
                         const sq=String.fromCharCode(97+c)+(8-r); const cell=document.createElement("div");
                         cell.className=`cell ${(r+c)%2==0?'w-c':'b-c'}`; const p=st[r][c];
                         if(p){ const s=document.createElement("span"); s.innerText={p:'♟',r:'♜',n:'♞',b:'♝',q:'♛',k:'♚'}[p.type]; s.className=p.color=='w'?'p-white':'p-black'; cell.appendChild(s); }
                         cell.onclick=()=>{ 
-                            if(this.sSq){ 
-                                if(this.game.move({from:this.sSq, to:sq, promotion:'q'})){ this.sSq=null; dr(); setTimeout(()=>{ 
-                                    const m=this.game.moves(); if(m.length>0) this.game.move(m[Math.floor(Math.random()*m.length)]); dr(); 
-                                },600); } else this.sSq=sq;
-                            } else this.sSq=sq; dr();
-                        }; if(this.sSq==sq) cell.classList.add("sel"); bd.appendChild(cell);
-                    }
-                }; dr();
-            }
-        };
-        document.getElementById('lobby-gold').innerText = "ALTIN: " + hub.totalGold;
-    </script>
-</body>
-</html>
+                            if
