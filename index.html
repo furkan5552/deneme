@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Furkan Hub v30 - Final</title>
+    <title>Furkan Hub v30 - Sade</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.3/chess.min.js"></script>
     <style>
         :root { --neon: #00ff96; --rose: #ff0050; --cyber: #00f2ea; --gold: #ffd700; }
@@ -14,9 +14,8 @@
         .hidden { display: none !important; }
         
         .panel { background: #111; padding: 25px; border-radius: 25px; border: 3px solid var(--neon); text-align: center; width: 100%; max-width: 340px; box-shadow: 0 0 30px rgba(0,255,150,0.2); }
-        .title { font-size: 32px; font-weight: 900; color: var(--neon); text-shadow: 0 0 15px var(--neon); margin-bottom: 10px; }
+        .title { font-size: 32px; font-weight: 900; color: var(--neon); text-shadow: 0 0 15px var(--neon); margin-bottom: 20px; }
         
-        .stats-bar { font-size: 16px; color: var(--gold); margin-bottom: 20px; font-weight: bold; }
         .btn { padding: 15px; background: var(--neon); color: #000; border: none; border-radius: 12px; font-weight: bold; cursor: pointer; width: 100%; font-size: 16px; margin: 8px 0; transition: 0.2s; text-decoration: none; display: block; text-align: center; }
         .btn:active { transform: scale(0.95); }
 
@@ -45,7 +44,6 @@
     <div id="scr-lobby" class="screen">
         <div class="panel" style="border-color: var(--cyber);">
             <div class="title" style="color:var(--cyber)">FURKAN HUB</div>
-            <div class="stats-bar" id="lobby-gold">ALTIN: 0</div>
             <button class="btn" onclick="hub.start('snake')">🐍 NEON SNAKE</button>
             <button class="btn" onclick="hub.start('bird')">🐦 NEON BIRD</button>
             <button class="btn" onclick="hub.start('chess')" style="background:var(--gold)">♟️ PRO CHESS AI</button>
@@ -70,36 +68,46 @@
 
     <script>
         const hub = {
-            mode: '', loop: null, totalGold: parseInt(localStorage.getItem('fGold')) || 0,
+            mode: '', 
+            loop: null, 
+            sSq: null, 
+            score: 0,
             
             start(m) {
-                if(this.loop) clearInterval(this.loop);
+                if(this.loop) { clearInterval(this.loop); this.loop = null; }
                 this.mode = m;
+                this.score = 0;
                 document.getElementById("scr-lobby").classList.add("hidden");
                 document.getElementById("scr-game").classList.remove("hidden");
                 document.getElementById("gameCanvas").classList.add("hidden");
                 document.getElementById("chess-board").classList.add("hidden");
                 document.getElementById("snake-ui").classList.add("hidden");
+                document.getElementById("score-text").innerText = "SKOR: 0";
 
-                if(m === 'snake') { document.getElementById("gameCanvas").classList.remove("hidden"); document.getElementById("snake-ui").classList.remove("hidden"); this.playSnake(); }
-                if(m === 'bird') { document.getElementById("gameCanvas").classList.remove("hidden"); this.playBird(); }
-                if(m === 'chess') { document.getElementById("chess-board").classList.remove("hidden"); this.playChess(); }
-            },
-
-            addGold(amt) {
-                this.totalGold += amt;
-                localStorage.setItem('fGold', this.totalGold);
-                document.getElementById('score-text').innerHTML = `ALTIN: ${this.totalGold}`;
+                if(m === 'snake') { 
+                    document.getElementById("gameCanvas").classList.remove("hidden"); 
+                    document.getElementById("snake-ui").classList.remove("hidden"); 
+                    this.playSnake(); 
+                }
+                if(m === 'bird') { 
+                    document.getElementById("gameCanvas").classList.remove("hidden"); 
+                    this.playBird(); 
+                }
+                if(m === 'chess') { 
+                    document.getElementById("chess-board").classList.remove("hidden"); 
+                    this.playChess(); 
+                }
             },
 
             playSnake() {
                 const cv = document.getElementById("gameCanvas"); cv.width = 320; cv.height = 320; const cx = cv.getContext("2d");
                 let sn = [{x:160,y:160}], ap = {x:40,y:40}, d = "RIGHT", nD = "RIGHT";
                 const h = (k) => {
-                    if((k=="UP"||k=="W"||k=="ArrowUp")&&d!="DOWN") nD="UP"; 
-                    if((k=="DOWN"||k=="S"||k=="ArrowDown")&&d!="UP") nD="DOWN";
-                    if((k=="LEFT"||k=="A"||k=="ArrowLeft")&&d!="RIGHT") nD="LEFT"; 
-                    if((k=="RIGHT"||k=="D"||k=="ArrowRight")&&d!="LEFT") nD="RIGHT";
+                    const key = k.toUpperCase();
+                    if((key=="UP"||key=="W"||key=="ARROWUP")&&d!="DOWN") nD="UP"; 
+                    if((key=="DOWN"||key=="S"||key=="ARROWDOWN")&&d!="UP") nD="DOWN";
+                    if((key=="LEFT"||key=="A"||key=="ARROWLEFT")&&d!="RIGHT") nD="LEFT"; 
+                    if((key=="RIGHT"||key=="D"||key=="ARROWRIGHT")&&d!="LEFT") nD="RIGHT";
                 };
                 window.onkeydown=(e)=>h(e.key);
                 document.getElementById("up").onclick=()=>h("UP"); document.getElementById("down").onclick=()=>h("DOWN");
@@ -111,38 +119,87 @@
                     sn.forEach((p,i)=>{ cx.fillStyle=i==0?"#00ff96":"#00a1ff"; cx.fillRect(p.x+1,p.y+1,18,18); });
                     let hX=sn[0].x, hY=sn[0].y;
                     if(d=="UP") hY-=20; if(d=="DOWN") hY+=20; if(d=="LEFT") hX-=20; if(d=="RIGHT") hX+=20;
-                    if(hX==ap.x && hY==ap.y){ this.addGold(1); ap={x:Math.floor(Math.random()*15)*20, y:Math.floor(Math.random()*15)*20}; } else sn.pop();
-                    let nH={x:hX,y:hY}; if(hX<0||hX>=320||hY<0||hY>=320||sn.some(p=>p.x==nH.x&&p.y==nH.y)){ location.reload(); }
-                    else { sn.unshift(nH); document.getElementById("score-text").innerText="ALTIN: "+this.totalGold; }
+                    if(hX==ap.x && hY==ap.y){ 
+                        this.score++; 
+                        document.getElementById("score-text").innerText="SKOR: "+this.score;
+                        ap={x:Math.floor(Math.random()*15)*20, y:Math.floor(Math.random()*15)*20}; 
+                    } else sn.pop();
+                    let nH={x:hX,y:hY}; if(hX<0||hX>=320||hY<0||hY>=320||sn.some(p=>p.x==nH.x&&p.y==nH.y)){ clearInterval(this.loop); location.reload(); }
+                    else { sn.unshift(nH); }
                 }, 140);
             },
 
             playBird() {
                 const cv = document.getElementById("gameCanvas"); cv.width = 320; cv.height = 420; const cx = cv.getContext("2d");
                 let bY=200, bV=0, pipes=[], active=true;
-                window.onmousedown=()=>{ if(active) bV=-4.5; };
-                window.onkeydown=(e)=>{ if(e.code=="Space") bV=-4.5; };
+                const jump = () => { if(active) bV=-4.5; };
+                window.onmousedown=jump; 
+                window.onkeydown=(e)=>{ if(e.code=="Space"||e.key=="ArrowUp") jump(); };
                 const bLoop = () => {
-                    if(!active||this.mode!='bird') return; cx.fillStyle="#050505"; cx.fillRect(0,0,320,420); bV+=0.22; bY+=bV;
+                    if(!active||this.mode!='bird') return; 
+                    cx.fillStyle="#050505"; cx.fillRect(0,0,320,420); bV+=0.22; bY+=bV;
                     cx.fillStyle="#ffd700"; cx.beginPath(); cx.arc(50,bY,12,0,7); cx.fill();
                     if(pipes.length==0||pipes[pipes.length-1].x<160) pipes.push({x:320,h:Math.random()*150+50,g:150,ok:false});
                     pipes.forEach(p=>{ p.x-=2.2; cx.fillStyle="#00f2ea"; cx.fillRect(p.x,0,50,p.h); cx.fillRect(p.x,p.h+150,50,420);
                         if(50+10>p.x && 50-10<p.x+50 && (bY-10<p.h || bY+10>p.h+150)) active=false;
-                        if(p.x<50 && !p.ok){ p.ok=true; this.addGold(5); }
+                        if(p.x<50 && !p.ok){ p.ok=true; this.score++; document.getElementById("score-text").innerText="SKOR: "+this.score; }
                     });
-                    if(bY>420||bY<0) active=false; document.getElementById("score-text").innerText="ALTIN: "+this.totalGold;
-                    if(!active) location.reload(); else requestAnimationFrame(bLoop);
+                    if(bY>420||bY<0) active=false; 
+                    if(!active) { setTimeout(()=>location.reload(), 500); } 
+                    else requestAnimationFrame(bLoop);
                 }; bLoop();
             },
 
             playChess() {
-                const bd = document.getElementById("chess-board"); this.game = new Chess();
+                const bd = document.getElementById("chess-board"); 
+                this.game = new Chess();
+                const ic = { p:'♟', r:'♜', n:'♞', b:'♝', q:'♛', k:'♚' };
                 const dr = () => {
-                    bd.innerHTML=""; const st=this.game.board();
+                    bd.innerHTML=""; 
+                    const st=this.game.board();
                     document.getElementById("score-text").innerText = this.game.in_check() ? "ŞAH!" : "SENİN SIRAN";
-                    for(let r=0; r<8; r++) for(let c=0; c<8; c++) {
-                        const sq=String.fromCharCode(97+c)+(8-r); const cell=document.createElement("div");
-                        cell.className=`cell ${(r+c)%2==0?'w-c':'b-c'}`; const p=st[r][c];
-                        if(p){ const s=document.createElement("span"); s.innerText={p:'♟',r:'♜',n:'♞',b:'♝',q:'♛',k:'♚'}[p.type]; s.className=p.color=='w'?'p-white':'p-black'; cell.appendChild(s); }
-                        cell.onclick=()=>{ 
-                            if
+                    for(let r=0; r<8; r++) {
+                        for(let c=0; c<8; c++) {
+                            const sq=String.fromCharCode(97+c)+(8-r); 
+                            const cell=document.createElement("div");
+                            cell.className=`cell ${(r+c)%2==0?'w-c':'b-c'}`; 
+                            const p=st[r][c];
+                            if(p){ 
+                                const s=document.createElement("span"); 
+                                s.innerText=ic[p.type]; 
+                                s.className=p.color=='w'?'p-white':'p-black'; 
+                                cell.appendChild(s); 
+                            }
+                            if(this.sSq==sq) cell.classList.add("sel");
+                            cell.onclick=()=>{ 
+                                if(this.sSq){ 
+                                    const move = this.game.move({from:this.sSq, to:sq, promotion:'q'});
+                                    if(move){ 
+                                        this.sSq=null; dr(); 
+                                        if(!this.game.game_over()) {
+                                            setTimeout(()=>{ 
+                                                const m=this.game.moves(); 
+                                                if(m.length>0) this.game.move(m[Math.floor(Math.random()*m.length)]); 
+                                                dr(); 
+                                            }, 600); 
+                                        }
+                                    } else { 
+                                        const pc=this.game.get(sq); 
+                                        if(pc&&pc.color=='w') this.sSq=sq; else this.sSq=null; 
+                                        dr(); 
+                                    }
+                                } else { 
+                                    const pc=this.game.get(sq); 
+                                    if(pc&&pc.color=='w') this.sSq=sq; 
+                                    dr(); 
+                                }
+                            }; 
+                            bd.appendChild(cell);
+                        }
+                    }
+                }; dr();
+            }
+        };
+    </script>
+</body>
+</html>
