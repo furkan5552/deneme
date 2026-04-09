@@ -31,7 +31,6 @@
         .w-c { background: #eeeed2; } .b-c { background: #769656; }
         .sel { background: rgba(255, 255, 0, 0.6) !important; }
         
-        /* Satranç Taş Renkleri */
         .p-white { color: #fff; filter: drop-shadow(0 0 2px #000); }
         .p-black { color: #000; filter: drop-shadow(0 0 1px #fff); }
 
@@ -47,6 +46,7 @@
             <div class="title" style="color:var(--cyber)">FURKAN HUB</div>
             <button class="btn" onclick="hub.start('snake')">🐍 NEON SNAKE</button>
             <button class="btn" onclick="hub.start('bird')">🐦 NEON BIRD</button>
+            <button class="btn" onclick="hub.start('climb')" style="background:var(--rose)">🚗 HILL CLIMB</button>
             <button class="btn" onclick="hub.start('chess')" style="background:var(--gold)">♟️ PRO CHESS AI</button>
             <div class="social-container">
                 <a href="https://www.instagram.com/furk4nn_c/" target="_blank" class="s-link insta-btn">Instagram</a>
@@ -56,7 +56,7 @@
     </div>
 
     <div id="scr-game" class="screen hidden">
-        <div id="score-text" style="font-size:20px; color:var(--neon); margin-bottom:10px; font-weight: bold;">SKOR: 0</div>
+        <div id="score-text" style="font-size:18px; color:var(--neon); margin-bottom:10px; font-weight: bold;">SKOR: 0</div>
         <canvas id="gameCanvas" class="hidden"></canvas>
         <div id="chess-board" class="hidden"></div>
         <div id="snake-ui" class="joy hidden">
@@ -76,6 +76,7 @@
                 if(m === 'snake') { document.getElementById("gameCanvas").classList.remove("hidden"); document.getElementById("snake-ui").classList.remove("hidden"); this.playSnake(); }
                 if(m === 'bird') { document.getElementById("gameCanvas").classList.remove("hidden"); this.playBird(); }
                 if(m === 'chess') { document.getElementById("chess-board").classList.remove("hidden"); this.playChess(); }
+                if(m === 'climb') { document.getElementById("gameCanvas").classList.remove("hidden"); this.playClimb(); }
             },
             playSnake() {
                 const cv = document.getElementById("gameCanvas"); cv.width = 320; cv.height = 320; const cx = cv.getContext("2d");
@@ -97,22 +98,13 @@
                     for(let i=0; i<320; i+=20) { cx.strokeRect(i,0,i,320); cx.strokeRect(0,i,320,i); }
                     cx.fillStyle = "#ff0050"; cx.shadowBlur=10; cx.shadowColor="#ff0050";
                     cx.fillRect(ap.x+2, ap.y+2, 16, 16); cx.shadowBlur=0;
-                    sn.forEach((p, i) => {
-                        cx.fillStyle = i==0 ? "#00ff96" : "#00a1ff";
-                        cx.fillRect(p.x+1, p.y+1, 18, 18);
-                    });
+                    sn.forEach((p, i) => { cx.fillStyle = i==0 ? "#00ff96" : "#00a1ff"; cx.fillRect(p.x+1, p.y+1, 18, 18); });
                     let hX = sn[0].x, hY = sn[0].y;
                     if(d=="UP") hY-=20; if(d=="DOWN") hY+=20; if(d=="LEFT") hX-=20; if(d=="RIGHT") hX+=20;
-                    if(hX==ap.x && hY==ap.y) {
-                        this.score+=10; ap={x:Math.floor(Math.random()*15)*20, y:Math.floor(Math.random()*15)*20};
-                    } else { sn.pop(); }
+                    if(hX==ap.x && hY==ap.y) { this.score+=10; ap={x:Math.floor(Math.random()*15)*20, y:Math.floor(Math.random()*15)*20}; } else { sn.pop(); }
                     let nH = {x:hX, y:hY};
-                    if(hX<0||hX>=320||hY<0||hY>=320||sn.some(p=>p.x==nH.x&&p.y==nH.y)) {
-                        clearInterval(loop); location.reload();
-                    } else {
-                        sn.unshift(nH);
-                        document.getElementById("score-text").innerText = "SKOR: " + this.score;
-                    }
+                    if(hX<0||hX>=320||hY<0||hY>=320||sn.some(p=>p.x==nH.x&&p.y==nH.y)) { clearInterval(loop); location.reload(); }
+                    else { sn.unshift(nH); document.getElementById("score-text").innerText = "SKOR: " + this.score; }
                 }, 140);
             },
             playBird() {
@@ -132,28 +124,65 @@
                     document.getElementById("score-text").innerText = "SKOR: " + this.score; requestAnimationFrame(loop);
                 }; loop();
             },
+            playClimb() {
+                const cv = document.getElementById("gameCanvas"); cv.width = 320; cv.height = 320; const cx = cv.getContext("2d");
+                let carY = 200, carX = 60, vY = 0, angle = 0, fuel = 100, dist = 0, isGas = false;
+                let terrain = []; for(let i=0; i<1000; i++) terrain.push(220 + Math.sin(i/10)*30 + Math.cos(i/5)*15);
+                
+                window.onkeydown = (e) => { if(e.key=="d" || e.key=="ArrowRight") isGas = true; };
+                window.onkeyup = (e) => { if(e.key=="d" || e.key=="ArrowRight") isGas = false; };
+                window.onmousedown = () => isGas = true; window.onmouseup = () => isGas = false;
+
+                const loop = () => {
+                    if(this.mode !== 'climb') return;
+                    cx.fillStyle = "#050505"; cx.fillRect(0,0,320,320);
+                    
+                    if(isGas && fuel > 0) { dist += 2; fuel -= 0.1; angle = Math.max(angle - 0.05, -0.4); } 
+                    else { angle = Math.min(angle + 0.03, 0.2); }
+
+                    let tx = Math.floor(dist / 5);
+                    let groundY = terrain[tx % 1000];
+                    if(carY < groundY - 20) vY += 0.8; else { carY = groundY - 20; vY = 0; }
+                    carY += vY;
+
+                    // Arazi Çizim
+                    cx.strokeStyle = "#00f2ea"; cx.lineWidth = 3; cx.beginPath();
+                    for(let i=0; i<70; i++) {
+                        let drawX = i * 5;
+                        let terrainY = terrain[(tx + i) % 1000];
+                        cx.lineTo(drawX, terrainY);
+                    }
+                    cx.stroke();
+
+                    // Araba Çizim
+                    cx.save();
+                    cx.translate(carX, carY);
+                    cx.rotate(angle);
+                    cx.fillStyle = "#ff0050"; cx.fillRect(-15, -10, 30, 12); // Gövde
+                    cx.fillStyle = "#fff"; cx.beginPath(); cx.arc(-10, 5, 5, 0, Math.PI*2); cx.fill(); // Teker 1
+                    cx.beginPath(); cx.arc(10, 5, 5, 0, Math.PI*2); cx.fill(); // Teker 2
+                    cx.restore();
+
+                    document.getElementById("score-text").innerText = `MESAFE: ${Math.floor(dist/10)}m | YAKIT: ${Math.floor(fuel)}%`;
+                    if(fuel <= 0 || carY > 320) location.reload();
+                    requestAnimationFrame(loop);
+                }; loop();
+            },
             playChess() {
                 const boardDiv = document.getElementById("chess-board");
                 this.game = new Chess();
                 const icons = { p:'♟', r:'♜', n:'♞', b:'♝', q:'♛', k:'♚' };
-
                 const draw = () => {
                     boardDiv.innerHTML = "";
                     const boardState = this.game.board();
-                    
-                    // Durum Kontrolü
-                    let statusText = "SENİN SIRAN";
-                    if (this.game.in_checkmate()) statusText = "MAT - KAYBETTİN!";
-                    else if (this.game.in_draw()) statusText = "BERABERE!";
-                    else if (this.game.in_check()) statusText = "ŞAH!";
+                    let statusText = this.game.in_check() ? "ŞAH!" : "SENİN SIRAN";
+                    if(this.game.in_checkmate()) statusText = "MAT!";
                     document.getElementById("score-text").innerText = statusText;
-
                     for(let r=0; r<8; r++) {
                         for(let c=0; c<8; c++) {
                             const sq = String.fromCharCode(97+c) + (8-r);
                             const cell = document.createElement("div");
                             cell.className = `cell ${(r+c)%2===0?'w-c':'b-c'}`;
-                            
                             const piece = boardState[r][c];
                             if(piece) {
                                 const span = document.createElement("span");
@@ -161,34 +190,28 @@
                                 span.className = piece.color === 'w' ? 'p-white' : 'p-black';
                                 cell.appendChild(span);
                             }
-
                             if(this.selectedSq === sq) cell.classList.add("sel");
-
                             cell.onclick = () => {
                                 if(this.selectedSq) {
                                     const move = this.game.move({ from: this.selectedSq, to: sq, promotion: 'q' });
-                                    if(move) {
-                                        this.selectedSq = null;
-                                        draw();
-                                        if(!this.game.game_over()) setTimeout(botMove, 600);
-                                    } else {
-                                        const p = this.game.get(sq);
-                                        if(p && p.color === 'w') { this.selectedSq = sq; draw(); }
-                                        else { this.selectedSq = null; draw(); }
-                                    }
-                                } else {
-                                    const p = this.game.get(sq);
-                                    if(p && p.color === 'w') { this.selectedSq = sq; draw(); }
-                                }
+                                    if(move) { this.selectedSq = null; draw(); if(!this.game.game_over()) setTimeout(botMove, 600); }
+                                    else { const p = this.game.get(sq); if(p && p.color === 'w') { this.selectedSq = sq; draw(); } else { this.selectedSq = null; draw(); } }
+                                } else { const p = this.game.get(sq); if(p && p.color === 'w') { this.selectedSq = sq; draw(); } }
                             };
                             boardDiv.appendChild(cell);
                         }
                     }
                 };
-
                 const botMove = () => {
                     const moves = this.game.moves();
                     if(moves.length > 0) {
-                        // Basit AI: Taş alabiliyorsa alır, yoksa rastgele oynar
                         const captures = moves.filter(m => m.includes('x'));
-                        const move = captures.length > 0
+                        this.game.move(captures.length > 0 ? captures[Math.floor(Math.random()*captures.length)] : moves[Math.floor(Math.random()*moves.length)]);
+                        draw();
+                    }
+                }; draw();
+            }
+        };
+    </script>
+</body>
+</html>
