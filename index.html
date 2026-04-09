@@ -3,38 +3,30 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Furkan Hub v30 - Pro Edition</title>
+    <title>Furkan Hub v30 - FULL FIX</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.3/chess.min.js"></script>
     <style>
         :root { --neon: #00ff96; --rose: #ff0050; --cyber: #00f2ea; --gold: #ffd700; }
         * { box-sizing: border-box; touch-action: manipulation; user-select: none; outline: none; }
         body { background: #000; margin: 0; font-family: 'Segoe UI', sans-serif; color: white; overflow: hidden; height: 100vh; display: flex; align-items: center; justify-content: center; }
-        
         .screen { position: fixed; inset: 0; background: #000; display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 10; padding: 15px; }
         .hidden { display: none !important; }
-        
         .panel { background: #111; padding: 20px; border-radius: 25px; border: 3px solid var(--neon); text-align: center; width: 100%; max-width: 340px; box-shadow: 0 0 30px rgba(0,255,150,0.2); }
         .title { font-size: 28px; font-weight: 900; color: var(--neon); text-shadow: 0 0 15px var(--neon); margin-bottom: 10px; }
-        
         .stats-bar { font-size: 14px; color: var(--gold); margin-bottom: 15px; font-weight: bold; }
         .btn { padding: 14px; background: var(--neon); color: #000; border: none; border-radius: 12px; font-weight: bold; cursor: pointer; width: 100%; font-size: 16px; margin: 6px 0; transition: 0.2s; text-decoration: none; display: block; text-align: center; }
         .btn:active { transform: scale(0.95); }
-
         .social-container { display: flex; gap: 8px; margin-top: 15px; }
         .s-link { flex: 1; padding: 10px; border-radius: 10px; text-decoration: none; font-weight: bold; font-size: 11px; color: white; text-align: center; }
         .insta-btn { background: linear-gradient(45deg, #f09433, #dc2743, #bc1888); }
         .tiktok-btn { background: #222; border: 1px solid #fff; }
-
         canvas { border: 3px solid var(--cyber); background: #050505; border-radius: 12px; max-width: 90vw; max-height: 50vh; display: block; margin: 0 auto; box-shadow: 0 0 20px rgba(0,242,234,0.2); }
-        
         #chess-board { display: grid; grid-template-columns: repeat(8, 1fr); width: 320px; height: 320px; border: 4px solid #444; margin: 5px auto; }
         .cell { width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; font-size: 28px; cursor: pointer; }
         .w-c { background: #eeeed2; } .b-c { background: #769656; }
         .sel { background: rgba(255, 255, 0, 0.6) !important; }
-        
         .p-white { color: #fff; filter: drop-shadow(0 0 2px #000); pointer-events: none; }
         .p-black { color: #000; filter: drop-shadow(0 0 1px #fff); pointer-events: none; }
-
         .joy { display: grid; grid-template-areas: ". up ." "left down right"; gap: 10px; margin-top: 15px; width: 210px; }
         .j-btn { background: #151515; border: 2px solid var(--cyber); border-radius: 12px; height: 55px; width: 60px; display: flex; align-items: center; justify-content: center; font-size: 24px; color: var(--cyber); cursor: pointer; }
         #up { grid-area: up; margin: 0 auto; } #left { grid-area: left; } #down { grid-area: down; } #right { grid-area: right; }
@@ -75,30 +67,32 @@
             
             start(m) {
                 document.getElementById('lobby-gold').innerText = "ALTIN: " + this.totalGold;
+                // Mevcut döngüleri temizle
                 if(this.loop) { clearInterval(this.loop); cancelAnimationFrame(this.loop); }
+                
                 this.mode = m;
                 document.getElementById("scr-lobby").classList.add("hidden");
                 document.getElementById("scr-game").classList.remove("hidden");
-                document.getElementById("gameCanvas").classList.add("hidden");
-                document.getElementById("chess-board").classList.add("hidden");
-                document.getElementById("snake-ui").classList.add("hidden");
+                
+                // Elementleri sıfırla
+                const cv = document.getElementById("gameCanvas");
+                const cb = document.getElementById("chess-board");
+                const ui = document.getElementById("snake-ui");
+                cv.classList.add("hidden");
+                cb.classList.add("hidden");
+                ui.classList.add("hidden");
 
-                if(m === 'snake') { document.getElementById("gameCanvas").classList.remove("hidden"); document.getElementById("snake-ui").classList.remove("hidden"); this.playSnake(); }
-                if(m === 'bird') { document.getElementById("gameCanvas").classList.remove("hidden"); this.playBird(); }
-                if(m === 'chess') { document.getElementById("chess-board").classList.remove("hidden"); this.playChess(); }
-                if(m === 'climb') { document.getElementById("gameCanvas").classList.remove("hidden"); this.playClimb(); }
+                if(m === 'snake') { cv.classList.remove("hidden"); ui.classList.remove("hidden"); this.playSnake(); }
+                if(m === 'bird') { cv.classList.remove("hidden"); this.playBird(); }
+                if(m === 'chess') { cb.classList.remove("hidden"); this.playChess(); }
+                if(m === 'climb') { cv.classList.remove("hidden"); this.playClimb(); }
             },
 
             playClimb() {
                 const cv = document.getElementById("gameCanvas"); cv.width = 320; cv.height = 320; const cx = cv.getContext("2d");
                 let cY = 150, vY = 0, ang = 0, fuel = 100, dist = 0, gas = false, goldCount = 0;
                 let ter = []; for(let i=0; i<3000; i++) ter.push(250 + Math.sin(i/15)*40 + Math.cos(i/8)*20);
-                
-                // Obje Üretimi (Altın ve Yakıt)
-                let items = [];
-                for(let i=100; i<2900; i+=150) {
-                    items.push({ x: i*10, type: Math.random() > 0.8 ? 'F' : 'G', collected: false });
-                }
+                let items = []; for(let i=100; i<2900; i+=150) { items.push({ x: i*10, type: Math.random() > 0.8 ? 'F' : 'G', collected: false }); }
 
                 window.onkeydown = (e) => { if(e.key=="d" || e.key=="ArrowRight" || e.key==" ") gas = true; };
                 window.onkeyup = () => gas = false;
@@ -107,60 +101,43 @@
 
                 const render = () => {
                     if(this.mode !== 'climb') return;
-                    cx.fillStyle = "#050505"; cx.fillRect(0,0,320,320);
-                    
-                    if(gas && fuel > 0) { dist += 4; fuel -= 0.2; ang = Math.max(ang - 0.05, -0.4); } 
+                    cx.fillStyle = "#000"; cx.fillRect(0,0,320,320);
+                    if(gas && fuel > 0) { dist += 4; fuel -= 0.18; ang = Math.max(ang - 0.05, -0.4); } 
                     else { dist *= 0.98; ang = Math.min(ang + 0.03, 0.3); }
 
                     let tx = Math.floor(dist / 5);
                     let gY = ter[tx % 3000];
+                    if(cY < gY - 24) vY += 0.9; else { cY = gY - 24; vY = 0; } cY += vY;
 
-                    // Fizik: Arabayı yolun üzerinde tut
-                    if(cY < gY - 24) { vY += 0.9; } 
-                    else { cY = gY - 24; vY = 0; }
-                    cY += vY;
+                    // Yol
+                    cx.strokeStyle = "#00f2ea"; cx.lineWidth = 4; cx.beginPath();
+                    for(let i=0; i<80; i++) cx.lineTo(i*5, ter[(tx+i)%3000]); cx.stroke();
 
-                    // Yol Çizimi
-                    cx.strokeStyle = var(--cyber); cx.lineWidth = 4; cx.beginPath();
-                    for(let i=0; i<80; i++) { cx.lineTo(i*5, ter[(tx+i)%3000]); } cx.stroke();
-
-                    // Objeleri Çiz ve Topla
+                    // Objeler
                     items.forEach(it => {
                         if(!it.collected) {
                             let rx = it.x - dist;
                             if(rx > -20 && rx < 340) {
                                 let iy = ter[Math.floor(it.x/5)%3000] - 30;
-                                cx.fillStyle = it.type === 'G' ? var(--gold) : var(--rose);
+                                cx.fillStyle = it.type === 'G' ? "#ffd700" : "#ff0050";
                                 cx.beginPath(); cx.arc(rx + 60, iy, 6, 0, 7); cx.fill();
-                                // Toplama Kontrolü
                                 if(Math.abs(rx) < 20 && Math.abs(cY - iy) < 30) {
                                     it.collected = true;
                                     if(it.type === 'G') { goldCount++; this.totalGold++; localStorage.setItem('furkan_gold', this.totalGold); }
-                                    else { fuel = Math.min(100, fuel + 30); }
+                                    else fuel = Math.min(100, fuel + 30);
                                 }
                             }
                         }
                     });
 
-                    // ARABA ÇİZİMİ (Neon Spor Araba Figürü)
+                    // Araba
                     cx.save(); cx.translate(60, cY); cx.rotate(ang);
-                    // Gövde Alt
-                    cx.fillStyle = var(--rose);
-                    cx.beginPath(); cx.roundRect(-20, -8, 40, 10, 4); cx.fill();
-                    // Kabin (Üst Kısım)
-                    cx.fillStyle = "rgba(0,242,234,0.6)";
-                    cx.beginPath(); cx.moveTo(-10, -8); cx.lineTo(-2, -18); cx.lineTo(12, -18); cx.lineTo(18, -8); cx.fill();
-                    // Tekerlekler
-                    cx.fillStyle = "#fff";
-                    cx.beginPath(); cx.arc(-13, 5, 7, 0, 7); cx.fill();
-                    cx.beginPath(); cx.arc(13, 5, 7, 0, 7); cx.fill();
-                    cx.fillStyle = "#111";
-                    cx.beginPath(); cx.arc(-13, 5, 4, 0, 7); cx.fill();
-                    cx.beginPath(); cx.arc(13, 5, 4, 0, 7); cx.fill();
+                    cx.fillStyle = "#ff0050"; cx.beginPath(); cx.roundRect(-20, -8, 40, 10, 4); cx.fill();
+                    cx.fillStyle = "rgba(0,242,234,0.6)"; cx.beginPath(); cx.moveTo(-10, -8); cx.lineTo(-2, -18); cx.lineTo(12, -18); cx.lineTo(18, -8); cx.fill();
+                    cx.fillStyle = "#fff"; cx.beginPath(); cx.arc(-13, 5, 7, 0, 7); cx.fill(); cx.beginPath(); cx.arc(13, 5, 7, 0, 7); cx.fill();
                     cx.restore();
 
                     document.getElementById("score-text").innerHTML = `YAKIT: %${Math.floor(fuel)} | ALTIN: ${goldCount}<br>MESAFE: ${Math.floor(dist/10)}m`;
-                    
                     if(fuel <= 0 || cY > 320) { setTimeout(() => location.reload(), 1500); return; }
                     this.loop = requestAnimationFrame(render);
                 }; render();
@@ -170,13 +147,14 @@
                 const cv = document.getElementById("gameCanvas"); cv.width = 320; cv.height = 320; const cx = cv.getContext("2d");
                 let sn = [{x:160,y:160}], ap = {x:40,y:40}, d = "RIGHT", nD = "RIGHT";
                 const hI = (k) => {
-                    if((k=="UP" || k=="ArrowUp" || k=="w") && d!="DOWN") nD="UP";
-                    if((k=="DOWN" || k=="ArrowDown" || k=="s") && d!="UP") nD="DOWN";
-                    if((k=="LEFT" || k=="ArrowLeft" || k=="a") && d!="RIGHT") nD="LEFT";
-                    if((k=="RIGHT" || k=="ArrowRight" || k=="d") && d!="LEFT") nD="RIGHT";
+                    const key = k.toUpperCase();
+                    if((key=="UP" || key=="W") && d!="DOWN") nD="UP";
+                    if((key=="DOWN" || key=="S") && d!="UP") nD="DOWN";
+                    if((key=="LEFT" || key=="A") && d!="RIGHT") nD="LEFT";
+                    if((key=="RIGHT" || key=="D") && d!="LEFT") nD="RIGHT";
                 };
                 window.onkeydown = (e) => hI(e.key);
-                ['up','down','left','right'].forEach(id => document.getElementById(id).onclick = () => hI(id.toUpperCase()));
+                ['up','down','left','right'].forEach(id => document.getElementById(id).onclick = () => hI(id));
                 this.loop = setInterval(() => {
                     d = nD; cx.fillStyle = "#000"; cx.fillRect(0,0,320,320);
                     cx.fillStyle = "#ff0050"; cx.fillRect(ap.x+2, ap.y+2, 16, 16);
@@ -193,17 +171,20 @@
             playBird() {
                 const cv = document.getElementById("gameCanvas"); cv.width = 320; cv.height = 420; const cx = cv.getContext("2d");
                 let bY = 200, bV = 0, pipes = [], active=true;
-                window.onmousedown = () => { if(active) bV = -4.5; };
+                const jump = () => { if(active) bV = -4.5; };
+                window.onmousedown = jump; window.onkeydown = (e) => { if(e.code=="Space" || e.key=="ArrowUp") jump(); };
                 const bLoop = () => {
-                    if(!active || this.mode !== 'bird') return; cx.fillStyle = "#050505"; cx.fillRect(0,0,320,420); bV += 0.22; bY += bV;
+                    if(!active || this.mode !== 'bird') return;
+                    cx.fillStyle = "#050505"; cx.fillRect(0,0,320,420); bV += 0.22; bY += bV;
                     cx.fillStyle = "#ffd700"; cx.beginPath(); cx.arc(50, bY, 12, 0, 7); cx.fill();
                     if(pipes.length==0 || pipes[pipes.length-1].x < 160) pipes.push({x:320, h:Math.random()*150+50, g:150, ok:false});
                     pipes.forEach(p => { p.x -= 2.2; cx.fillStyle = "#00f2ea"; cx.fillRect(p.x, 0, 50, p.h); cx.fillRect(p.x, p.h+150, 50, 420);
-                        if(50+10 > p.x && 50-10 < p.x+50 && (bY-10 < p.h || bY+10 > p.h+150)) { active=false; location.reload(); }
+                        if(50+10 > p.x && 50-10 < p.x+50 && (bY-10 < p.h || bY+10 > p.h+150)) active=false;
                         if(p.x < 50 && !p.ok) { p.ok=true; this.score++; }
                     });
-                    if(bY > 420 || bY < 0) { active=false; location.reload(); }
-                    document.getElementById("score-text").innerText = "SKOR: " + this.score; requestAnimationFrame(bLoop);
+                    if(bY > 420 || bY < 0) active=false;
+                    document.getElementById("score-text").innerText = "SKOR: " + this.score;
+                    if(!active) location.reload(); else requestAnimationFrame(bLoop);
                 }; bLoop();
             },
 
@@ -220,7 +201,7 @@
                         cell.onclick = () => {
                             if(this.selectedSq) {
                                 const m = this.game.move({ from: this.selectedSq, to: sq, promotion: 'q' });
-                                if(m) { this.selectedSq = null; draw(); if(!this.game.game_over()) setTimeout(() => {
+                                if(m) { this.selectedSq = null; draw(); setTimeout(() => {
                                     const ms = this.game.moves(); if(ms.length>0) this.game.move(ms[Math.floor(Math.random()*ms.length)]); draw();
                                 }, 600); } else this.selectedSq = sq;
                             } else this.selectedSq = sq; draw();
@@ -229,7 +210,7 @@
                 }; draw();
             }
         };
-        // İlk açılışta altını göster
+        // Başlangıçta altını yükle
         document.getElementById('lobby-gold').innerText = "ALTIN: " + hub.totalGold;
     </script>
 </body>
