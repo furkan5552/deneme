@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Furkan Hub v30 - Universal</title>
+    <title>Furkan Hub v30 - Fix Edition</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.3/chess.min.js"></script>
     <style>
         :root { --neon: #00ff96; --rose: #ff0050; --cyber: #00f2ea; --gold: #ffd700; }
@@ -31,8 +31,8 @@
         .w-c { background: #eeeed2; } .b-c { background: #769656; }
         .sel { background: rgba(255, 255, 0, 0.6) !important; }
         
-        .p-white { color: #fff; filter: drop-shadow(0 0 2px #000); }
-        .p-black { color: #000; filter: drop-shadow(0 0 1px #fff); }
+        .p-white { color: #fff; filter: drop-shadow(0 0 2px #000); pointer-events: none; }
+        .p-black { color: #000; filter: drop-shadow(0 0 1px #fff); pointer-events: none; }
 
         .joy { display: grid; grid-template-areas: ". up ." "left down right"; gap: 10px; margin-top: 15px; width: 210px; }
         .j-btn { background: #151515; border: 2px solid var(--cyber); border-radius: 12px; height: 55px; width: 60px; display: flex; align-items: center; justify-content: center; font-size: 24px; color: var(--cyber); cursor: pointer; }
@@ -68,11 +68,17 @@
 
     <script>
         const hub = {
-            game: null, selectedSq: null, mode: '', score: 0,
+            game: null, selectedSq: null, mode: '', score: 0, loop: null,
             start(m) {
                 this.mode = m;
                 document.getElementById("scr-lobby").classList.add("hidden");
                 document.getElementById("scr-game").classList.remove("hidden");
+                
+                // Canvas ve UI temizliği
+                document.getElementById("gameCanvas").classList.add("hidden");
+                document.getElementById("chess-board").classList.add("hidden");
+                document.getElementById("snake-ui").classList.add("hidden");
+
                 if(m === 'snake') { document.getElementById("gameCanvas").classList.remove("hidden"); document.getElementById("snake-ui").classList.remove("hidden"); this.playSnake(); }
                 if(m === 'bird') { document.getElementById("gameCanvas").classList.remove("hidden"); this.playBird(); }
                 if(m === 'chess') { document.getElementById("chess-board").classList.remove("hidden"); this.playChess(); }
@@ -81,29 +87,27 @@
             playSnake() {
                 const cv = document.getElementById("gameCanvas"); cv.width = 320; cv.height = 320; const cx = cv.getContext("2d");
                 let sn = [{x:160,y:160}], ap = {x:40,y:40}, d = "RIGHT", nD = "RIGHT";
-                const handleInput = (key) => {
-                    if((key=="UP" || key=="ArrowUp" || key=="w") && d!="DOWN") nD="UP";
-                    if((key=="DOWN" || key=="ArrowDown" || key=="s") && d!="UP") nD="DOWN";
-                    if((key=="LEFT" || key=="ArrowLeft" || key=="a") && d!="RIGHT") nD="LEFT";
-                    if((key=="RIGHT" || key=="ArrowRight" || key=="d") && d!="LEFT") nD="RIGHT";
+                const handleInput = (k) => {
+                    if((k=="UP" || k=="ArrowUp" || k=="w") && d!="DOWN") nD="UP";
+                    if((k=="DOWN" || k=="ArrowDown" || k=="s") && d!="UP") nD="DOWN";
+                    if((k=="LEFT" || k=="ArrowLeft" || k=="a") && d!="RIGHT") nD="LEFT";
+                    if((k=="RIGHT" || k=="ArrowRight" || k=="d") && d!="LEFT") nD="RIGHT";
                 };
                 window.onkeydown = (e) => handleInput(e.key);
                 document.getElementById("up").onclick = () => handleInput("UP");
                 document.getElementById("down").onclick = () => handleInput("DOWN");
                 document.getElementById("left").onclick = () => handleInput("LEFT");
                 document.getElementById("right").onclick = () => handleInput("RIGHT");
-                const loop = setInterval(() => {
+                
+                this.loop = setInterval(() => {
                     d = nD; cx.fillStyle = "#000"; cx.fillRect(0,0,320,320);
-                    cx.strokeStyle = "#111";
-                    for(let i=0; i<320; i+=20) { cx.strokeRect(i,0,i,320); cx.strokeRect(0,i,320,i); }
-                    cx.fillStyle = "#ff0050"; cx.shadowBlur=10; cx.shadowColor="#ff0050";
-                    cx.fillRect(ap.x+2, ap.y+2, 16, 16); cx.shadowBlur=0;
+                    cx.fillStyle = "#ff0050"; cx.fillRect(ap.x+2, ap.y+2, 16, 16);
                     sn.forEach((p, i) => { cx.fillStyle = i==0 ? "#00ff96" : "#00a1ff"; cx.fillRect(p.x+1, p.y+1, 18, 18); });
                     let hX = sn[0].x, hY = sn[0].y;
                     if(d=="UP") hY-=20; if(d=="DOWN") hY+=20; if(d=="LEFT") hX-=20; if(d=="RIGHT") hX+=20;
                     if(hX==ap.x && hY==ap.y) { this.score+=10; ap={x:Math.floor(Math.random()*15)*20, y:Math.floor(Math.random()*15)*20}; } else { sn.pop(); }
                     let nH = {x:hX, y:hY};
-                    if(hX<0||hX>=320||hY<0||hY>=320||sn.some(p=>p.x==nH.x&&p.y==nH.y)) { clearInterval(loop); location.reload(); }
+                    if(hX<0||hX>=320||hY<0||hY>=320||sn.some(p=>p.x==nH.x&&p.y==nH.y)) { clearInterval(this.loop); location.reload(); }
                     else { sn.unshift(nH); document.getElementById("score-text").innerText = "SKOR: " + this.score; }
                 }, 140);
             },
@@ -113,7 +117,7 @@
                 const jump = () => { if(active) bV = -4.5; };
                 window.onmousedown = jump; window.onkeydown = (e) => { if(e.code=="Space" || e.key=="ArrowUp") jump(); };
                 const loop = () => {
-                    if(!active) return; cx.fillStyle = "#050505"; cx.fillRect(0,0,320,420); bV += 0.22; bY += bV;
+                    if(!active || this.mode !== 'bird') return; cx.fillStyle = "#050505"; cx.fillRect(0,0,320,420); bV += 0.22; bY += bV;
                     cx.fillStyle = "#ffd700"; cx.beginPath(); cx.arc(50, bY, 12, 0, Math.PI*2); cx.fill();
                     if(pipes.length==0 || pipes[pipes.length-1].x < 160) pipes.push({x:320, h:Math.random()*150+50, g:150, ok:false});
                     pipes.forEach((p, i) => { p.x -= 2.2; cx.fillStyle = "#00f2ea"; cx.fillRect(p.x, 0, 50, p.h); cx.fillRect(p.x, p.h+p.g, 50, 420);
@@ -128,44 +132,22 @@
                 const cv = document.getElementById("gameCanvas"); cv.width = 320; cv.height = 320; const cx = cv.getContext("2d");
                 let carY = 200, carX = 60, vY = 0, angle = 0, fuel = 100, dist = 0, isGas = false;
                 let terrain = []; for(let i=0; i<1000; i++) terrain.push(220 + Math.sin(i/10)*30 + Math.cos(i/5)*15);
-                
                 window.onkeydown = (e) => { if(e.key=="d" || e.key=="ArrowRight") isGas = true; };
                 window.onkeyup = (e) => { if(e.key=="d" || e.key=="ArrowRight") isGas = false; };
                 window.onmousedown = () => isGas = true; window.onmouseup = () => isGas = false;
-
                 const loop = () => {
-                    if(this.mode !== 'climb') return;
-                    cx.fillStyle = "#050505"; cx.fillRect(0,0,320,320);
-                    
-                    if(isGas && fuel > 0) { dist += 2; fuel -= 0.1; angle = Math.max(angle - 0.05, -0.4); } 
-                    else { angle = Math.min(angle + 0.03, 0.2); }
-
-                    let tx = Math.floor(dist / 5);
-                    let groundY = terrain[tx % 1000];
-                    if(carY < groundY - 20) vY += 0.8; else { carY = groundY - 20; vY = 0; }
-                    carY += vY;
-
-                    // Arazi Çizim
+                    if(this.mode !== 'climb') return; cx.fillStyle = "#050505"; cx.fillRect(0,0,320,320);
+                    if(isGas && fuel > 0) { dist += 2; fuel -= 0.1; angle = Math.max(angle - 0.05, -0.4); } else { angle = Math.min(angle + 0.03, 0.2); }
+                    let tx = Math.floor(dist / 5); let groundY = terrain[tx % 1000];
+                    if(carY < groundY - 20) vY += 0.8; else { carY = groundY - 20; vY = 0; } carY += vY;
                     cx.strokeStyle = "#00f2ea"; cx.lineWidth = 3; cx.beginPath();
-                    for(let i=0; i<70; i++) {
-                        let drawX = i * 5;
-                        let terrainY = terrain[(tx + i) % 1000];
-                        cx.lineTo(drawX, terrainY);
-                    }
-                    cx.stroke();
-
-                    // Araba Çizim
-                    cx.save();
-                    cx.translate(carX, carY);
-                    cx.rotate(angle);
-                    cx.fillStyle = "#ff0050"; cx.fillRect(-15, -10, 30, 12); // Gövde
-                    cx.fillStyle = "#fff"; cx.beginPath(); cx.arc(-10, 5, 5, 0, Math.PI*2); cx.fill(); // Teker 1
-                    cx.beginPath(); cx.arc(10, 5, 5, 0, Math.PI*2); cx.fill(); // Teker 2
+                    for(let i=0; i<70; i++) { cx.lineTo(i*5, terrain[(tx + i) % 1000]); } cx.stroke();
+                    cx.save(); cx.translate(carX, carY); cx.rotate(angle);
+                    cx.fillStyle = "#ff0050"; cx.fillRect(-15, -10, 30, 12);
+                    cx.fillStyle = "#fff"; cx.beginPath(); cx.arc(-10, 5, 5, 0, 7); cx.fill(); cx.beginPath(); cx.arc(10, 5, 5, 0, 7); cx.fill();
                     cx.restore();
-
                     document.getElementById("score-text").innerText = `MESAFE: ${Math.floor(dist/10)}m | YAKIT: ${Math.floor(fuel)}%`;
-                    if(fuel <= 0 || carY > 320) location.reload();
-                    requestAnimationFrame(loop);
+                    if(fuel <= 0 || carY > 320) location.reload(); requestAnimationFrame(loop);
                 }; loop();
             },
             playChess() {
