@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Furkan Hub v30 - Fix Edition</title>
+    <title>Furkan Hub v30 - Final Fix</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.3/chess.min.js"></script>
     <style>
         :root { --neon: #00ff96; --rose: #ff0050; --cyber: #00f2ea; --gold: #ffd700; }
@@ -70,11 +70,10 @@
         const hub = {
             game: null, selectedSq: null, mode: '', score: 0, loop: null,
             start(m) {
+                if(this.loop) clearInterval(this.loop);
                 this.mode = m;
                 document.getElementById("scr-lobby").classList.add("hidden");
                 document.getElementById("scr-game").classList.remove("hidden");
-                
-                // Canvas ve UI temizliği
                 document.getElementById("gameCanvas").classList.add("hidden");
                 document.getElementById("chess-board").classList.add("hidden");
                 document.getElementById("snake-ui").classList.add("hidden");
@@ -87,18 +86,15 @@
             playSnake() {
                 const cv = document.getElementById("gameCanvas"); cv.width = 320; cv.height = 320; const cx = cv.getContext("2d");
                 let sn = [{x:160,y:160}], ap = {x:40,y:40}, d = "RIGHT", nD = "RIGHT";
-                const handleInput = (k) => {
+                const hI = (k) => {
                     if((k=="UP" || k=="ArrowUp" || k=="w") && d!="DOWN") nD="UP";
                     if((k=="DOWN" || k=="ArrowDown" || k=="s") && d!="UP") nD="DOWN";
                     if((k=="LEFT" || k=="ArrowLeft" || k=="a") && d!="RIGHT") nD="LEFT";
                     if((k=="RIGHT" || k=="ArrowRight" || k=="d") && d!="LEFT") nD="RIGHT";
                 };
-                window.onkeydown = (e) => handleInput(e.key);
-                document.getElementById("up").onclick = () => handleInput("UP");
-                document.getElementById("down").onclick = () => handleInput("DOWN");
-                document.getElementById("left").onclick = () => handleInput("LEFT");
-                document.getElementById("right").onclick = () => handleInput("RIGHT");
-                
+                window.onkeydown = (e) => hI(e.key);
+                document.getElementById("up").onclick = () => hI("UP"); document.getElementById("down").onclick = () => hI("DOWN");
+                document.getElementById("left").onclick = () => hI("LEFT"); document.getElementById("right").onclick = () => hI("RIGHT");
                 this.loop = setInterval(() => {
                     d = nD; cx.fillStyle = "#000"; cx.fillRect(0,0,320,320);
                     cx.fillStyle = "#ff0050"; cx.fillRect(ap.x+2, ap.y+2, 16, 16);
@@ -130,65 +126,52 @@
             },
             playClimb() {
                 const cv = document.getElementById("gameCanvas"); cv.width = 320; cv.height = 320; const cx = cv.getContext("2d");
-                let carY = 200, carX = 60, vY = 0, angle = 0, fuel = 100, dist = 0, isGas = false;
-                let terrain = []; for(let i=0; i<1000; i++) terrain.push(220 + Math.sin(i/10)*30 + Math.cos(i/5)*15);
-                window.onkeydown = (e) => { if(e.key=="d" || e.key=="ArrowRight") isGas = true; };
-                window.onkeyup = (e) => { if(e.key=="d" || e.key=="ArrowRight") isGas = false; };
-                window.onmousedown = () => isGas = true; window.onmouseup = () => isGas = false;
+                let cY = 200, vY = 0, ang = 0, fuel = 100, dist = 0, gas = false;
+                let ter = []; for(let i=0; i<2000; i++) ter.push(240 + Math.sin(i/12)*35 + Math.cos(i/6)*15);
+                window.onkeydown = (e) => { if(e.key=="d" || e.key=="ArrowRight" || e.key==" ") gas = true; };
+                window.onkeyup = (e) => { gas = false; };
+                cv.onmousedown = () => gas = true; cv.onmouseup = () => gas = false;
+                cv.ontouchstart = (e) => { e.preventDefault(); gas = true; }; cv.ontouchend = () => gas = false;
                 const loop = () => {
                     if(this.mode !== 'climb') return; cx.fillStyle = "#050505"; cx.fillRect(0,0,320,320);
-                    if(isGas && fuel > 0) { dist += 2; fuel -= 0.1; angle = Math.max(angle - 0.05, -0.4); } else { angle = Math.min(angle + 0.03, 0.2); }
-                    let tx = Math.floor(dist / 5); let groundY = terrain[tx % 1000];
-                    if(carY < groundY - 20) vY += 0.8; else { carY = groundY - 20; vY = 0; } carY += vY;
-                    cx.strokeStyle = "#00f2ea"; cx.lineWidth = 3; cx.beginPath();
-                    for(let i=0; i<70; i++) { cx.lineTo(i*5, terrain[(tx + i) % 1000]); } cx.stroke();
-                    cx.save(); cx.translate(carX, carY); cx.rotate(angle);
-                    cx.fillStyle = "#ff0050"; cx.fillRect(-15, -10, 30, 12);
-                    cx.fillStyle = "#fff"; cx.beginPath(); cx.arc(-10, 5, 5, 0, 7); cx.fill(); cx.beginPath(); cx.arc(10, 5, 5, 0, 7); cx.fill();
+                    if(gas && fuel > 0) { dist += 3.5; fuel -= 0.15; ang = Math.max(ang - 0.04, -0.3); } 
+                    else { dist *= 0.98; ang = Math.min(ang + 0.02, 0.2); }
+                    let tx = Math.floor(dist / 5); let gY = ter[tx % 2000];
+                    if(cY < gY - 22) vY += 0.8; else { cY = gY - 22; vY = 0; } cY += vY;
+                    cx.strokeStyle = "#00f2ea"; cx.lineWidth = 4; cx.beginPath();
+                    for(let i=0; i<80; i++) { cx.lineTo(i*5, ter[(tx+i)%2000]); } cx.stroke();
+                    cx.save(); cx.translate(60, cY); cx.rotate(ang);
+                    cx.fillStyle = "#ff0050"; cx.fillRect(-18, -12, 36, 14); cx.fillStyle = "#fff";
+                    cx.beginPath(); cx.arc(-12, 6, 6, 0, 7); cx.fill(); cx.beginPath(); cx.arc(12, 6, 6, 0, 7); cx.fill();
                     cx.restore();
                     document.getElementById("score-text").innerText = `MESAFE: ${Math.floor(dist/10)}m | YAKIT: ${Math.floor(fuel)}%`;
-                    if(fuel <= 0 || carY > 320) location.reload(); requestAnimationFrame(loop);
+                    if(fuel <= 0 && vY === 0) location.reload(); requestAnimationFrame(loop);
                 }; loop();
             },
             playChess() {
-                const boardDiv = document.getElementById("chess-board");
-                this.game = new Chess();
-                const icons = { p:'♟', r:'♜', n:'♞', b:'♝', q:'♛', k:'♚' };
+                const bd = document.getElementById("chess-board"); this.game = new Chess();
+                const ic = { p:'♟', r:'♜', n:'♞', b:'♝', q:'♛', k:'♚' };
                 const draw = () => {
-                    boardDiv.innerHTML = "";
-                    const boardState = this.game.board();
-                    let statusText = this.game.in_check() ? "ŞAH!" : "SENİN SIRAN";
-                    if(this.game.in_checkmate()) statusText = "MAT!";
-                    document.getElementById("score-text").innerText = statusText;
-                    for(let r=0; r<8; r++) {
-                        for(let c=0; c<8; c++) {
-                            const sq = String.fromCharCode(97+c) + (8-r);
-                            const cell = document.createElement("div");
-                            cell.className = `cell ${(r+c)%2===0?'w-c':'b-c'}`;
-                            const piece = boardState[r][c];
-                            if(piece) {
-                                const span = document.createElement("span");
-                                span.innerText = icons[piece.type];
-                                span.className = piece.color === 'w' ? 'p-white' : 'p-black';
-                                cell.appendChild(span);
-                            }
-                            if(this.selectedSq === sq) cell.classList.add("sel");
-                            cell.onclick = () => {
-                                if(this.selectedSq) {
-                                    const move = this.game.move({ from: this.selectedSq, to: sq, promotion: 'q' });
-                                    if(move) { this.selectedSq = null; draw(); if(!this.game.game_over()) setTimeout(botMove, 600); }
-                                    else { const p = this.game.get(sq); if(p && p.color === 'w') { this.selectedSq = sq; draw(); } else { this.selectedSq = null; draw(); } }
-                                } else { const p = this.game.get(sq); if(p && p.color === 'w') { this.selectedSq = sq; draw(); } }
-                            };
-                            boardDiv.appendChild(cell);
-                        }
+                    bd.innerHTML = ""; const st = this.game.board();
+                    document.getElementById("score-text").innerText = this.game.in_check() ? "ŞAH!" : "SIRAN SENDE";
+                    for(let r=0; r<8; r++) for(let c=0; c<8; c++) {
+                        const sq = String.fromCharCode(97+c)+(8-r); const cell = document.createElement("div");
+                        cell.className = `cell ${(r+c)%2===0?'w-c':'b-c'}`; const p = st[r][c];
+                        if(p) { const s = document.createElement("span"); s.innerText = ic[p.type]; s.className = p.color==='w'?'p-white':'p-black'; cell.appendChild(s); }
+                        if(this.selectedSq === sq) cell.classList.add("sel");
+                        cell.onclick = () => {
+                            if(this.selectedSq) {
+                                const m = this.game.move({ from: this.selectedSq, to: sq, promotion: 'q' });
+                                if(m) { this.selectedSq = null; draw(); if(!this.game.game_over()) setTimeout(bot, 600); }
+                                else { const pc = this.game.get(sq); if(pc && pc.color==='w'){this.selectedSq=sq; draw();} }
+                            } else { const pc = this.game.get(sq); if(pc && pc.color==='w'){this.selectedSq=sq; draw();} }
+                        }; bd.appendChild(cell);
                     }
                 };
-                const botMove = () => {
-                    const moves = this.game.moves();
-                    if(moves.length > 0) {
-                        const captures = moves.filter(m => m.includes('x'));
-                        this.game.move(captures.length > 0 ? captures[Math.floor(Math.random()*captures.length)] : moves[Math.floor(Math.random()*moves.length)]);
+                const bot = () => {
+                    const ms = this.game.moves(); if(ms.length>0) {
+                        const cap = ms.filter(m=>m.includes('x'));
+                        this.game.move(cap.length>0?cap[Math.floor(Math.random()*cap.length)]:ms[Math.floor(Math.random()*ms.length)]);
                         draw();
                     }
                 }; draw();
