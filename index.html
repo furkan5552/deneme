@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Furkan Hub v30 - Joystick Fix</title>
+    <title>Furkan Hub v30 - Fix Edition</title>
     <style>@import url('https://fonts.googleapis.com/css2?family=Oxanium:wght@400;700;900&display=swap');</style>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.3/chess.min.js"></script>
     <style>
         :root { 
             --neon: #00ff96; --rose: #ff0050; --cyber: #00f2ea; --gold: #ffd700; 
-            --panel-bg: rgba(15, 15, 20, 0.9);
+            --panel-bg: rgba(15, 15, 20, 0.95);
         }
         
         * { box-sizing: border-box; touch-action: manipulation; user-select: none; outline: none; }
@@ -29,9 +29,9 @@
         }
 
         .screen { 
-            position: fixed; inset: 0; background: rgba(0, 0, 0, 0.75); 
+            position: fixed; inset: 0; background: rgba(0, 0, 0, 0.8); 
             display: flex; flex-direction: column; align-items: center; 
-            justify-content: center; z-index: 10; padding: 15px; backdrop-filter: blur(5px);
+            justify-content: center; z-index: 10; padding: 15px; backdrop-filter: blur(8px);
         }
         
         .hidden { display: none !important; }
@@ -68,7 +68,7 @@
         .tiktok-btn { background: #000; border: 1px solid #fff; }
 
         canvas { 
-            border: 2px solid var(--cyber); background: #000; border-radius: 12px; 
+            border: 3px solid var(--cyber); background: #000; border-radius: 12px; 
             max-width: 90vw; max-height: 45vh; box-shadow: 0 0 30px rgba(0, 242, 234, 0.3);
         }
         
@@ -78,7 +78,7 @@
             margin: 5px auto; border-radius: 8px; overflow: hidden; background: #111;
         }
         
-        .cell { width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; font-size: 28px; cursor: pointer; }
+        .cell { width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; font-size: 28px; cursor: pointer; transition: 0.2s; }
         .w-c { background: #333; } .b-c { background: #1a1a1a; }
         .sel { background: rgba(0, 255, 150, 0.4) !important; box-shadow: inset 0 0 10px var(--neon); }
         
@@ -91,26 +91,25 @@
         .p-preview { background: #1a1a1a; padding: 8px; border-radius: 12px; border: 1px solid #444; cursor: pointer; transition: 0.3s; }
         .p-preview.selected { border-color: #fff; box-shadow: 0 0 15px #fff; transform: translateY(-5px); }
 
-        /* Yön Tuşları - Joystick Fix */
         .joy { 
             display: grid; 
             grid-template-areas: ". up ." "left down right"; 
-            gap: 8px; 
+            gap: 10px; 
             margin-top: 15px; 
-            width: 180px; 
+            width: 190px; 
         }
         .j-btn { 
             background: rgba(20, 20, 25, 0.9); 
             border: 2px solid var(--cyber); 
             border-radius: 12px; 
-            height: 50px; width: 55px; 
+            height: 55px; width: 60px; 
             display: flex; align-items: center; justify-content: center; 
-            font-size: 22px; color: var(--cyber); 
+            font-size: 24px; color: var(--cyber); 
             cursor: pointer; 
             transition: 0.1s;
         }
         .j-btn:active { background: var(--cyber); color: #000; transform: scale(0.9); }
-        #up { grid-area: up; margin-bottom: 2px; }
+        #up { grid-area: up; margin: 0 auto; }
         #left { grid-area: left; }
         #down { grid-area: down; }
         #right { grid-area: right; }
@@ -157,14 +156,19 @@
             blastGrid: [], blastPieces: [], blastSelected: null,
             colors: ['#00f2ea', '#ff0050', '#00ff96', '#ffd700', '#ff00ff', '#7000ff'],
 
+            // Helper to get CSS variables properly
+            getCSS(name) {
+                return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+            },
+
             start(m) {
                 if(this.loop) { clearInterval(this.loop); this.loop = null; }
-                this.mode = m; this.score = 0;
+                this.mode = m; this.score = 0; this.sSq = null;
                 document.getElementById("scr-lobby").classList.add("hidden");
                 document.getElementById("scr-game").classList.remove("hidden");
                 
-                const elements = ["gameCanvas", "chess-board", "snake-ui", "piece-area"];
-                elements.forEach(id => document.getElementById(id).classList.add("hidden"));
+                const ids = ["gameCanvas", "chess-board", "snake-ui", "piece-area"];
+                ids.forEach(id => document.getElementById(id).classList.add("hidden"));
 
                 if(m === 'snake') {
                     document.getElementById("gameCanvas").classList.remove("hidden");
@@ -208,13 +212,15 @@
                 document.getElementById("left").onclick = () => hI("LEFT");
                 document.getElementById("right").onclick = () => hI("RIGHT");
 
+                const neonColor = this.getCSS('--neon');
+
                 this.loop = setInterval(() => {
                     d=nD; cx.fillStyle="#000"; cx.fillRect(0,0,320,320);
                     cx.fillStyle="#ff0050"; cx.shadowBlur=10; cx.shadowColor="#ff0050";
                     cx.fillRect(ap.x+2,ap.y+2,16,16); cx.shadowBlur=0;
                     
                     sn.forEach((p,i)=>{ 
-                        cx.fillStyle=i==0?var(--neon):"#00a1ff"; 
+                        cx.fillStyle=i==0?neonColor:"#00a1ff"; 
                         cx.fillRect(p.x+1,p.y+1,18,18); 
                     });
 
@@ -238,13 +244,16 @@
                 const cx = cv.getContext("2d");
                 let bY=200, bV=0, pipes=[], active=true;
                 window.onmousedown=()=> { if(active) bV=-4.5; };
+                const goldColor = this.getCSS('--gold');
+                const cyberColor = this.getCSS('--cyber');
+
                 const bLoop = () => {
                     if(!active||this.mode!='bird') return;
                     cx.fillStyle="#050505"; cx.fillRect(0,0,320,420); bV+=0.22; bY+=bV;
-                    cx.fillStyle=var(--gold); cx.beginPath(); cx.arc(50,bY,12,0,7); cx.fill();
+                    cx.fillStyle=goldColor; cx.beginPath(); cx.arc(50,bY,12,0,7); cx.fill();
                     if(pipes.length==0||pipes[pipes.length-1].x<160) pipes.push({x:320,h:Math.random()*150+50,g:150,ok:false});
                     pipes.forEach(p=>{
-                        p.x-=2.2; cx.fillStyle=var(--cyber); cx.fillRect(p.x,0,50,p.h); cx.fillRect(p.x,p.h+150,50,420);
+                        p.x-=2.2; cx.fillStyle=cyberColor; cx.fillRect(p.x,0,50,p.h); cx.fillRect(p.x,p.h+150,50,420);
                         if(50+10>p.x && 50-10<p.x+50 && (bY-10<p.h || bY+10>p.h+150)) active=false;
                         if(p.x<50 && !p.ok){ p.ok=true; this.score++; document.getElementById("score-text").innerText="SKOR: "+this.score; }
                     });
@@ -280,11 +289,18 @@
                 const pa = document.getElementById("piece-area");
                 this.blastGrid = Array(8).fill().map(() => Array(8).fill(null));
                 const shapes = [[[1,1],[1,1]], [[1,1,1]], [[1],[1],[1]], [[1,1,1,1]], [[1,1,0],[0,1,1]], [[1,0],[1,1]], [[1]]];
+                
                 const genPieces = () => {
                     this.blastPieces = [];
-                    for(let i=0; i<3; i++) { this.blastPieces.push({ shape: shapes[Math.floor(Math.random()*shapes.length)], color: this.colors[Math.floor(Math.random()*this.colors.length)] }); }
+                    for(let i=0; i<3; i++) {
+                        this.blastPieces.push({ 
+                            shape: shapes[Math.floor(Math.random()*shapes.length)], 
+                            color: this.colors[Math.floor(Math.random()*this.colors.length)] 
+                        });
+                    }
                     renderPreviews();
                 };
+
                 const renderPreviews = () => {
                     pa.innerHTML = "";
                     this.blastPieces.forEach((p, idx) => {
@@ -295,7 +311,7 @@
                             const rDiv = document.createElement("div"); rDiv.style.display="flex";
                             row.forEach(c => {
                                 const unit = document.createElement("div");
-                                unit.style = `width:12px; height:12px; margin:1px; background:${c ? p.color : 'transparent'}`;
+                                unit.style = `width:12px; height:12px; margin:1px; background:${c ? p.color : 'transparent'}; box-shadow:${c ? '0 0 5px '+p.color : 'none'}`;
                                 rDiv.appendChild(unit);
                             });
                             box.appendChild(rDiv);
@@ -303,6 +319,7 @@
                         pa.appendChild(box);
                     });
                 };
+
                 const dr = () => {
                     bd.innerHTML = "";
                     this.blastGrid.forEach((row, r) => {
@@ -320,6 +337,7 @@
                                     if(canPlace) {
                                         p.shape.forEach((pr, i) => pr.forEach((pv, j) => { if(pv) this.blastGrid[r+i][c+j] = p.color; }));
                                         this.blastPieces.splice(this.blastSelected, 1); this.blastSelected = null;
+                                        // Satır/Sütun Temizleme
                                         let rClear = [], cClear = [];
                                         for(let i=0; i<8; i++) {
                                             if(this.blastGrid[i].every(x => x !== null)) rClear.push(i);
@@ -344,11 +362,6 @@
                 genPieces(); dr();
             }
         };
-
-        // Helper for CSS vars in JS
-        function var(name) {
-            return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
-        }
     </script>
 </body>
 </html>
