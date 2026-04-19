@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Furkan Deneme Sitesi -</title>
+    <title>Furkan Hub - Color Edition</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.3/chess.min.js"></script>
     <style>
         :root { --neon: #00ff96; --rose: #ff0050; --cyber: #00f2ea; --gold: #ffd700; }
@@ -17,39 +17,45 @@
         .title { font-size: 32px; font-weight: 900; color: var(--neon); text-shadow: 0 0 15px var(--neon); margin-bottom: 20px; }
         
         .btn { padding: 15px; background: var(--neon); color: #000; border: none; border-radius: 12px; font-weight: bold; cursor: pointer; width: 100%; font-size: 16px; margin: 6px 0; transition: 0.2s all; text-decoration: none; display: block; text-align: center; }
-        .btn:hover { filter: brightness(1.1); }
+        .btn:hover { filter: brightness(1.1); box-shadow: 0 0 20px var(--neon); }
         .btn:active { transform: scale(0.95); }
 
         .social-container { display: flex; gap: 10px; margin-top: 20px; width: 100%; }
         .s-link { flex: 1; padding: 12px; border-radius: 12px; text-decoration: none; font-weight: bold; font-size: 12px; color: white; text-align: center; display: flex; align-items: center; justify-content: center; transition: 0.2s; }
-        .s-link:hover { transform: scale(1.05); }
         .insta-btn { background: linear-gradient(45deg, #f09433, #dc2743, #bc1888); }
         .tiktok-btn { background: #222; border: 1px solid #fff; }
 
         canvas { border: 3px solid var(--cyber); background: #050505; border-radius: 12px; max-width: 90vw; max-height: 55vh; display: block; margin: 0 auto; box-shadow: 0 0 20px rgba(0,242,234,0.2); }
         
-        #chess-board { display: grid; grid-template-columns: repeat(8, 1fr); width: 320px; height: 320px; border: 4px solid #444; margin: 5px auto; }
-        .cell { width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; font-size: 28px; cursor: pointer; transition: 0.1s; }
-        .w-c { background: #eeeed2; } 
-        .b-c { background: #769656; }
-        .blast-cell { background: #1a1a1a; border: 1px solid #333; }
-        .blast-filled { background: var(--cyber); box-shadow: inset 0 0 10px var(--cyber); border: 1px solid #000; }
-        .sel { background: rgba(255, 255, 0, 0.6) !important; }
+        #chess-board { display: grid; grid-template-columns: repeat(8, 1fr); width: 320px; height: 320px; border: 4px solid #444; margin: 5px auto; transition: transform 0.1s; }
+        .cell { width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; font-size: 28px; cursor: pointer; transition: 0.2s; }
+        .w-c { background: #eeeed2; } .b-c { background: #769656; }
         
-        .p-white { color: #fff; pointer-events: none; }
-        .p-black { color: #000; pointer-events: none; }
+        .blast-cell { background: #1a1a1a; border: 1px solid #333; position: relative; }
+        .blast-filled { 
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.5), 0 0 10px currentColor; 
+            border: 1px solid rgba(255,255,255,0.3);
+            animation: pop 0.3s ease-out;
+        }
+        .blast-clear { animation: explode 0.5s forwards; }
+
+        @keyframes pop { 0% { transform: scale(0.8); } 100% { transform: scale(1); } }
+        @keyframes explode { 
+            0% { transform: scale(1); filter: brightness(2); opacity: 1; }
+            100% { transform: scale(0); opacity: 0; }
+        }
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-2px); }
+            75% { transform: translateX(2px); }
+        }
 
         .piece-box { display: flex; justify-content: center; gap: 10px; margin-top: 15px; min-height: 80px; }
-        .p-preview { background: #222; padding: 5px; border-radius: 8px; border: 2px solid transparent; cursor: pointer; transition: 0.2s; }
-        .p-preview.selected { border-color: var(--neon); background: #333; }
+        .p-preview { background: #1a1a1a; padding: 8px; border-radius: 12px; border: 2px solid #333; cursor: pointer; transition: 0.3s; }
+        .p-preview.selected { border-color: white; background: #222; box-shadow: 0 0 15px white; transform: translateY(-5px); }
 
         .joy { display: grid; grid-template-areas: ". up ." "left down right"; gap: 10px; margin-top: 15px; width: 210px; }
-        .j-btn { background: #151515; border: 2px solid var(--cyber); border-radius: 12px; height: 55px; width: 60px; display: flex; align-items: center; justify-content: center; font-size: 24px; color: var(--cyber); cursor: pointer; font-weight: bold; transition: 0.1s; }
-        .j-btn:active { transform: scale(0.9); background: var(--cyber); color: #000; }
-        #up { grid-area: up; margin: 0 auto; } 
-        #left { grid-area: left; } 
-        #down { grid-area: down; } 
-        #right { grid-area: right; }
+        .j-btn { background: #151515; border: 2px solid var(--cyber); border-radius: 12px; height: 55px; width: 60px; display: flex; align-items: center; justify-content: center; font-size: 24px; color: var(--cyber); cursor: pointer; font-weight: bold; }
     </style>
 </head>
 <body>
@@ -59,9 +65,8 @@
             <div class="title" style="color:var(--cyber)">FURKANDENEME</div>
             <button class="btn" onclick="hub.start('snake')">🐍 NEON SNAKE</button>
             <button class="btn" onclick="hub.start('bird')">🐦 NEON BIRD</button>
-            <button class="btn" onclick="hub.start('blast')" style="background:var(--cyber); color:#000">🧱 BLOCK BLAST</button>
+            <button class="btn" onclick="hub.start('blast')" style="background:var(--cyber); color:#000">🧱 BLOCK BLAST COLOR</button>
             <button class="btn" onclick="hub.start('chess')" style="background:var(--gold)">♟️ PRO CHESS AI</button>
-            
             <div class="social-container">
                 <a href="https://www.instagram.com/furk4nn_c/" target="_blank" class="s-link insta-btn">Instagram</a>
                 <a href="https://www.tiktok.com/@furkan_52cc" target="_blank" class="s-link tiktok-btn">TikTok</a>
@@ -71,8 +76,8 @@
 
     <div id="scr-game" class="screen hidden">
         <div id="score-text" style="font-size:18px; color:var(--neon); margin-bottom:10px; font-weight: bold;">SKOR: 0</div>
-        <canvas id="gameCanvas" class="hidden"></canvas>
         <div id="chess-board" class="hidden"></div>
+        <canvas id="gameCanvas" class="hidden"></canvas>
         <div id="piece-area" class="piece-box hidden"></div>
         <div id="snake-ui" class="joy hidden">
             <div class="j-btn" id="up">↑</div><div class="j-btn" id="left">←</div>
@@ -85,6 +90,7 @@
         const hub = {
             mode: '', loop: null, sSq: null, score: 0,
             blastGrid: [], blastPieces: [], blastSelected: null,
+            colors: ['#00f2ea', '#ff0050', '#00ff96', '#ffd700', '#ff00ff', '#7000ff'],
 
             start(m) {
                 if(this.loop) { clearInterval(this.loop); this.loop = null; }
@@ -170,10 +176,7 @@
                 const ic = { p:'♟', r:'♜', n:'♞', b:'♝', q:'♛', k:'♚' };
                 const dr = () => {
                     bd.innerHTML=""; const st=this.game.board();
-                    let status = "SENİN SIRAN";
-                    if(this.game.game_over()) status = "OYUN BİTTİ!";
-                    else if(this.game.in_check()) status = "ŞAH!";
-                    document.getElementById("score-text").innerText = status;
+                    document.getElementById("score-text").innerText = this.game.in_check() ? "ŞAH!" : "SIRAN SENDE";
                     for(let r=0; r<8; r++) {
                         for(let c=0; c<8; c++) {
                             const sq=String.fromCharCode(97+c)+(8-r);
@@ -197,16 +200,18 @@
             playBlast() {
                 const bd = document.getElementById("chess-board");
                 const pa = document.getElementById("piece-area");
-                this.blastGrid = Array(8).fill().map(() => Array(8).fill(0));
+                this.blastGrid = Array(8).fill().map(() => Array(8).fill(null));
                 this.blastPieces = [];
-                
-                const shapes = [
-                    [[1,1],[1,1]], [[1,1,1]], [[1],[1],[1]], [[1,1,1,1]], [[1,1,0],[0,1,1]], [[1,0],[1,1]], [[1]]
-                ];
+                const shapes = [[[1,1],[1,1]], [[1,1,1]], [[1],[1],[1]], [[1,1,1,1]], [[1,1,0],[0,1,1]], [[1,0],[1,1]], [[1]]];
 
                 const genPieces = () => {
                     this.blastPieces = [];
-                    for(let i=0; i<3; i++) this.blastPieces.push(shapes[Math.floor(Math.random()*shapes.length)]);
+                    for(let i=0; i<3; i++) {
+                        this.blastPieces.push({
+                            shape: shapes[Math.floor(Math.random()*shapes.length)],
+                            color: this.colors[Math.floor(Math.random()*this.colors.length)]
+                        });
+                    }
                     renderPreviews();
                 };
 
@@ -216,11 +221,11 @@
                         const box = document.createElement("div");
                         box.className = `p-preview ${this.blastSelected === idx ? 'selected' : ''}`;
                         box.onclick = () => { this.blastSelected = idx; renderPreviews(); };
-                        p.forEach(row => {
+                        p.shape.forEach(row => {
                             const rDiv = document.createElement("div"); rDiv.style.display="flex";
                             row.forEach(c => {
                                 const unit = document.createElement("div");
-                                unit.style = `width:12px; height:12px; margin:1px; background:${c?'var(--cyber)':'transparent'}`;
+                                unit.style = `width:12px; height:12px; margin:1px; background:${c ? p.color : 'transparent'}; box-shadow:${c ? '0 0 5px ' + p.color : 'none'}`;
                                 rDiv.appendChild(unit);
                             });
                             box.appendChild(rDiv);
@@ -232,14 +237,32 @@
                 const checkLines = () => {
                     let rToClear = [], cToClear = [];
                     for(let i=0; i<8; i++) {
-                        if(this.blastGrid[i].every(v => v === 1)) rToClear.push(i);
-                        if(this.blastGrid.every(r => r[i] === 1)) cToClear.push(i);
+                        if(this.blastGrid[i].every(v => v !== null)) rToClear.push(i);
+                        if(this.blastGrid.every(r => r[i] !== null)) cToClear.push(i);
                     }
-                    rToClear.forEach(r => this.blastGrid[r].fill(0));
-                    cToClear.forEach(c => this.blastGrid.forEach(r => r[c] = 0));
+
                     if(rToClear.length || cToClear.length) {
+                        bd.style.animation = "shake 0.2s 3";
+                        setTimeout(() => bd.style.animation = "", 200);
+
+                        rToClear.forEach(r => {
+                            for(let i=0; i<8; i++) {
+                                const cell = bd.children[r*8+i];
+                                cell.classList.add("blast-clear");
+                                this.blastGrid[r][i] = null;
+                            }
+                        });
+                        cToClear.forEach(c => {
+                            for(let i=0; i<8; i++) {
+                                const cell = bd.children[i*8+c];
+                                cell.classList.add("blast-clear");
+                                this.blastGrid[i][c] = null;
+                            }
+                        });
+
                         this.score += (rToClear.length + cToClear.length) * 10;
                         document.getElementById("score-text").innerText = "SKOR: " + this.score;
+                        setTimeout(() => dr(), 400);
                     }
                 };
 
@@ -249,20 +272,27 @@
                         row.forEach((v, c) => {
                             const cell = document.createElement("div");
                             cell.className = `cell blast-cell ${v ? 'blast-filled' : ''}`;
+                            if(v) {
+                                cell.style.backgroundColor = v;
+                                cell.style.color = v; // Glow için
+                            }
                             cell.onclick = () => {
                                 if(this.blastSelected !== null) {
-                                    const piece = this.blastPieces[this.blastSelected];
+                                    const p = this.blastPieces[this.blastSelected];
                                     let canPlace = true;
-                                    piece.forEach((pr, i) => pr.forEach((pv, j) => {
+                                    p.shape.forEach((pr, i) => pr.forEach((pv, j) => {
                                         if(pv && (r+i >= 8 || c+j >= 8 || this.blastGrid[r+i][c+j])) canPlace = false;
                                     }));
                                     if(canPlace) {
-                                        piece.forEach((pr, i) => pr.forEach((pv, j) => { if(pv) this.blastGrid[r+i][c+j] = 1; }));
+                                        p.shape.forEach((pr, i) => pr.forEach((pv, j) => { 
+                                            if(pv) this.blastGrid[r+i][c+j] = p.color; 
+                                        }));
                                         this.blastPieces.splice(this.blastSelected, 1);
                                         this.blastSelected = null;
+                                        dr();
                                         checkLines();
                                         if(this.blastPieces.length === 0) genPieces();
-                                        dr(); renderPreviews();
+                                        renderPreviews();
                                     }
                                 }
                             };
